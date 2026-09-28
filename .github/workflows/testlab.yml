@@ -42,11 +42,11 @@ jobs:
       - name: Install Android 17 SDK
         run: |
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" --channel=3 "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" "platforms;android-37.0" "build-tools;37.0.0"
 
       - name: Verify Android SDK
         run: |
-          test -d "$ANDROID_HOME/platforms/android-37"
+          test -d "$ANDROID_HOME/platforms/android-37.0"
           test -d "$ANDROID_HOME/build-tools/37.0.0"
 
       - name: Unit tests
