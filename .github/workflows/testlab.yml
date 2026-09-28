@@ -31,10 +31,23 @@ jobs:
         with:
           gradle-version: "9.6.0"
 
+      - name: Locate Android SDK manager
+        shell: bash
+        run: |
+          SDKMANAGER="$(find /usr/local/lib/android/sdk/cmdline-tools -type f -name sdkmanager | head -n 1)"
+          test -n "$SDKMANAGER"
+          echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
+          echo "$(dirname "$SDKMANAGER")" >> "$GITHUB_PATH"
+
+      - name: Install Android 17 SDK
+        run: |
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --channel=3 "platforms;android-37" "build-tools;37.0.0"
+
       - name: Verify Android SDK
         run: |
           test -d "$ANDROID_HOME/platforms/android-37"
-          test -x "$(find /usr/local/lib/android/sdk/cmdline-tools -type f -name sdkmanager | head -n 1)"
+          test -d "$ANDROID_HOME/build-tools/37.0.0"
 
       - name: Unit tests
         run: gradle :app:testDebugUnitTest --no-daemon --console=plain
