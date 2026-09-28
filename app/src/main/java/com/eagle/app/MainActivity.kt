@@ -9,7 +9,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(
             TextView(this).apply {
-                text = "Eagle Test Lab"
+                text = getString(R.string.app_test_lab)
                 textSize = 20f
             }
         )
