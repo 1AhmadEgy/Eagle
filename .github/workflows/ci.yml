@@ -44,6 +44,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify security policy boundaries
+        shell: bash
+        run: python3 scripts/ci/verify-security-policy.py
+
       - name: Run project verification
         id: verify
         shell: bash
