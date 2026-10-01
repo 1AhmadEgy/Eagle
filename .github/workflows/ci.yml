@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "implementation/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify repository hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f README.md
+          test ! -e .env
+          test ! -e .env.production
+          echo "Repository baseline checks passed."
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
