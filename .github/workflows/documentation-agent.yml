@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout trusted repository state
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -116,7 +116,7 @@ jobs:
           python3 scripts/ci/verify-provenance.py
 
       - name: Upload provenance evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: provenance-${{ github.sha }}
           path: .ci/documentation/
@@ -124,7 +124,7 @@ jobs:
           retention-days: 30
 
       - name: Run read-only documentation agent
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@37f89b742907c43b20d38b68eabe65981a59690a # pinned action snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
