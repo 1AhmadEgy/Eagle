@@ -21,8 +21,8 @@ https://docs.github.com/en/actions/reference/security/secure-use
 
 The workflows explicitly declare permissions instead of relying on broad defaults. The privileged repair workflow remains separated behind a trusted `workflow_run` boundary.
 
-**Primary source:** GitHub guidance on protecting against threats:
-https://docs.github.com/en/code-security/tutorials/secure-your-organization/protect-against-threats
+**Primary source:** GitHub guidance on secure workflow use:
+https://docs.github.com/en/actions/reference/security/secure-use
 
 ## Control: artifact provenance
 
@@ -30,13 +30,21 @@ https://docs.github.com/en/code-security/tutorials/secure-your-organization/prot
 
 GitHub artifact attestations create signed provenance claims that bind an artifact to its workflow, repository, commit SHA, event, and OIDC-derived identity. They are appropriate for release artifacts such as binaries, packages, or container images, rather than routine test builds or individual documentation/source files.
 
-For private repositories, availability of artifact attestations depends on the GitHub plan; GitHub currently documents private/internal repository use under GitHub Enterprise Cloud.
-
 **Primary sources:**
 - https://docs.github.com/en/actions/concepts/security/artifact-attestations
-- https://docs.github.com/en/enterprise-cloud@latest/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations
+- https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations
 
 **Eagle action:** Do not add attestation permissions merely for documentation artifacts. Introduce them when Eagle has a defined release artifact and the repository plan supports the required feature.
+
+## Control: SLSA alignment
+
+**Status:** ALIGNMENT TARGET / NOT CLAIMED.
+
+SLSA v1.2 defines concrete requirements for provenance completeness, authenticity, and resistance to tampering, with stronger build isolation/provenance properties at higher levels.
+
+**Primary source:** https://slsa.dev/spec/v1.2/
+
+**Eagle action:** Use SLSA requirements as an engineering target and evidence checklist. Do not claim a formal SLSA level without demonstrating the applicable requirements for an actual build/release path.
 
 ## Control: continuous provenance
 
@@ -52,7 +60,15 @@ The documentation workflow records exact commit/ref/event/actor metadata, resolv
 
 The repair pipeline uses a privileged `workflow_run` only for the trusted development branch and constrains the OpenCode repair agent from modifying workflows, secrets, credentials, deployment configuration, or pushing to main. The orchestrator is not permitted to edit files.
 
-**Implementation:** PR #3, hardened action references in PR #5.
+**Implementation:** PR #3, hardened action references in PR #5, static boundary verification in PR #8.
+
+## Control: Test Lab evidence discipline
+
+**Status:** IMPLEMENTED as a governance rule; product categories remain PENDING until evidence exists.
+
+The CI pipeline records exact-SHA evidence and preserves explicit PENDING states for categories without category-specific tests. A successful policy gate or baseline repository check does not promote product categories to PASS.
+
+**Research/engineering basis:** GitHub provenance guidance and SLSA evidence model; see the deep-research report at `docs/research/deep-research-executive-summary-2026-10-01.md`.
 
 ## Security research maintenance rule
 
