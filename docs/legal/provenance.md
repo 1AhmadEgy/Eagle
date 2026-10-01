@@ -36,3 +36,13 @@ The documentation agent appends significant provenance milestones here rather th
 ## Important limitation
 
 Git history and GitHub records can provide useful evidence of project development chronology, but they are not represented here as a substitute for jurisdiction-specific legal registration or other formal evidence mechanisms.
+## Machine-readable evidence
+
+The continuous documentation workflow produces a deterministic evidence artifact for each trusted implementation-branch run:
+
+- Schema: `docs/provenance/schema.json`
+- Run artifact: `.ci/documentation/provenance.json`
+- Retention: 30 days in the workflow artifact store
+- Test Lab status is never inferred by this workflow; it remains `UNCONFIRMED` unless independently evidenced by the trusted CI/Test Lab run.
+
+The artifact is evidence for chronology and review, not a legal ownership determination and not a substitute for formal registration or other jurisdiction-specific evidence.
