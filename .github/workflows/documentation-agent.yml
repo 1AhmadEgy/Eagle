@@ -94,6 +94,12 @@ jobs:
               fh.write("\n")
           PY
 
+      - name: Validate generated provenance evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/verify-provenance.py
+
       - name: Upload provenance evidence
         uses: actions/upload-artifact@v4
         with:
