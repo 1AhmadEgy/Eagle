@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  actions: read
 
 concurrency:
   group: documentation-agent-${{ github.ref }}
@@ -103,7 +104,7 @@ jobs:
       - name: Upload provenance evidence
         uses: actions/upload-artifact@v4
         with:
-          name: provenance-\${{ github.sha }}
+          name: provenance-${{ github.sha }}
           path: .ci/documentation/
           if-no-files-found: error
           retention-days: 30
