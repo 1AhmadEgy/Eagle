@@ -22,7 +22,8 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 | 2026-10-01 | Provenance/Legal | Added continuous private-ownership documentation agent, machine-readable provenance schema, deterministic exact-SHA Test Lab linkage, and offline provenance validation. | CONFIRMED | PR #4 |
 | 2026-10-01 | Supply chain | Pinned GitHub Actions to full commit SHAs, upgraded gitleaks action to v3, and replaced mutable OpenCode `@latest` with a reviewed immutable snapshot. | CONFIRMED | PR #5, branch `security/actions-supply-chain-hardening` |
 | 2026-10-01 | Documentation | Added this durable development/repair ledger and a security-control register so future repairs and improvements remain traceable. | IN_REVIEW | Branch `docs/continuous-development-audit` |
-| 2026-10-01 | Security verification | Added a standard-library static gate that checks full-SHA workflow actions, explicit permissions, and AI-repair deny boundaries before project verification. | IN_REVIEW | Branch `security/policy-verification-gate`, commits `4d8123098ed2106dd8e95d0c61c1cb18d5392925` and `67342e159f864f683cd5923060bb2fa1940f6fa3` |
+| 2026-10-01 | Security verification | Added a standard-library static gate that checks full-SHA workflow actions, explicit permissions, and AI-repair deny boundaries before project verification. | VERIFIED | PR #8, commit `84cc0318979cc62b28bbbb6d30a0841d26898c34`; CI run `36926005797` completed successfully |
+| 2026-10-01 | Verification evidence | Recorded the successful CI execution for the PR #8 security-policy gate. The successful run confirms the workflow reached a completed/successful conclusion for the tested commit; it does not mark the category-specific Test Lab suite as PASS. | CONFIRMED | CI run `36926005797`, commit `84cc0318979cc62b28bbbb6d30a0841d26898c34` |
 
 ## Current security posture
 
@@ -37,6 +38,7 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 - CI/Test Lab evidence is bound to an exact commit SHA before provenance status is derived.
 - Provenance validation is performed locally before the documentation artifact is uploaded.
 - Automatic merge is not enabled for the repair pipeline.
+- The static security-policy gate has a successful CI execution on the PR #8 head commit.
 - Ownership remains documented as `PRIVATE / ALL RIGHTS RESERVED`, while the legal holder remains explicitly `UNCONFIRMED`.
 
 ### Known gaps requiring owner-controlled or future work
