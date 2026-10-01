@@ -58,7 +58,7 @@ jobs:
             verification="FAIL"
           fi
 
-          python3 - <<'PY'
+          VERIFICATION="$verification" python3 - <<'PY'
           import json
           import os
           from datetime import datetime, timezone
@@ -74,7 +74,7 @@ jobs:
               "timestamp_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
               "verification": verification,
               "categories": {
-                  "Build": verification,
+                  "Build": "PENDING",
                   "Unit": "PENDING",
                   "Integration": "PENDING",
                   "Cryptography": "PENDING",
@@ -95,8 +95,6 @@ jobs:
 
           echo "verification=$verification" >> "$GITHUB_OUTPUT"
           exit "$rc"
-        env:
-          VERIFICATION: ${{ steps.verify.outputs.verification }}
 
       - name: Upload Test Lab evidence
         if: always()
