@@ -48,6 +48,10 @@ jobs:
         shell: bash
         run: python3 scripts/ci/verify-security-policy.py
 
+      - name: Discover product surface
+        shell: bash
+        run: python3 scripts/ci/discover-product-surface.py
+
       - name: Run project verification and Test Lab categories
         id: verify
         shell: bash
