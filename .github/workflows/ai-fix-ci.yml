@@ -62,7 +62,7 @@ jobs:
           test -n "$DEEPSEEK_API_KEY"
 
       - name: Run OpenCode with DeepSeek
-        uses: anomalyco/opencode/github@37f89b742907c43b20d38b68eabe65981a59690a # pinned action snapshot
+        uses: anomalyco/opencode/github@2c14fc5586fe0b88e5c04732d2e846769cc35671 # reviewed upstream OpenCode workflow snapshot
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
