@@ -53,6 +53,14 @@ jobs:
           test -f .opencode/agents/documentation-agent.md
           test -f docs/provenance/schema.json
 
+      - name: Resolve exact-SHA Test Lab status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/resolve-testlab-status.py
+
       - name: Build deterministic provenance evidence
         shell: bash
         run: |
@@ -67,6 +75,9 @@ jobs:
           ref = os.environ["GITHUB_REF"]
           actor = os.environ["GITHUB_ACTOR"]
           event = os.environ["GITHUB_EVENT_NAME"]
+
+          with open(".ci/documentation/testlab-status.json", encoding="utf-8") as fh:
+              testlab = json.load(fh)
 
           changed = []
           raw = subprocess.check_output(["git", "diff-tree", "--no-commit-id", "--name-status", "-r", sha], text=True)
@@ -87,7 +98,10 @@ jobs:
               "timestamp_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
               "changed_files": changed,
               "ownership": {"intent": "PRIVATE / ALL RIGHTS RESERVED", "copyright_holder": "UNCONFIRMED", "open_source_license_grant": "NONE"},
-              "test_lab": {"status": "UNCONFIRMED", "evidence_source": "No same-run Test Lab result is assumed; consult the trusted CI/Test Lab run for this commit."},
+              "test_lab": {
+                  "status": testlab["status"],
+                  "evidence_source": testlab["evidence_source"]
+              },
           }
           os.makedirs(".ci/documentation", exist_ok=True)
           with open(".ci/documentation/provenance.json", "w", encoding="utf-8") as fh:
