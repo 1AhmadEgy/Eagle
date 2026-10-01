@@ -48,58 +48,59 @@ jobs:
         shell: bash
         run: python3 scripts/ci/verify-security-policy.py
 
-      - name: Run project verification
+      - name: Run project verification and Test Lab categories
         id: verify
         shell: bash
         run: |
           set +e
           mkdir -p .ci/testlab
           bash scripts/ci/verify.sh 2>&1 | tee .ci/testlab/verify.log
-          rc=${PIPESTATUS[0]}
+          baseline_rc=${PIPESTATUS[0]}
 
-          if [[ "$rc" -eq 0 ]]; then
-            verification="PASS"
-          else
-            verification="FAIL"
-          fi
+          python3 scripts/ci/run-testlab-categories.py
+          category_rc=$?
 
-          VERIFICATION="$verification" python3 - <<'PY'
+          python3 - <<'PY'
           import json
           import os
-          from datetime import datetime, timezone
+          from pathlib import Path
 
-          verification = os.environ["VERIFICATION"]
-          evidence = {
+          path = Path(".ci/testlab/categories.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          data["commit"] = os.environ["GITHUB_SHA"]
+          data["ref"] = os.environ["GITHUB_REF"]
+          data["workflow"] = os.environ["GITHUB_WORKFLOW"]
+          data["run_id"] = os.environ["GITHUB_RUN_ID"]
+          path.write_text(json.dumps(data, indent=2) + "\\n", encoding="utf-8")
+
+          # Keep the legacy exact-SHA status contract while exposing concrete
+          # category evidence separately in categories.json.
+          status = {
               "schema_version": "1.0",
               "project": "Eagle",
               "commit": os.environ["GITHUB_SHA"],
               "ref": os.environ["GITHUB_REF"],
               "workflow": os.environ["GITHUB_WORKFLOW"],
               "run_id": os.environ["GITHUB_RUN_ID"],
-              "timestamp_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-              "verification": verification,
+              "timestamp_utc": data["timestamp_utc"],
+              "verification": "PASS" if baseline_rc == 0 and category_rc == 0 else "FAIL",
               "categories": {
-                  "Build": "PENDING",
-                  "Unit": "PENDING",
-                  "Integration": "PENDING",
-                  "Cryptography": "PENDING",
-                  "Protocol": "PENDING",
-                  "Security": "PENDING",
-                  "Static analysis": "PENDING",
-                  "Dependency checks": "PENDING",
-                  "Regression": "PENDING",
-                  "Fuzz/property": "PENDING"
+                  name: item["status"]
+                  for name, item in data["categories"].items()
               },
-              "gate": "BLOCKED"
+              "gate": data["gate"],
+              "gate_reason": data.get("gate_reason", "")
           }
-
-          with open(".ci/testlab/status.json", "w", encoding="utf-8") as fh:
-              json.dump(evidence, fh, indent=2)
-              fh.write("\n")
+          Path(".ci/testlab/status.json").write_text(
+              json.dumps(status, indent=2) + "\\n", encoding="utf-8"
+          )
           PY
 
-          echo "verification=$verification" >> "$GITHUB_OUTPUT"
-          exit "$rc"
+          if [[ "$baseline_rc" -ne 0 || "$category_rc" -ne 0 ]]; then
+            exit 1
+          fi
+
+          echo "verification=PASS" >> "$GITHUB_OUTPUT"
 
       - name: Upload Test Lab evidence
         if: always()
