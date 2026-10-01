@@ -1,13 +1,13 @@
 # Eagle — Project File Provenance Register
 
 > Registry generated from the historical Git tree at commit `812389dc9a19c52ca8089397c96a09d46957336b` (2026-10-01).
-> It records the 44 files from the historical upload commit and preserves their provenance in the master integration snapshot. It does not claim that this list exhausts files uploaded only inside ChatGPT conversations.
+> It records files that existed in the repository history and were subsequently removed from the current `main` tree. It does not claim that this list exhausts files uploaded only inside ChatGPT conversations.
 
 ## Ownership / coordination
 - Repository: `1AhmadEgy/Eagle`
 - Project owner / coordination account: `1AhmadEgy`
 - Historical source commit: `812389dc9a19c52ca8089397c96a09d46957336b`
-- Master integration branch: `integration/project-master-2026-10-02` contains the historical upload set plus integrated engineering/reference/test artifacts.
+- Current main tree: only `README.md` was present when checked.
 
 ## Security and provenance rules
 - Git blob SHA is recorded as provenance evidence; it is **not** a SHA-256 checksum.
