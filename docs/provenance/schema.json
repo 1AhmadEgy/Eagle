@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Eagle Provenance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "commit",
+    "ref",
+    "event",
+    "actor",
+    "timestamp_utc",
+    "changed_files",
+    "ownership",
+    "test_lab"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "project": { "type": "string", "const": "Eagle" },
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "ref": { "type": "string", "minLength": 1 },
+    "event": { "type": "string", "minLength": 1 },
+    "actor": { "type": "string", "minLength": 1 },
+    "timestamp_utc": { "type": "string", "format": "date-time" },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "path"],
+        "properties": {
+          "status": { "type": "string", "enum": ["A", "M", "D", "R", "C", "T", "U"] },
+          "path": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "copyright_holder", "open_source_license_grant"],
+      "properties": {
+        "intent": { "type": "string", "const": "PRIVATE / ALL RIGHTS RESERVED" },
+        "copyright_holder": { "type": "string", "const": "UNCONFIRMED" },
+        "open_source_license_grant": { "type": "string", "const": "NONE" }
+      }
+    },
+    "test_lab": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence_source"],
+      "properties": {
+        "status": { "type": "string", "enum": ["PASS", "FAIL", "PENDING", "NOT_APPLICABLE", "UNCONFIRMED"] },
+        "evidence_source": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
