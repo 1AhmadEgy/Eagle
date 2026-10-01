@@ -62,8 +62,9 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         with:
-          model: opencode/big-pickle
+          model: deepseek/deepseek-v4-flash
           agent: documentation-agent
           use_github_token: true
           prompt: |
