@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - implementation/**
+      - legal/**
   pull_request:
 
 permissions:
