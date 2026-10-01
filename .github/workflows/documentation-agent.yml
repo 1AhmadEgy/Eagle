@@ -50,6 +50,7 @@ jobs:
           test -f docs/legal/documentation-agent.md
           test -f docs/legal/provenance.md
           test -f .opencode/agents/documentation-agent.md
+          test -f docs/provenance/schema.json
 
       - name: Build deterministic provenance evidence
         shell: bash
