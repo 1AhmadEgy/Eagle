@@ -1,100 +1,141 @@
-# البحث التفصيلي — الأمن والمعايير وسلسلة التوريد والذكاء الاصطناعي
+# البحث التفصيلي — الأمن والمعايير والمكونات الجاهزة
 
-## 1. نطاق البحث
-هذه الجولة بحثية تأسيسية وليست اعتمادًا نهائيًا للـStack؛ لأن فحص المستودع الحالي لم يثبت بعد وجود ملفات التطبيق الأساسية أو الأرشيفات التاريخية المشار إليها.
+## 1. نطاق الجولة
+هذه الجولة توسّع خط الأساس الأمني إلى **مصفوفة مكونات جاهزة قابلة للدراسة**. لا يوجد اعتماد نهائي لمكوّن بعينه قبل تثبيت متطلبات Eagle والـStack وبيئة التشغيل.
 
-## 2. المصادر المرجعية عالية الإشارة
-| المجال | المصدر | ما يقدمه | حالة الاستخدام في Eagle |
-|---|---|---|---|
-| Web AppSec | OWASP ASVS 5.0.0 | متطلبات قابلة للاختبار للتحقق من ضوابط أمن تطبيقات الويب | مرجع متطلبات واختبارات الأمن |
-| Secure SDLC | NIST SP 800-218 SSDF 1.1 | ممارسات تطوير آمن قابلة للإدماج في دورة التطوير | مرجع لسير التطوير وسلسلة التوريد |
-| Cybersecurity governance | NIST CSF 2.0 | إطار Govern/Identify/Protect/Detect/Respond/Recover | مرجع لإدارة المخاطر والعمليات |
-| AI security | OWASP Top 10 for LLM Applications 2025 | مخاطر خاصة بتطبيقات LLM | يستخدم إذا ثبت وجود AI/LLM |
-| AI risk | NIST AI RMF + GenAI Profile | إدارة مخاطر الذكاء الاصطناعي عبر دورة الحياة | يستخدم لمسار AI |
-| Build provenance | SLSA v1.x | مستويات سلامة provenance للبناء | مرجع CI/CD |
-| GitHub supply chain | GitHub Artifact Attestations | إثبات مصدر وكيفية بناء artifacts والتحقق منها | مرشح قوي مع GitHub Actions |
+## 2. مبدأ الاختيار
+أي مكوّن مرشح يجب أن يمر عبر:
+- وظيفة واضحة مرتبطة بمتطلب.
+- توثيق رسمي قابل للتحقق.
+- إصدار/دورة صيانة قابلة للتحقق.
+- سجل أمني وإفصاحات قابلة للمراجعة.
+- ترخيص مناسب للمشروع.
+- اختبارات/أتمتة مناسبة.
+- قابلية الترقية والاستبدال.
+- عدم إدخال أسرار أو إعدادات حساسة في المستودع.
+- أقل صلاحيات ممكنة.
+- دليل تشغيل آمن وليس مجرد نجاح محلي.
 
-## 3. النتائج الرئيسية
+## 3. مصفوفة المكونات المرشحة
 
-### 3.1 OWASP ASVS
-OWASP يعرّف ASVS كأساس لاختبار ضوابط الأمن التقنية لتطبيقات الويب وكقائمة متطلبات للتطوير الآمن. صفحة المشروع تشير إلى الإصدار 5.0.0 وتوفر المتطلبات بصيغ قابلة للاستخدام البرمجي مثل JSON/CSV.
+| الطبقة | مكونات للدراسة | الوظيفة | الضابط الأمني/الاختبار المطلوب | الحالة |
+|---|---|---|---|---|
+| Identity | Keycloak | OIDC/OAuth2/SAML، SSO، MFA، federation | hardening، token/session tests، admin isolation | مرشح للدراسة |
+| Fine-grained AuthZ | OpenFGA | ReBAC/Zanzibar-style authorization | model tests، deny-by-default، tenant isolation | مرشح للدراسة |
+| Policy-as-Code | OPA | سياسات قابلة للاختبار بلغة Rego | TLS/authN/authZ، policy unit tests | مرشح للدراسة |
+| Secrets | HashiCorp Vault | secrets/policies/PKI/dynamic credentials | least privilege، audit، rotation، recovery | مرشح للدراسة |
+| Observability | OpenTelemetry Collector | traces/metrics/logs pipeline | TLS/authentication، redaction، least privilege | مرشح للدراسة |
+| Database | PostgreSQL | relational durable data | authz، encryption، backup/restore، migration tests | مرشح للدراسة |
+| Secret scanning | Gitleaks | كشف API keys/tokens/passwords داخل Git/files | PR + history scan، redaction | مرشح للدراسة |
+| Vulnerability/config scan | Trivy | images/filesystems/repos/K8s، CVEs/IaC/secrets/SBOM | CI gates، severity policy، pinned action/image | مرشح للدراسة |
+| SBOM | Syft | توليد SBOM للصور/filesystems/archives | SBOM artifact + provenance | مرشح للدراسة |
+| DAST | OWASP ZAP | فحص أمني ديناميكي للتطبيق/API | baseline ثم authenticated testing | مرشح للدراسة |
+| Browser E2E | Playwright | اختبارات end-to-end للواجهة والتدفقات | auth/session/access-control regression | مرشح للدراسة |
+| Supply chain | Sigstore/Cosign + SLSA + GitHub Attestations | signing/provenance/verification | verify identity/provenance قبل الترقية | مرشح للدراسة |
 
-الإجراء المقترح: بعد معرفة الـStack، أنشئ مصفوفة ASVS requirement → implementation → automated/manual test → evidence.
+## 4. نتائج البحث الموثقة
 
-### 3.2 NIST SSDF
-NIST SP 800-218 يحدد ممارسات تطوير آمن يمكن دمجها في أي SDLC، بهدف تقليل الثغرات وتقليل أثر الاستغلال ومعالجة الأسباب الجذرية. صفحة NIST الحالية تسجل أيضًا مسودة SP 800-218 Rev.1 / SSDF 1.2 بتاريخ 2025-12-17، بينما الإصدار 1.1 هو الإصدار النهائي المنشور.
+### 4.1 Keycloak
+توثيق Keycloak الرسمي يوضح دعمه لـOpenID Connect وOAuth 2.0 وSAML، ويدعم federation مع مزودي هوية خارجيين، كما يوفر Authorization Services لسياسات fine-grained وRBAC/ABAC/context-based access. هذا يجعله مكوّنًا مناسبًا للدراسة عندما يكون المطلوب IdP مركزيًا بدل بناء نظام هوية من الصفر.
 
-الإجراء المقترح: ثبّت نسخة المرجع المستخدمة في كل وثيقة ولا تخلط بين الإصدار النهائي 1.1 والمسودة الأحدث دون بيان الحالة.
+**ضوابط Eagle المقترحة:** Authorization Code + PKCE للتطبيقات المناسبة، MFA/step-up حيث يلزم، فصل إدارة الهوية عن business authorization، تدوير/إبطال الجلسات، اختبارات issuer/audience/expiry/signature، وحماية لوحة الإدارة.
 
-### 3.3 NIST CSF 2.0
-CSF 2.0 ينظم النتائج الأمنية ضمن Govern وIdentify وProtect وDetect وRespond وRecover. يمكن استخدامه على مستوى الإدارة والمخاطر، بينما ASVS وSSDF يحملان تفاصيل التطوير والتحقق.
+### 4.2 OpenFGA
+التوثيق الرسمي يعرّف نموذجًا للعلاقات بين المستخدمين والموارد، مع union/intersection/exclusion والعلاقات المتوارثة والـconditional relationships. لذلك يمكنه تمثيل authorization معقد دون نشر منطق الصلاحيات داخل كل API.
 
-الإجراء المقترح: استخدم CSF كطبقة حوكمة، وSSDF كسير تطوير آمن، وASVS كمعيار تحقق لتطبيق الويب؛ لا تجعلها بدائل متنافسة.
+**ضوابط Eagle المقترحة:** model-as-code، اختبارات allow/deny، اختبارات tenant isolation، عدم قبول object/tenant من العميل كمصدر ثقة، ومراجعة كل تغيير في authorization model.
 
-### 3.4 سلسلة توريد البرمجيات
-SLSA يعرّف Build Track بمستويات متزايدة من الثقة في provenance؛ وتوضح GitHub أن Artifact Attestations تنشئ provenance مرتبطة بالبناء، وأن استخدام reusable workflows مع attestations يمكن أن يصل إلى SLSA Build Level 3 وفق شروط الدليل الرسمي.
+### 4.3 OPA
+توثيق OPA الأمني يوضح أن API الخاص به يجب أن يُحمى بـTLS والمصادقة والتفويض، وأن الوضع الافتراضي للمصادقة والتفويض في API ليس حماية تلقائية. كما يدعم سياسات Rego وdeny-by-default.
 
-الإجراء المقترح: عند تثبيت CI/CD، أضف provenance وSBOM والتحقق من artifacts إلى Definition of Done للإصدارات، مع أقل صلاحيات ممكنة لـGitHub Actions.
+**قرار هندسي مهم:** لا يجوز نشر OPA كخدمة شبكة مفتوحة ثم افتراض أنها آمنة. إذا استُخدم، يجب تحديد trust boundary، TLS، identity، authorization، وربط سياسات الوصول باختبارات.
 
-### 3.5 الذكاء الاصطناعي
-NIST AI RMF مخصص لإدارة مخاطر الذكاء الاصطناعي، وNIST AI 600-1 يقدم Profile للـGenerative AI. OWASP Top 10 for LLM Applications 2025 يركز على المخاطر الخاصة بتطبيقات LLM.
+### 4.4 HashiCorp Vault
+توثيق Vault يوضح أن السياسات path-based وdeny-by-default، وأن الصلاحيات تُحدد حسب capabilities مثل read/create/update/delete/list. هذا مناسب لفصل أسرار الخدمات عن source control.
 
-الإجراء المقترح: لا تُفترض بنية AI أو Agent قبل إثبات الحاجة من المتطلبات؛ وإذا ثبتت، يجب أن تكون لكل أداة/Agent صلاحيات محدودة، مع فصل واضح بين التعليمات والبيانات والأدوات واختبارات للـprompt injection وتسريب البيانات وإساءة استخدام الأدوات.
+**ضوابط Eagle المقترحة:** service identity منفصل لكل مكوّن، policies ضيقة، short-lived credentials عندما يكون ذلك ممكنًا، audit logging، rotation، وخطة recovery للـsecret store.
 
-## 4. الأمن كمعمارية
-- هوية ومصادقة قوية.
-- Authorization مركزي وقابل للتدقيق.
-- Least Privilege.
-- إدارة أسرار خارج Git.
-- تحقق صارم من المدخلات والمخرجات.
-- عزل حدود الثقة.
-- Audit logging بدون أسرار أو بيانات غير لازمة.
-- Dependency/SBOM scanning.
-- SAST وsecret scanning وdependency review.
-- Build provenance/attestation عند توفر CI المناسب.
-- نسخ احتياطية واختبار recovery.
-- مراقبة وتنبيهات قابلة للتدقيق.
+### 4.5 OpenTelemetry
+التوثيق الأمني لـOpenTelemetry Collector يوصي بالتشفير والمصادقة، وعدم تشغيل Collector بصلاحيات root، واستخدام أقل صلاحيات، وربط endpoints بشبكات/واجهات محددة، وإزالة البيانات الحساسة عبر redaction/filter/attribute processors.
 
-## 5. مصفوفة بحث أولية
-| المسار | المرجع | المخرج |
-|---|---|---|
-| 03 Architecture | ASVS V1 + threat modeling | Architecture + trust boundaries |
-| 08 Security | ASVS 5 + CSF 2.0 | Security requirements/control matrix |
-| 10 DevOps | SSDF + SLSA + GitHub security | Secure CI/CD |
-| 09 QA | ASVS verification + application tests | Security/functional test matrix |
-| 06 AI | OWASP LLM + NIST AI RMF | AI threat/control matrix إذا كان AI مطلوبًا |
-| 04 Backend | ASVS API/security controls | API security specification |
-| 07 Data | CSF/SSDF + privacy/security requirements | Data classification/retention/recovery |
+**ضابط Eagle:** telemetry ليست مكانًا لنسخ الأسرار أو كل بيانات المستخدم. يجب تعريف allowlist للحقول الحساسة ومراجعة instrumentation.
 
-## 6. الفجوات الحالية
-1. لا يمكن تثبيت المعمارية النهائية قبل استرجاع الأرشيفات التاريخية.
-2. لا يمكن اختيار مكتبات تنفيذية محددة قبل معرفة اللغة والframework والdeployment target.
-3. لا يمكن بناء CI نهائي قبل معرفة الـStack.
-4. لا يمكن اعتبار AI جزءًا من المنتج دون متطلب مثبت.
-5. Threat Model تفصيلي ينتظر context/component/data-flow الفعلي.
-6. يجب فحص الأرشيفات قبل رفعها إلى GitHub بحثًا عن الأسرار والبيانات الحساسة.
+### 4.6 Gitleaks
+المشروع الرسمي يعرّف Gitleaks كأداة لاكتشاف الأسرار مثل كلمات المرور ومفاتيح API والـtokens في Git والملفات وstdin، ويمكن تشغيله كـpre-commit hook أو GitHub Action.
 
-## 7. سياسة الاعتماد على المشاريع الجاهزة
-- مشروع نشط وموثق رسميًا.
-- إصدار مستقر واضح.
-- سجل أمني وإفصاحات قابلة للتحقق.
-- ترخيص مناسب.
-- اختبارات وأتمتة.
-- صيانة قابلة للاستمرار.
-- قابلية الترقية والخروج من الحل.
-- ربط كل dependency بمتطلب واضح.
+**ضابط Eagle:** تشغيله محليًا وداخل CI، مع فحص التاريخ عند الحاجة، وعدم تسجيل قيمة السر المكتشف في logs.
 
-## 8. مصادر البحث
-- OWASP ASVS: https://owasp.org/projects/asvs
-- OWASP Top 10 for LLM Applications 2025: https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/
-- NIST SP 800-218 SSDF: https://csrc.nist.gov/pubs/sp/800/218/final
-- NIST SSDF: https://csrc.nist.gov/projects/ssdf
-- NIST CSF 2.0: https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf
-- NIST AI RMF: https://www.nist.gov/itl/ai-risk-management-framework
-- NIST GenAI Profile: https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence
-- SLSA levels: https://slsa.dev/spec/v1.1/levels
+### 4.7 Trivy
+المشروع الرسمي يذكر دعم فحص container images وfilesystems وGit repositories وVM images وKubernetes، وكشف CVEs ومشكلات IaC والمعلومات الحساسة وSBOM/licenses.
+
+**ضابط Eagle:** لا يكفي فحص image فقط؛ عند معرفة الـstack يحدد نطاق الفحص (filesystem/dependencies/image/IaC/K8s) وسياسة severity وexception expiry.
+
+### 4.8 Syft
+Syft يولد SBOM من container images وfilesystems وarchives ويدعم صيغًا مثل CycloneDX وSPDX، ويمكن استخدام attestations مرتبطة بالـSBOM.
+
+**ضابط Eagle:** كل release قابل للتتبع إلى SBOM محدد، مع الاحتفاظ بالدليل وربطه بالartifact.
+
+### 4.9 Supply Chain
+SLSA وGitHub Artifact Attestations يقدمان أساسًا لإثبات provenance البناء. التوثيق الرسمي يوضح أن attestation مفيد لإثبات المصدر/البناء والتحقق، لكنه ليس ضمانًا أمنيًا بذاته.
+
+**ضابط Eagle:** release gate يجب أن يربط artifact → commit → workflow identity → provenance → SBOM → verification.
+
+## 5. مكونات لم يتم اعتمادها بعد
+لا ينبغي إضافة Keycloak/OpenFGA/OPA/Vault/PostgreSQL أو غيرها إلى runtime لمجرد وجودها في هذه الوثيقة. اختيار المكوّن يعتمد على:
+1. المتطلبات النهائية.
+2. اللغة/framework.
+3. نمط deployment.
+4. حجم النظام والـtenancy.
+5. متطلبات availability/recovery.
+6. القيود التشغيلية والفريق.
+7. نتائج threat model.
+8. الترخيص وسياسة الاعتماد على dependencies.
+
+## 6. خط CI/CD أمني مبدئي
+بعد تثبيت الـstack، المسار المقترح:
+1. format/lint/unit tests.
+2. secret scan — Gitleaks.
+3. SAST مناسب للغة.
+4. dependency/SCA scan.
+5. IaC/config scan عند وجود IaC.
+6. build reproducibly قدر الإمكان.
+7. SBOM — Syft.
+8. container/filesystem scan — Trivy عند وجود containers.
+9. integration/E2E tests.
+10. DAST — ZAP في بيئة اختبار.
+11. artifact signing/provenance/attestation.
+12. deploy only after required gates and human review للـchanges الحساسة.
+
+## 7. مصفوفة تحقق أمنية مطلوبة
+لكل مكوّن معتمد يجب إنشاء سجل:
+Component → Version → License → Source → Threats → Configuration → Permissions → Tests → Vulnerability policy → Upgrade policy → Evidence → Owner
+
+ولكل security requirement:
+Requirement → Source → Implementation → Automated Test → Manual Review → Evidence → Status
+
+## 8. مخاطر لا تزال مفتوحة
+- الأرشيفات التاريخية المذكورة سابقًا لم تُسترجع في هذه الجولة.
+- Stack Eagle غير مثبت من المستودع الحالي.
+- لا يوجد بعد دليل كافٍ على CI/CD الفعلي للمشروع.
+- Threat Model تفصيلي مرتبط بمكونات حقيقية لم يُغلق.
+- لا يمكن اعتماد مكونات تشغيلية أو بنية deployment نهائية قبل إغلاق هذه الفجوات.
+
+## 9. المصادر الرسمية الرئيسية
+- Keycloak: https://www.keycloak.org/docs/latest/server_admin/
+- Keycloak Authorization Services: https://www.keycloak.org/docs/latest/authorization_services/
+- OpenFGA Configuration Language: https://openfga.dev/docs/configuration-language
+- OPA Security: https://openpolicyagent.org/docs/security
+- HashiCorp Vault Policies: https://docs.hashicorp.com/vault/docs/concepts/policies
+- OpenTelemetry Collector security: https://opentelemetry.io/docs/security/config-best-practices/
+- OpenTelemetry sensitive data: https://opentelemetry.io/docs/security/handling-sensitive-data/
+- Gitleaks: https://github.com/gitleaks/gitleaks
+- Trivy: https://github.com/aquasecurity/trivy
+- Syft: https://github.com/anchore/syft
+- OWASP ZAP: https://www.zaproxy.org/
+- Playwright: https://playwright.dev/
+- SLSA: https://slsa.dev/spec/v1.1/levels
 - GitHub Artifact Attestations: https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations
 
-## 9. حالة الوثيقة
-Research Baseline / Verified external sources + Derived project actions.
-هذه الوثيقة لا تعني أن هذه الأطر مناسبة لكل جزء من Eagle تلقائيًا؛ المواءمة النهائية تعتمد على المتطلبات والـStack بعد استرجاع وفحص المواد التاريخية.
+## 10. الحالة
+Research Expansion / Verified external documentation + Derived Eagle controls.
+لا تُفهم هذه القائمة على أنها ترتيب أو فائز؛ هي قائمة مرشحين ووسائل تحقق قبل الاختيار.
