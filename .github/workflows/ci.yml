@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Verify repository hygiene
         shell: bash
@@ -43,17 +44,65 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run project verification
+        id: verify
         shell: bash
         run: |
-          set -o pipefail
-          mkdir -p .ci
-          bash scripts/ci/verify.sh 2>&1 | tee .ci/verify.log
+          set +e
+          mkdir -p .ci/testlab
+          bash scripts/ci/verify.sh 2>&1 | tee .ci/testlab/verify.log
+          rc=${PIPESTATUS[0]}
 
-      - name: Upload CI diagnostics
+          if [[ "$rc" -eq 0 ]]; then
+            verification="PASS"
+          else
+            verification="FAIL"
+          fi
+
+          python3 - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+
+          verification = os.environ["VERIFICATION"]
+          evidence = {
+              "schema_version": "1.0",
+              "project": "Eagle",
+              "commit": os.environ["GITHUB_SHA"],
+              "ref": os.environ["GITHUB_REF"],
+              "workflow": os.environ["GITHUB_WORKFLOW"],
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "timestamp_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+              "verification": verification,
+              "categories": {
+                  "Build": verification,
+                  "Unit": "PENDING",
+                  "Integration": "PENDING",
+                  "Cryptography": "PENDING",
+                  "Protocol": "PENDING",
+                  "Security": "PENDING",
+                  "Static analysis": "PENDING",
+                  "Dependency checks": "PENDING",
+                  "Regression": "PENDING",
+                  "Fuzz/property": "PENDING"
+              },
+              "gate": "BLOCKED"
+          }
+
+          with open(".ci/testlab/status.json", "w", encoding="utf-8") as fh:
+              json.dump(evidence, fh, indent=2)
+              fh.write("\n")
+          PY
+
+          echo "verification=$verification" >> "$GITHUB_OUTPUT"
+          exit "$rc"
+        env:
+          VERIFICATION: ${{ steps.verify.outputs.verification }}
+
+      - name: Upload Test Lab evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ci-diagnostics-${{ github.run_id }}
-          path: .ci/verify.log
-          if-no-files-found: ignore
-          retention-days: 14
+          name: testlab-${{ github.sha }}
+          path: .ci/testlab/
+          if-no-files-found: error
+          retention-days: 30
