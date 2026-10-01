@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout the trusted failed commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
@@ -45,14 +45,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "${RUNNER_TEMP}/ci-diagnostics"
-          gh run view "$RUN_ID" --repo "${GITHUB_REPOSITORY}" --log-failed             > "${RUNNER_TEMP}/ci-diagnostics/failed.log" || true
+          gh run view "$RUN_ID" --repo "${GITHUB_REPOSITORY}" --log-failed > "${RUNNER_TEMP}/ci-diagnostics/failed.log" || true
 
           if [[ ! -s "${RUNNER_TEMP}/ci-diagnostics/failed.log" ]]; then
-            printf '%s\n' "No failed-step log was returned by GitHub."               > "${RUNNER_TEMP}/ci-diagnostics/failed.log"
+            printf '%s\n' "No failed-step log was returned by GitHub." > "${RUNNER_TEMP}/ci-diagnostics/failed.log"
           fi
 
-          tail -n 2000 "${RUNNER_TEMP}/ci-diagnostics/failed.log"             > "${RUNNER_TEMP}/ci-diagnostics/failed-limited.log"
-          mv "${RUNNER_TEMP}/ci-diagnostics/failed-limited.log"             "${RUNNER_TEMP}/ci-diagnostics/failed.log"
+          tail -n 2000 "${RUNNER_TEMP}/ci-diagnostics/failed.log" > "${RUNNER_TEMP}/ci-diagnostics/failed-limited.log"
+          mv "${RUNNER_TEMP}/ci-diagnostics/failed-limited.log" "${RUNNER_TEMP}/ci-diagnostics/failed.log"
 
       - name: Verify DeepSeek secret exists
         env:
@@ -62,7 +62,7 @@ jobs:
           test -n "$DEEPSEEK_API_KEY"
 
       - name: Run OpenCode with DeepSeek
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@2c14fc5586fe0b88e5c04732d2e846769cc35671 # reviewed upstream OpenCode workflow snapshot
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
