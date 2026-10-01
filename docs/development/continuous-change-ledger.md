@@ -24,6 +24,8 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 | 2026-10-01 | Documentation | Added this durable development/repair ledger and a security-control register so future repairs and improvements remain traceable. | IN_REVIEW | Branch `docs/continuous-development-audit` |
 | 2026-10-01 | Security verification | Added a standard-library static gate that checks full-SHA workflow actions, explicit permissions, and AI-repair deny boundaries before project verification. | VERIFIED | PR #8, commit `84cc0318979cc62b28bbbb6d30a0841d26898c34`; CI run `36926005797` completed successfully |
 | 2026-10-01 | Verification evidence | Recorded the successful CI execution for the PR #8 security-policy gate. The successful run confirms the workflow reached a completed/successful conclusion for the tested commit; it does not mark the category-specific Test Lab suite as PASS. | CONFIRMED | CI run `36926005797`, commit `84cc0318979cc62b28bbbb6d30a0841d26898c34` |
+| 2026-10-01 | Deep Research | Added a repository-specific Deep Research Executive Summary covering security controls, AI repair boundaries, provenance, SLSA alignment, Test Lab maturity, ownership/visibility discrepancy, risks, and staged execution priorities. | CONFIRMED | Commit `a45a78bae52de9b3faae45c6660ba30c8c4d51d9`; `docs/research/deep-research-executive-summary-2026-10-01.md` |
+| 2026-10-01 | Security Research Register | Updated the security/research register with current GitHub provenance guidance, SLSA alignment status, Test Lab evidence discipline, and AI-repair boundary traceability. | CONFIRMED | Commit `b007f0fefdb1225ee42b902ca0bad2dedee42459` |
 
 ## Current security posture
 
@@ -39,6 +41,7 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 - Provenance validation is performed locally before the documentation artifact is uploaded.
 - Automatic merge is not enabled for the repair pipeline.
 - The static security-policy gate has a successful CI execution on the PR #8 head commit.
+- The Deep Research report and security research register are now part of the repository audit trail.
 - Ownership remains documented as `PRIVATE / ALL RIGHTS RESERVED`, while the legal holder remains explicitly `UNCONFIRMED`.
 
 ### Known gaps requiring owner-controlled or future work
@@ -48,6 +51,7 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 - Artifact attestations should be introduced for actual release artifacts/build outputs when the project has release artifacts. GitHub documents attestations as signed provenance for build outputs and recommends verifying them rather than treating them as an automatic security guarantee. See the linked research record in `docs/legal/security-change-register.md`.
 - Branch protection/rulesets and required reviews should be verified at the repository settings level before treating merge governance as enforced.
 - The DeepSeek secret must exist only as a GitHub Actions secret; it must never be committed or emitted in logs.
+- Formal SLSA level claims remain unmade until the applicable build and provenance requirements are independently evidenced.
 
 ## Evidence policy
 
