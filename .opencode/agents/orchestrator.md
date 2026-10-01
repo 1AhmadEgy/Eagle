@@ -26,6 +26,9 @@ permissions:
   - action: task
     resource: "gatekeeper"
     effect: allow
+  - action: task
+    resource: "repair-agent"
+    effect: allow
 ---
 
 You are the Eagle Test Lab Orchestrator.
