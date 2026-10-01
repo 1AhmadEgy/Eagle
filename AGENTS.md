@@ -44,6 +44,20 @@ Required test categories for the project lifecycle are:
 A category must not be marked as passing merely because its test implementation does not exist.
 Until a category is implemented, report it as pending.
 
+## Agent roles
+
+| Agent | Permission model | Responsibility |
+|---|---|---|
+| Orchestrator | No edit/shell | Coordinates evidence and invokes specialists |
+| Code Reviewer | Read-only | Correctness, regressions, maintainability |
+| Security Auditor | Read-only | Security and CI/supply-chain risks |
+| Test Engineer | Read-only | Required Test Lab category status |
+| Debugger | Read-only | Evidence-based root-cause analysis |
+| Repair Agent | Restricted write | Minimal repair after diagnosis |
+| Gatekeeper | Read-only | Final evidence-based pre-push gate |
+
+No specialist may convert missing tests into a PASS.
+
 ## Automatic repair boundary
 
 DeepSeek/OpenCode may:
