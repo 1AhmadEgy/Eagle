@@ -2,18 +2,29 @@ name: CI
 
 on:
   push:
-    branches: ["main", "implementation/**"]
+    branches:
+      - main
+      - implementation/**
   pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  repository-baseline:
+  verify:
+    name: Repository and test verification
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Verify repository hygiene
         shell: bash
@@ -22,9 +33,27 @@ jobs:
           test -f README.md
           test ! -e .env
           test ! -e .env.production
+          test ! -e .env.local
+          test ! -e .env.test
           echo "Repository baseline checks passed."
 
       - name: Secret scan
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run project verification
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .ci
+          bash scripts/ci/verify.sh 2>&1 | tee .ci/verify.log
+
+      - name: Upload CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-diagnostics-${{ github.run_id }}
+          path: .ci/verify.log
+          if-no-files-found: ignore
+          retention-days: 14
