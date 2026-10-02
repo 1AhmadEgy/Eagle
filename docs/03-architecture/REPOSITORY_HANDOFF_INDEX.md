@@ -32,3 +32,12 @@ The planning package is proposed, not approved. Future work must inspect the liv
 
 ## Conversation deletion safety
 This index is the starting point for continuing the work after the conversation is removed.
+
+## Project-wide archival controls (2026-10-02)
+- docs/PROJECT_MASTER_ARCHIVE_INDEX.md
+- docs/CHAT_DELETION_GATE.md
+- docs/BRANCH_REGISTER_2026-10-02.md
+- docs/CONVERSATION_TO_REPOSITORY_PROTOCOL.md
+- ARCHIVE-GATE issue #33: https://github.com/1AhmadEgy/Eagle/issues/33
+
+Before deleting historical conversations, the deletion gate must be explicitly cleared. Current status: NOT YET CLEARED because two current conversation-source artifacts still require durable binary transfer and post-transfer hash verification.
