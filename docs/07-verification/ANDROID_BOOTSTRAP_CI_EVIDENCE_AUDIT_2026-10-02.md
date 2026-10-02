@@ -78,3 +78,14 @@ This audit records repository facts and recommended follow-up. It does not claim
 - No vulnerability scan result is inferred from the inspected files.
 - No OI or ADR is closed or approved by this document.
 - No release eligibility is asserted.
+
+
+## Follow-up repository configuration check
+
+A second read-only check confirmed that the repository root has `settings.gradle.kts` and `build.gradle.kts`, but the expected `gradlew` launcher and `gradle/wrapper/gradle-wrapper.properties` paths were not found on the inspected default branch. The app module declares Android Gradle Plugin `9.4.0`, but no checked-in wrapper configuration was available in the inspected paths to pin the Gradle distribution. This is an additional reproducibility gap, not proof that no external/local Gradle installation exists.
+
+- **EAGLE-AUD-005 — Gradle toolchain is not repository-pinned:** Open.
+- **Evidence:** Default-branch lookups for `gradlew` and `gradle/wrapper/gradle-wrapper.properties` returned not found; `build.gradle.kts` declares AGP `9.4.0`.
+- **Risk:** Local and CI environments may use different Gradle distributions, and the declared Android gate may not be reproducible from a clean checkout.
+- **Correction proposal:** Generate the wrapper using the project-approved Gradle distribution, commit the wrapper scripts/JAR/properties, validate the wrapper JAR checksum through an established Gradle verification process, and document the required JDK and Android SDK. Do not select a Gradle version solely by guesswork or modify CI workflows without the required human authorization.
+- **Verification:** From a clean checkout, run the wrapper with `--version`, then the approved `prePushGate`; retain exact output and reports.
