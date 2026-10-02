@@ -25,7 +25,7 @@ The repository history also contains a documented restoration of 44 historical u
 
 ## 4. Current conversation-source artifacts
 1. Eagle_Master_File_Registry_Full_Documentation_v3.2.docx
-   - SHA-256: ade73a06e74f856b8160e0789093625f195030e270ec59053ed63ffcc0fe0608
+   - SHA-256: 765404cc42211dc8a23470d0959e2b68177efb2003384290393d531196035288
    - Source declared by the document: Download.zip
    - Registry version: v3.2
 2. Download.zip
@@ -34,7 +34,9 @@ The repository history also contains a documented restoration of 44 historical u
    - Direct entries: 12
    - Contains nested Eagle packages and registry/provenance material.
 
-These current conversation attachments are recorded as pending durable transfer, not as already archived GitHub binaries.
+These current conversation attachments are recorded as pending durable binary transfer, not as already archived GitHub binaries.
+
+The exact session evidence is also recorded in `docs/02-source-register/CHAT_DELETION_CONTINUITY_RECEIPT_2026-10-02.md`.
 
 ## 5. Master File Registry v3.2 evidence
 The supplied v3.2 document records:
