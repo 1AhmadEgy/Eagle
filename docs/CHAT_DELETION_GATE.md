@@ -21,7 +21,7 @@ Reason: current conversation attachments are available locally, but their binary
 
 ## Required transfer set
 A. Eagle_Master_File_Registry_Full_Documentation_v3.2.docx
-SHA-256: ade73a06e74f856b8160e0789093625f195030e270ec59053ed63ffcc0fe0608
+SHA-256: 765404cc42211dc8a23470d0959e2b68177efb2003384290393d531196035288
 
 B. Download.zip
 SHA-256: ade73a06e74f856b8160e0789093625f195030e270ec59053ed63ffcc0fe0608
@@ -35,3 +35,7 @@ Do not claim that deleting conversations is safe until every required artifact h
 
 ## New-conversation rule
 After clearance, new project conversations start from docs/03-architecture/REPOSITORY_HANDOFF_INDEX.md. No conversation becomes authoritative project state again.
+
+
+## Latest continuity receipt
+`docs/02-source-register/CHAT_DELETION_CONTINUITY_RECEIPT_2026-10-02.md` records the exact source hashes and observed Download.zip member inventory. Binary transfer remains pending.
