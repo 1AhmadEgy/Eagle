@@ -39,14 +39,14 @@ jobs:
           echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
           echo "$(dirname "$SDKMANAGER")" >> "$GITHUB_PATH"
 
-      - name: Install Android 17 SDK
+      - name: Install Android 37 SDK
         run: |
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-37.0" "build-tools;37.0.0"
+          "$SDKMANAGER" "platforms;android-37" "build-tools;37.0.0"
 
       - name: Verify Android SDK
         run: |
-          test -d "$ANDROID_HOME/platforms/android-37.0"
+          test -d "$ANDROID_HOME/platforms/android-37"
           test -d "$ANDROID_HOME/build-tools/37.0.0"
 
       - name: Unit tests
