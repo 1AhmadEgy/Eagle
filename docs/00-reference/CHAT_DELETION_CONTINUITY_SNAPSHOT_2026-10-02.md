@@ -32,18 +32,19 @@ GitHub can preserve only material that has actually been committed to the reposi
 ## Current-session artifacts
 ### 1. Master File Registry documentation
 - Filename: `Eagle_Master_File_Registry_Full_Documentation_v3.2.docx`
+- Size: 45,612 bytes
 - SHA-256: `765404cc42211dc8a23470d0959e2b68177efb2003384290393d531196035288`
 - Local session source: uploaded file in the project workspace
 - Intake status: verified file presence and independent SHA-256 calculated on 2026-10-02
-- Promotion status: this record documents provenance; the binary itself is not claimed to be committed unless a Git blob/commit is recorded below.
+- Promotion status: provenance is recorded here; the binary is not claimed as a GitHub object in this snapshot.
 
 ### 2. Download.zip
 - Filename: `Download.zip`
+- Size: 6,903,508 bytes
 - SHA-256: `ade73a06e74f856b8160e0789093625f195030e270ec59053ed63ffcc0fe0608`
-- Size: 6,625,? bytes (source filesystem size should be treated as authoritative if rechecked; SHA-256 is the stronger identity)
 - Intake status: verified file presence and independent SHA-256 calculated on 2026-10-02
 - Contents observed: 12 archive members, including `Eagle_Consolidated_v 3.2.zip`, three Eagle research/applied packages, three handoff/release packages, and four Arabic methodology PDFs.
-- Promotion status: not claimed as a GitHub binary upload in this snapshot.
+- Promotion status: provenance is recorded here; the outer binary is not claimed as a GitHub object in this snapshot.
 
 ## Safety rule
 Do not execute binaries/scripts from historical archives merely because they are preserved. Inspect, hash, classify, and review before promotion to canonical/runtime use.
