@@ -1,0 +1,31 @@
+name: Rust Core
+
+on:
+  pull_request:
+    paths:
+      - "Cargo.toml"
+      - "core/**"
+      - ".github/workflows/rust-core.yml"
+  push:
+    branches: [main, "execution/**"]
+    paths:
+      - "Cargo.toml"
+      - "core/**"
+      - ".github/workflows/rust-core.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  rust-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo test --workspace
+      - run: cargo clippy --workspace --all-targets -- -D warnings
