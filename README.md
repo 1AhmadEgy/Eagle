@@ -9,3 +9,15 @@
   <a href="https://aistudio.google.com/apps">Start building</a>
 
 </div>
+
+
+## PrivateMesh Protocol Documentation
+
+The protocol documentation and hardening work is maintained under docs/.
+
+- Master File Registry: docs/master-file-registry.md
+- Normative specifications: docs/01-normative/
+- Architecture decisions: docs/11-decisions/
+- Internal security review: docs/12-audits/
+
+Current documentation status: IN REVIEW. Documentation completeness does not constitute independent audit, certification, or production readiness.
