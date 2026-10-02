@@ -26,6 +26,7 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 | 2026-10-01 | Verification evidence | Recorded the successful CI execution for the PR #8 security-policy gate. The successful run confirms the workflow reached a completed/successful conclusion for the tested commit; it does not mark the category-specific Test Lab suite as PASS. | CONFIRMED | CI run `36926005797`, commit `84cc0318979cc62b28bbbb6d30a0841d26898c34` |
 | 2026-10-01 | Deep Research | Added a repository-specific Deep Research Executive Summary covering security controls, AI repair boundaries, provenance, SLSA alignment, Test Lab maturity, ownership/visibility discrepancy, risks, and staged execution priorities. | CONFIRMED | Commit `a45a78bae52de9b3faae45c6660ba30c8c4d51d9`; `docs/research/deep-research-executive-summary-2026-10-01.md` |
 | 2026-10-01 | Security Research Register | Updated the security/research register with current GitHub provenance guidance, SLSA alignment status, Test Lab evidence discipline, and AI-repair boundary traceability. | CONFIRMED | Commit `b007f0fefdb1225ee42b902ca0bad2dedee42459` |
+| 2026-10-02 | Continuity / Provenance | Added chat-deletion continuity snapshot, session artifact manifest, recovery index, and updated ChatGPT attachment intake with independent SHA-256 identities for the two artifacts available in this session. | CONFIRMED | Commits `99022fac2ff5423295a644ee7fcdaf9783f71b7a`, `9dcae335bdc1387a78870ef9e03bb2c1f80496f8`, `1dd1475efb1b917814abcb8bb8cbb6b5386adcde`, `adf4b84e5ac1ac5ffa3c39b83e8de3a05d9a8436`, `b336f8dbda88b6b3e13b5d6d70879ada85dd5040` |
 
 ## Current security posture
 
@@ -48,7 +49,7 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 
 - Repository visibility is currently PUBLIC while project documentation specifies PRIVATE / ALL RIGHTS RESERVED. This is a repository setting and requires an explicit owner-controlled decision/change.
 - The Test Lab currently has a baseline status model, but several categories remain PENDING until category-specific tests are implemented and independently evidenced.
-- Artifact attestations should be introduced for actual release artifacts/build outputs when the project has release artifacts. GitHub documents attestations as signed provenance for build outputs and recommends verifying them rather than treating them as an automatic security guarantee. See the linked research record in `docs/legal/security-change-register.md`.
+- Artifact attestations should be introduced for actual release artifacts/build outputs when the project has release artifacts.
 - Branch protection/rulesets and required reviews should be verified at the repository settings level before treating merge governance as enforced.
 - The DeepSeek secret must exist only as a GitHub Actions secret; it must never be committed or emitted in logs.
 - Formal SLSA level claims remain unmade until the applicable build and provenance requirements are independently evidenced.
