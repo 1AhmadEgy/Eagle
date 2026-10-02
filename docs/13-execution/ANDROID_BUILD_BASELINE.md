@@ -21,7 +21,16 @@ Therefore the Android build is NOT YET REPRODUCIBLE from a clean checkout.
 
 This is an evidence-based blocker, not a test failure.
 
-## Required correction
+## Corrections now staged
+
+- Kotlin Android plugin pinned to 2.3.21 to match the existing Kotlin source and the documented AGP 9.4 example.
+- AndroidX Test dependencies added using current stable releases documented by Android Developers.
+- A real instrumentation behavior test was added for MainActivity using ActivityScenario.
+- The test verifies the user-visible Eagle Test Lab label.
+
+These changes are implemented but NOT VERIFIED until a real Android build and instrumentation run produces evidence.
+
+## Required build correction
 
 1. Generate the official Gradle Wrapper using the selected Gradle 9.6.0 release.
 2. Commit the wrapper scripts, wrapper JAR, and gradle-wrapper.properties.
@@ -36,17 +45,31 @@ This is an evidence-based blocker, not a test failure.
 
 No custom wrapper implementation should replace the official Gradle Wrapper merely to avoid committing the official wrapper JAR. Gradle's security guidance requires verification of the wrapper JAR and distribution checksum.
 
-## Test status
+## Behavioral test evidence
 
-No Android behavioral category is PASS until an actual Android implementation is built and the corresponding test produces a verifiable result bound to the exact commit.
+Current test implementation:
+- app/src/androidTest/java/com/eagle/app/MainActivityBehaviorTest.kt
+- Test: launcherActivity_displaysTestLabLabel
 
-## CI authorization boundary
+Current result: NOT VERIFIED.
 
-The current repository CI has read-only contents permissions and already performs repository/security/Test Lab checks. Modifying CI to provision Android SDK/JDK, invoke Gradle, install an emulator, or upload Android test evidence is a separate privileged change and must remain gated by the repository's authorization/review process.
+No Android behavioral category is PASS until the APK/test APK is built and the test executes successfully on an emulator or physical device with evidence bound to the tested commit.
+
+## CI authorization review
+
+The current standard CI workflow declares contents: read. It performs repository hygiene, secret scanning, security-policy verification, product-surface discovery, and Test Lab orchestration.
+
+A separate workflow_run repair workflow has elevated permissions (contents: write, pull-requests: write, issues: write) but is restricted to the trusted implementation/v1-foundation push boundary and explicitly prohibits the repair agent from modifying .github/workflows/*, secrets, deployment configuration, or unrelated files.
+
+No CI workflow has been modified in this correction pass.
+
+Any future change that provisions Android SDK/JDK, invokes Gradle, launches an emulator, or uploads Android behavioral evidence must first pass the repository's authorization/review boundary.
 
 ## Evidence status
 - Build reproducibility: BLOCKED
+- Kotlin source compilation: NOT VERIFIED
 - Android unit-test execution: NOT VERIFIED
 - Android instrumentation/behavioral execution: NOT VERIFIED
 - Test Lab category PASS: NOT ALLOWED
+- CI Android execution: NOT IMPLEMENTED
 - Release Gate: BLOCKED
