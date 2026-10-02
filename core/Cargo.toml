@@ -1,0 +1,11 @@
+[package]
+name = "eagle-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "eagle_core"
+path = "src/lib.rs"
+
+[dependencies]
