@@ -1,4 +1,7 @@
-use eagle_core::{authorize, Capability, Identity, PrincipalId, SecurityContext, Session, SessionState, TrustState};
+use eagle_core::{
+    authorize, Capability, Identity, PrincipalId, SecurityContext, Session, SessionState,
+    TrustState,
+};
 
 #[test]
 fn identity_and_policy_flow_is_deterministic() {
@@ -27,10 +30,7 @@ fn session_rejects_protocol_downgrade_without_mutation() {
     let mut ctx = SecurityContext::new(2);
     let result = Session::establish(&mut ctx, 1);
 
-    assert_eq!(
-        result,
-        Err(eagle_core::SecurityError::ProtocolDowngrade)
-    );
+    assert_eq!(result, Err(eagle_core::SecurityError::ProtocolDowngrade));
     assert_eq!(ctx.negotiated_protocol(), 2);
 }
 
@@ -40,9 +40,6 @@ fn session_rejects_renegotiation_downgrade_without_mutation() {
     assert_eq!(Session::establish(&mut ctx, 3).unwrap().protocol, 3);
 
     let result = Session::establish(&mut ctx, 2);
-    assert_eq!(
-        result,
-        Err(eagle_core::SecurityError::ProtocolDowngrade)
-    );
+    assert_eq!(result, Err(eagle_core::SecurityError::ProtocolDowngrade));
     assert_eq!(ctx.negotiated_protocol(), 3);
 }
