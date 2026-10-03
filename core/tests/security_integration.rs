@@ -15,3 +15,12 @@ fn session_rejects_protocol_downgrade_without_mutation() {
     assert!(result.is_err());
     assert_eq!(ctx.negotiated_protocol, 2);
 }
+
+#[test]
+fn session_rejects_renegotiation_downgrade_without_mutation() {
+    let mut ctx = SecurityContext::new(1);
+    assert_eq!(Session::establish(&mut ctx, 3).unwrap().protocol, 3);
+    let result = Session::establish(&mut ctx, 2);
+    assert!(result.is_err());
+    assert_eq!(ctx.negotiated_protocol, 3);
+}
