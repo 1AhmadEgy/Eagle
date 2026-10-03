@@ -1,10 +1,21 @@
 use crate::{SecurityContext, SecurityError};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Capability { Read, Write, Administrative }
+pub enum Capability {
+    Read,
+    Write,
+    Administrative,
+}
 
-pub fn authorize(ctx: &SecurityContext, capability: Capability) -> Result<(), SecurityError> {
+pub fn authorize(
+    ctx: &SecurityContext,
+    capability: Capability,
+) -> Result<(), SecurityError> {
     ctx.authorize()?;
-    if matches!(capability, Capability::Administrative) { return Err(SecurityError::Unauthorized); }
+
+    if matches!(capability, Capability::Administrative) {
+        return Err(SecurityError::Unauthorized);
+    }
+
     Ok(())
 }
