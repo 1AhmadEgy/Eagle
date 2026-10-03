@@ -7,10 +7,7 @@ pub enum Capability {
     Administrative,
 }
 
-pub fn authorize(
-    ctx: &SecurityContext,
-    capability: Capability,
-) -> Result<(), SecurityError> {
+pub fn authorize(ctx: &SecurityContext, capability: Capability) -> Result<(), SecurityError> {
     ctx.authorize()?;
 
     if matches!(capability, Capability::Administrative) {
