@@ -1,5 +1,13 @@
 #![forbid(unsafe_code)]
 
+pub mod identity;
+pub mod policy;
+pub mod session;
+
+pub use identity::{Identity, PrincipalId};
+pub use policy::{authorize, Capability};
+pub use session::Session;
+
 /// Deterministic security-kernel primitives.
 /// This crate intentionally contains no cryptographic implementation.
 /// Cryptography/protocol profiles are blocked until the corresponding ADR gates are closed.
@@ -80,7 +88,7 @@ impl SecurityContext {
     }
 
     pub fn negotiate_protocol(&mut self, offered: u16) -> Result<u16, SecurityError> {
-        if offered < self.minimum_protocol {
+        if offered < self.minimum_protocol || offered < self.negotiated_protocol {
             return Err(SecurityError::ProtocolDowngrade);
         }
         self.negotiated_protocol = offered;
@@ -124,9 +132,19 @@ mod tests {
     }
 
     #[test]
-    fn downgrade_is_rejected() {
+    fn below_minimum_protocol_is_rejected_without_mutation() {
         let mut ctx = SecurityContext::new(2);
         assert_eq!(ctx.negotiate_protocol(1), Err(SecurityError::ProtocolDowngrade));
         assert_eq!(ctx.negotiated_protocol, 2);
+    }
+
+    #[test]
+    fn renegotiation_cannot_downgrade_after_upgrade() {
+        let mut ctx = SecurityContext::new(1);
+        assert_eq!(ctx.negotiate_protocol(3), Ok(3));
+        assert_eq!(ctx.negotiate_protocol(2), Err(SecurityError::ProtocolDowngrade));
+        assert_eq!(ctx.negotiated_protocol, 3);
+        assert_eq!(ctx.negotiate_protocol(1), Err(SecurityError::ProtocolDowngrade));
+        assert_eq!(ctx.negotiated_protocol, 3);
     }
 }
