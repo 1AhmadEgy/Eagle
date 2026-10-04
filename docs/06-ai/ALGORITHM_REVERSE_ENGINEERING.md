@@ -61,10 +61,11 @@ A future reputation score may aggregate evidence, but it must remain bounded and
 
 ## 4. Session state
 
-Current evidence: no session-state machine is present.
+Current evidence: deterministic session state machine is implemented in Kotlin.
 
-Recommended structure:
-NEW -> AUTHENTICATING -> ESTABLISHED -> REKEYING -> CLOSED
+Implemented structure:
+NEW -> AUTHENTICATING -> ESTABLISHED -> REKEYING -> ESTABLISHED
+Any non-closed state may transition to CLOSED; CLOSED is terminal.
 
 Invalid transitions must be rejected deterministically.
 
@@ -80,7 +81,7 @@ Tests:
 
 ## 5. Replay detection
 
-Required deterministic controls:
+Current implementation: `ReplayGuard` provides a per-session bounded sliding window (1–64 sequence positions). Required deterministic controls:
 - unique session/connection context
 - nonce/sequence number
 - freshness window where applicable
@@ -89,9 +90,11 @@ Required deterministic controls:
 
 AI is unnecessary for primary replay prevention.
 
-A model can later identify unusual replay-like patterns, but it must never replace cryptographic freshness.
+A model can later identify unusual replay-like patterns, but it must never replace cryptographic freshness. `ReplayGuard` is not message authentication and must only be called after authenticated session binding.
 
 ## 6. Rate limiting
+
+Current implementation: `TokenBucket` is implemented as a deterministic Kotlin primitive; build verification remains pending.
 
 First implementation should be deterministic:
 - token bucket or leaky bucket
