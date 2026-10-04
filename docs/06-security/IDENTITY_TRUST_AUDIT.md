@@ -2,6 +2,7 @@
 
 **Audit scope:** Identity & Trust workstream  
 **Audit baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
+**Verified execution head:** `cdab10de4f3c2e374f12976230fb71c59ea7b0e2`  
 **Execution branch:** `execution/identity-trust-foundation-v1`  
 **Audit posture:** evidence-first / fail-closed
 
@@ -99,7 +100,7 @@ The Rust crate includes negative and state-transition tests for:
 - monotonic revocation epoch tracking;
 - cancelled pairing.
 
-**Result:** IMPLEMENTED; latest Rust verification is passing in GitHub CI.
+**Result:** IMPLEMENTED; GitHub CI verified 14/14 Rust identity/trust unit tests passing.
 
 ## Stage 10 — Security audit
 Static review confirms:
@@ -111,7 +112,7 @@ Static review confirms:
 
 GitHub CI evidence shows the secret scan and security-policy boundary checks passing on the current workstream baseline.
 
-**Result:** PASS for implemented workstream controls; protocol/key-management review remains separate.
+**Result:** PASS. Latest verification reported no secret leaks and the security-policy boundary check passed.
 
 ## Stage 11 — Verification
 Verification is delegated to independent GitHub Actions because the local runtime available for this agent does not include Cargo and cannot reach GitHub over the network.
@@ -120,14 +121,14 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Current evidence includes successful repository verification and 14 passing Rust identity/trust unit tests on the verified CI baseline. The platform Build + Unit + Lint workflow is rerun after the Android 17/API 37 alignment and remains an independent gate.
+Current evidence includes successful repository verification, 14 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
 1. ADR-005/006/007 are not approved.
 2. Final Key Management and Protocol profiles are unresolved.
-3. Independent platform Build + Unit + Lint verification must complete on the latest Android 17/API 37 alignment.
-4. Final protocol/key-management integration and cross-platform evidence are missing.
+3. Final protocol/key-management integration and cross-platform evidence are missing.
+4. Adversarial end-to-end identity/protocol tests remain pending until those boundaries are frozen.
 5. ADR-005/006/007 remain unapproved.
 
 **Final gate:** BLOCKED.
