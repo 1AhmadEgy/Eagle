@@ -64,10 +64,15 @@ jobs:
           python3 scripts/ci/run-testlab-categories.py
           category_rc=$?
 
+          export baseline_rc category_rc
+
           python3 - <<'PY'
           import json
           import os
           from pathlib import Path
+
+          baseline_rc = int(os.environ["baseline_rc"])
+          category_rc = int(os.environ["category_rc"])
 
           path = Path(".ci/testlab/categories.json")
           data = json.loads(path.read_text(encoding="utf-8"))
