@@ -647,10 +647,21 @@ Owns:
 - identity state machine;
 - trust transitions;
 - membership validation;
+- membership/device binding registry;
+- identity-change quarantine and explicit reverification;
 - authorization policy;
 - trust epoch checks;
 - security event generation;
 - fail-closed behavior.
+
+### Current implementation hardening
+
+The current branch additionally enforces two high-value pairing invariants at the Security Core boundary:
+
+1. Pairing context is bound to the intended device identity as well as the account and trust epoch.
+2. Empty pairing identifiers are rejected before a pairing context can become active.
+
+A valid pairing context therefore cannot be reused to elevate a different pending device, even before the final protocol transcript construction is integrated. These are boundary controls; the final cryptographic binding remains delegated to the approved Protocol/Crypto implementation.
 
 ### KMP Shared Layer
 
