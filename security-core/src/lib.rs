@@ -41,9 +41,137 @@ pub enum TrustError {
     RevokedDevice,
     ReplacedDevice,
     DataRecoveryNotImpliedByAccountRecovery,
+    MalformedIdentityKey,
+    MalformedMembershipStatement,
+    IdentityCollision,
+    UnchangedIdentity,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PublicIdentityKey {
+    bytes: Vec<u8>,
+}
+
+impl PublicIdentityKey {
+    pub fn new(bytes: Vec<u8>) -> Result<Self, TrustError> {
+        if bytes.is_empty() {
+            return Err(TrustError::MalformedIdentityKey);
+        }
+        Ok(Self { bytes })
+    }
+
+    pub fn bytes(&self) -> &[u8] {
+        &self.bytes
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IdentityReference {
+    pub id: String,
+    pub public_key: PublicIdentityKey,
+}
+
+impl IdentityReference {
+    pub fn new(id: impl Into<String>, public_key: PublicIdentityKey) -> Result<Self, TrustError> {
+        let id = id.into();
+        if id.trim().is_empty() {
+            return Err(TrustError::MalformedIdentityKey);
+        }
+        Ok(Self { id, public_key })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AccountMembershipStatement {
+    pub protocol_version: u16,
+    pub account: IdentityReference,
+    pub device: IdentityReference,
+    pub issued_at_unix: u64,
+    pub not_before_unix: u64,
+    pub not_after_unix: Option<u64>,
+    pub trust_epoch: u64,
+    pub capabilities: u64,
+}
+
+impl AccountMembershipStatement {
+    pub fn validate_structure(&self) -> Result<(), TrustError> {
+        if self.protocol_version == 0 {
+            return Err(TrustError::MalformedMembershipStatement);
+        }
+        if self.issued_at_unix < self.not_before_unix {
+            return Err(TrustError::MalformedMembershipStatement);
+        }
+        if let Some(not_after) = self.not_after_unix {
+            if not_after <= self.not_before_unix {
+                return Err(TrustError::MalformedMembershipStatement);
+            }
+        }
+        if self.account.id == self.device.id {
+            return Err(TrustError::IdentityCollision);
+        }
+        Ok(())
+    }
+}
+
+pub trait MembershipProofVerifier {
+    fn verify_membership(&self, statement: &AccountMembershipStatement) -> Result<(), TrustError>;
+}
+
+pub fn validate_membership(
+    statement: &AccountMembershipStatement,
+    verifier: &impl MembershipProofVerifier,
+) -> Result<(), TrustError> {
+    statement.validate_structure()?;
+    verifier.verify_membership(statement)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ContactIdentityState {
+    Verified,
+    Quarantined,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ContactIdentity {
+    pub identity: IdentityReference,
+    pub state: ContactIdentityState,
+}
+
+impl ContactIdentity {
+    pub fn new(identity: IdentityReference) -> Self {
+        Self {
+            identity,
+            state: ContactIdentityState::Verified,
+        }
+    }
+
+    pub fn observe_identity_change(
+        &mut self,
+        replacement: IdentityReference,
+    ) -> Result<(), TrustError> {
+        if self.identity.id == replacement.id
+            && self.identity.public_key == replacement.public_key
+        {
+            return Err(TrustError::UnchangedIdentity);
+        }
+        self.identity = replacement;
+        self.state = ContactIdentityState::Quarantined;
+        Ok(())
+    }
+
+    pub fn reverify(&mut self, verified_identity: IdentityReference) -> Result<(), TrustError> {
+        if self.state != ContactIdentityState::Quarantined {
+            return Err(TrustError::InvalidStateTransition);
+        }
+        self.identity = verified_identity;
+        self.state = ContactIdentityState::Verified;
+        Ok(())
+    }
+}
+
 pub struct TrustRecord {
     pub account_id: String,
     pub device_id: String,
@@ -311,6 +439,98 @@ mod tests {
             TrustRecord::new("acct-a", "dev-a", PlatformAssurance::Software);
         record.enter_pending().unwrap();
         record
+    }
+
+
+    struct AcceptAllVerifier;
+
+    impl MembershipProofVerifier for AcceptAllVerifier {
+        fn verify_membership(
+            &self,
+            _statement: &AccountMembershipStatement,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn malformed_identity_key_is_rejected() {
+        assert_eq!(
+            PublicIdentityKey::new(Vec::new()),
+            Err(TrustError::MalformedIdentityKey)
+        );
+    }
+
+    #[test]
+    fn membership_statement_is_structurally_validated_before_crypto_verification() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-1", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 20,
+            not_before_unix: 10,
+            not_after_unix: Some(30),
+            trust_epoch: 7,
+            capabilities: 0,
+        };
+
+        validate_membership(&statement, &AcceptAllVerifier).unwrap();
+    }
+
+    #[test]
+    fn malformed_membership_time_window_is_rejected() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-1", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 5,
+            not_before_unix: 10,
+            not_after_unix: Some(9),
+            trust_epoch: 1,
+            capabilities: 0,
+        };
+
+        assert_eq!(
+            validate_membership(&statement, &AcceptAllVerifier),
+            Err(TrustError::MalformedMembershipStatement)
+        );
+    }
+
+    #[test]
+    fn identity_key_change_enters_quarantine_until_reverified() {
+        let old_key = PublicIdentityKey::new(vec![1]).unwrap();
+        let new_key = PublicIdentityKey::new(vec![2]).unwrap();
+        let old_identity = IdentityReference::new("dev-old", old_key).unwrap();
+        let new_identity = IdentityReference::new("dev-new", new_key).unwrap();
+        let mut contact = ContactIdentity::new(old_identity);
+
+        contact.observe_identity_change(new_identity.clone()).unwrap();
+        assert_eq!(contact.state, ContactIdentityState::Quarantined);
+
+        contact.reverify(new_identity).unwrap();
+        assert_eq!(contact.state, ContactIdentityState::Verified);
+    }
+
+    #[test]
+    fn identical_identity_change_is_rejected() {
+        let key = PublicIdentityKey::new(vec![1]).unwrap();
+        let identity = IdentityReference::new("dev-a", key).unwrap();
+        let mut contact = ContactIdentity::new(identity.clone());
+
+        assert_eq!(
+            contact.observe_identity_change(identity),
+            Err(TrustError::UnchangedIdentity)
+        );
     }
 
     #[test]
