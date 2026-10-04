@@ -562,6 +562,13 @@ mod tests {
     struct AcceptAllVerifier;
 
     impl MembershipProofVerifier for AcceptAllVerifier {
+        fn verify_identity_binding(
+            &self,
+            _identity: &IdentityReference,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+
         fn verify_membership(
             &self,
             _statement: &AccountMembershipStatement,
