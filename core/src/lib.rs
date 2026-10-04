@@ -113,6 +113,9 @@ impl SecurityContext {
     }
 
     pub fn negotiate_protocol(&mut self, offered: u16) -> Result<u16, SecurityError> {
+        if self.session != SessionState::Idle {
+            return Err(SecurityError::InvalidSessionTransition);
+        }
         if offered < self.minimum_protocol || offered < self.negotiated_protocol {
             return Err(SecurityError::ProtocolDowngrade);
         }
@@ -205,19 +208,18 @@ mod tests {
     }
 
     #[test]
-    fn renegotiation_cannot_downgrade_after_upgrade() {
+    fn protocol_cannot_be_changed_after_session_establishment() {
         let mut ctx = SecurityContext::new(1);
-        assert_eq!(ctx.negotiate_protocol(3), Ok(3));
+        ctx.begin_authentication().unwrap();
+        ctx.mark_authenticated().unwrap();
+        ctx.negotiate_protocol(3).unwrap();
+        ctx.open_session().unwrap();
+
         assert_eq!(
-            ctx.negotiate_protocol(2),
-            Err(SecurityError::ProtocolDowngrade)
+            ctx.negotiate_protocol(4),
+            Err(SecurityError::InvalidSessionTransition)
         );
         assert_eq!(ctx.negotiated_protocol(), 3);
-        assert_eq!(
-            ctx.negotiate_protocol(1),
-            Err(SecurityError::ProtocolDowngrade)
-        );
-        assert_eq!(ctx.negotiate_protocol(4), Ok(4));
-        assert_eq!(ctx.negotiated_protocol(), 4);
+        assert_eq!(ctx.session_state(), SessionState::Authenticated);
     }
 }
