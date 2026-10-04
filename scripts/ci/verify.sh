@@ -5,6 +5,21 @@ echo "== Eagle CI verification =="
 echo "OS: $(uname -s)"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+verify_rust_toolchain() {
+  test -f rust-toolchain.toml
+
+  rustc --version | grep -q '^rustc 1\.99\.0'
+  cargo --version | grep -q '^cargo 1\.99\.0'
+  rustup show active-toolchain | grep -q '^1\.99\.0'
+
+  active="$(rustup show active-toolchain | awk '{print $1}')"
+  default="$(rustup toolchain list | awk '/\(default\)/{print $1}')"
+  if [[ "$active" = "$default" ]]; then
+    echo "ERROR: active Rust toolchain equals rustup default; repository rust-toolchain.toml was not proven to be the selected override."
+    exit 1
+  fi
+}
+
 run_npm() {
   echo "== Node.js project detected =="
   node --version
@@ -55,6 +70,7 @@ run_go() {
 
 run_rust() {
   echo "== Rust project detected =="
+  verify_rust_toolchain
   rustc --version
   if [[ -f Cargo.lock ]]; then
     cargo test --locked

@@ -1,0 +1,123 @@
+name: Rust Core
+
+on:
+  pull_request:
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "core/**"
+      - "rust-toolchain.toml"
+      - ".github/workflows/rust-core.yml"
+      - "scripts/ci/verify.sh"
+  push:
+    branches: [main, "implementation/**"]
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "core/**"
+      - "rust-toolchain.toml"
+      - ".github/workflows/rust-core.yml"
+      - "scripts/ci/verify.sh"
+
+permissions:
+  contents: read
+
+jobs:
+  rust-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read repository Rust toolchain policy
+        id: rust_toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import tomllib
+          from pathlib import Path
+
+          data = tomllib.loads(Path("rust-toolchain.toml").read_text(encoding="utf-8"))
+          toolchain = data.get("toolchain", {})
+          channel = toolchain.get("channel")
+          profile = toolchain.get("profile")
+          components = toolchain.get("components", [])
+
+          if channel != "1.99.0":
+              raise SystemExit(f"unexpected Rust channel: {channel!r}")
+          if profile != "minimal":
+              raise SystemExit(f"unexpected Rust profile: {profile!r}")
+          if set(components) != {"rustfmt", "clippy"}:
+              raise SystemExit(f"unexpected Rust components: {components!r}")
+
+          with open("${GITHUB_OUTPUT}", "a", encoding="utf-8") as output:
+              output.write(f"channel={channel}\n")
+              output.write(f"components={','.join(components)}\n")
+          PY
+
+      - name: Install repository Rust toolchain
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # reviewed upstream commit
+        with:
+          toolchain: ${{ steps.rust_toolchain.outputs.channel }}
+          components: ${{ steps.rust_toolchain.outputs.components }}
+
+      - name: Assert rust-toolchain.toml was actually applied
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f rust-toolchain.toml
+          rustc --version | grep -q '^rustc 1\.99\.0'
+          cargo --version | grep -q '^cargo 1\.99\.0'
+          rustup show active-toolchain | grep -q '^1\.99\.0'
+
+          active="$(rustup show active-toolchain | awk '{print $1}')"
+          default="$(rustup toolchain list | awk '/\(default\)/{print $1}')"
+          if [ "$active" = "$default" ]; then
+            echo "WARN: active == default; rust-toolchain.toml may not be applied"
+            exit 1
+          fi
+
+      - name: Check Rust workspace presence
+        id: rust_workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f Cargo.toml ]]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "Rust workspace not present yet; Step 1 toolchain policy is installed and Step 2 will introduce the workspace."
+          fi
+
+      - name: Cache Rust build
+        if: steps.rust_workspace.outputs.present == 'true'
+        uses: Swatinem/rust-cache@66b1e9526150e74ddd7e4190356facd783fb3b44 # reviewed upstream commit
+
+      - name: Check formatting
+        if: steps.rust_workspace.outputs.present == 'true'
+        run: cargo fmt --all -- --check
+
+      - name: Test workspace
+        if: steps.rust_workspace.outputs.present == 'true'
+        run: cargo test --workspace
+
+      - name: Verify UniFFI Kotlin generation
+        if: steps.rust_workspace.outputs.present == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build -p eagle-core-ffi --release
+          rm -rf shared/build/generated/uniffi/ci
+          mkdir -p shared/build/generated/uniffi/ci
+          cargo run -p eagle-core-ffi --features uniffi/cli --bin uniffi-bindgen -- \
+            generate \
+            --config core/ffi/uniffi.toml \
+            --library target/release/libeagle_core_ffi.so \
+            --language kotlin \
+            --out-dir shared/build/generated/uniffi/ci
+          test -n "$(find shared/build/generated/uniffi/ci -type f -name '*.kt' -print -quit)"
+
+      - name: Clippy
+        if: steps.rust_workspace.outputs.present == 'true'
+        run: cargo clippy --workspace --all-targets -- -D warnings

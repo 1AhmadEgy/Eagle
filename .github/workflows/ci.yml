@@ -28,6 +28,55 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Read repository Rust toolchain policy
+        id: rust_toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import tomllib
+          from pathlib import Path
+
+          data = tomllib.loads(Path("rust-toolchain.toml").read_text(encoding="utf-8"))
+          toolchain = data.get("toolchain", {})
+          channel = toolchain.get("channel")
+          profile = toolchain.get("profile")
+          components = toolchain.get("components", [])
+
+          if channel != "1.99.0":
+              raise SystemExit(f"unexpected Rust channel: {channel!r}")
+          if profile != "minimal":
+              raise SystemExit(f"unexpected Rust profile: {profile!r}")
+          if set(components) != {"rustfmt", "clippy"}:
+              raise SystemExit(f"unexpected Rust components: {components!r}")
+
+          with open("${GITHUB_OUTPUT}", "a", encoding="utf-8") as output:
+              output.write(f"channel={channel}\n")
+              output.write(f"components={','.join(components)}\n")
+          PY
+
+      - name: Install repository Rust toolchain
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # reviewed upstream commit
+        with:
+          toolchain: ${{ steps.rust_toolchain.outputs.channel }}
+          components: ${{ steps.rust_toolchain.outputs.components }}
+
+      - name: Assert rust-toolchain.toml was actually applied
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f rust-toolchain.toml
+          rustc --version | grep -q '^rustc 1\.99\.0'
+          cargo --version | grep -q '^cargo 1\.99\.0'
+          rustup show active-toolchain | grep -q '^1\.99\.0'
+
+          active="$(rustup show active-toolchain | awk '{print $1}')"
+          default="$(rustup toolchain list | awk '/\(default\)/{print $1}')"
+          if [ "$active" = "$default" ]; then
+            echo "WARN: active == default; rust-toolchain.toml may not be applied"
+            exit 1
+          fi
+
       - name: Verify repository hygiene
         shell: bash
         run: |
