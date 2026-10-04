@@ -11,13 +11,34 @@
   },
   "planned_platform_paths_are_not_required_to_exist": true,
   "adr_state": {
-    "ADR-0008": {"status": "proposed", "representation": "docs/03-architecture/adr/ADR-0008.md"},
-    "ADR-0009": {"status": "proposed", "representation": "docs/03-architecture/adr/ADR-0009.md"},
-    "ADR-0010": {"status": "proposed", "representation": "docs/03-architecture/adr/ADR-0010.md"},
-    "ADR-0011": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"},
-    "ADR-0012": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"},
-    "ADR-0013": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"},
-    "ADR-0014": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"}
+    "ADR-0008": {
+      "status": "proposed",
+      "representation": "docs/03-architecture/adr/ADR-0008.md"
+    },
+    "ADR-0009": {
+      "status": "proposed",
+      "representation": "docs/03-architecture/adr/ADR-0009.md"
+    },
+    "ADR-0010": {
+      "status": "proposed",
+      "representation": "docs/03-architecture/adr/ADR-0010.md"
+    },
+    "ADR-0011": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    },
+    "ADR-0012": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    },
+    "ADR-0013": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    },
+    "ADR-0014": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    }
   },
   "implementation_baseline": {
     "android_app": true,
@@ -36,5 +57,18 @@
     "target_sdk": 37,
     "min_sdk": 29,
     "unit_test_framework": "junit:junit:4.13.2"
+  },
+  "workflow_pins": {
+    "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+    "actions/setup-java": "de7274f081f381c8f8158605e0321c36c376e2e6",
+    "gradle/actions/setup-gradle": "f29f5a9d7b09a7c6b29859002d29d24e1674c884",
+    "actions/upload-artifact": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+    "gitleaks/gitleaks-action": "e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e"
+  },
+  "repository_metadata": {
+    "visibility_observed": "public",
+    "ownership_intent": "PRIVATE / ALL RIGHTS RESERVED",
+    "legal_holder": "UNCONFIRMED",
+    "visibility_change_requires_owner_action": true
   }
 }
