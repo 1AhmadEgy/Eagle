@@ -271,7 +271,7 @@ impl TrustRecord {
         if self.account_id != account_id {
             return Err(TrustError::AccountMismatch);
         }
-        pairing.consume(current_epoch)?;
+        if pairing.account_id != self.account_id || pairing.device_id != self.device_id {\n            return Err(TrustError::PairingDeviceMismatch);\n        }\n        pairing.consume(current_epoch)?;
         self.state = TrustState::Trusted;
         self.trust_epoch = current_epoch;
         Ok(SecurityEvent::TrustPromoted {
@@ -387,7 +387,7 @@ impl PairingContext {
         if self.account_id != account_id {
             return Err(TrustError::AccountMismatch);
         }
-        if self.state == PairingState::Cancelled {
+        if self.device_id != device_id {\n            return Err(TrustError::PairingDeviceMismatch);\n        }\n        if self.state == PairingState::Cancelled {
             return Err(TrustError::PairingCancelled);
         }
         if self.state == PairingState::Consumed {
@@ -694,7 +694,7 @@ mod tests {
             TrustRecord::new("acct-a", "dev-a", PlatformAssurance::HardwareBacked);
         record.enter_pending().unwrap();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 7).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 7).unwrap();
 
         let event = record.approve_trust("acct-a", &mut pairing, 7).unwrap();
 
@@ -710,7 +710,7 @@ mod tests {
     fn mismatched_account_is_rejected() {
         let mut record = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 1).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
         assert_eq!(
             record.approve_trust("acct-b", &mut pairing, 1),
@@ -722,12 +722,12 @@ mod tests {
     fn pairing_is_single_use() {
         let mut record = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 3).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 3).unwrap();
 
         record.approve_trust("acct-a", &mut pairing, 3).unwrap();
 
         assert_eq!(
-            pairing.verify("acct-a", 3),
+            pairing.verify("acct-a", "dev-a", 3),
             Err(TrustError::PairingAlreadyConsumed)
         );
     }
@@ -735,10 +735,10 @@ mod tests {
     #[test]
     fn pairing_expiry_is_enforced() {
         let pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(0), 4).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(0), 4).unwrap();
 
         assert_eq!(
-            pairing.verify("acct-a", 4),
+            pairing.verify("acct-a", "dev-a", 4),
             Err(TrustError::PairingExpired)
         );
     }
@@ -749,7 +749,7 @@ mod tests {
             TrustRecord::new("acct-a", "dev-a", PlatformAssurance::PlatformAttested);
         record.enter_pending().unwrap();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 8).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 8).unwrap();
 
         record.approve_trust("acct-a", &mut pairing, 8).unwrap();
 
@@ -767,7 +767,7 @@ mod tests {
     fn revocation_blocks_future_authorization() {
         let mut record = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 1).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
         record.approve_trust("acct-a", &mut pairing, 1).unwrap();
         let event = record.revoke(2).unwrap();
@@ -800,7 +800,7 @@ mod tests {
 
         let mut replaced = pending_record();
         let mut replacement_pairing =
-            PairingContext::new("pair-2", "acct-a", Duration::from_secs(60), 3).unwrap();
+            PairingContext::new("pair-2", "acct-a", "dev-a", Duration::from_secs(60), 3).unwrap();
         replaced
             .approve_trust("acct-a", &mut replacement_pairing, 3)
             .unwrap();
@@ -815,7 +815,7 @@ mod tests {
     fn suspended_device_cannot_start_session() {
         let mut record = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 5).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 5).unwrap();
         record.approve_trust("acct-a", &mut pairing, 5).unwrap();
         record.suspend().unwrap();
 
@@ -839,7 +839,7 @@ mod tests {
     fn trust_epoch_must_increase_for_revocation() {
         let mut record = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 2).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 2).unwrap();
         record.approve_trust("acct-a", &mut pairing, 2).unwrap();
 
         assert_eq!(
@@ -880,7 +880,7 @@ mod tests {
         pairing.cancel().unwrap();
 
         assert_eq!(
-            pairing.verify("acct-a", 1),
+            pairing.verify("acct-a", "dev-a", 1),
             Err(TrustError::PairingCancelled)
         );
         assert_eq!(
