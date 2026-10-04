@@ -1,6 +1,7 @@
 use eagle_core::protocol::OpaqueId;
 use eagle_core::storage::{
-    EncryptedRecord, RecordId, RecordStore, SchemaVersion, StorageError, CURRENT_SCHEMA_VERSION,
+    EncryptedRecord, RecordId, RecordStore, RecoveryState, SchemaVersion, StorageError,
+    CURRENT_SCHEMA_VERSION,
 };
 use eagle_core_reference::record_store::MemoryRecordStore;
 
@@ -38,8 +39,10 @@ fn deletion_returns_receipt_and_removes_record() {
     let item = record(1);
     store.put(item.clone()).unwrap();
     let receipt = store.delete(item.record_id).unwrap();
-    assert_eq!(receipt.record_id, item.record_id);
-    assert_eq!(receipt.schema_version, CURRENT_SCHEMA_VERSION);
+    assert_eq!(receipt, eagle_core::storage::DeletionReceipt {
+        record_id: item.record_id,
+        schema_version: CURRENT_SCHEMA_VERSION
+    });
     assert_eq!(store.get(item.record_id).unwrap(), None);
 }
 
@@ -56,7 +59,7 @@ fn recovery_required_fails_closed_for_new_writes() {
     let mut store = MemoryRecordStore::new();
     store.require_recovery();
     assert_eq!(store.put(record(1)), Err(StorageError::RecoveryRequired));
-    assert_eq!(store.recovery_state(), eagle_core::storage::RecoveryState::RecoveryRequired);
+    assert_eq!(store.recovery_state(), RecoveryState::RecoveryRequired);
     store.mark_recovered();
     assert_eq!(store.put(record(1)), Ok(()));
 }
