@@ -54,3 +54,20 @@ Release Gate PASS
 ```
 
 No stage may be skipped by administrative declaration.
+
+
+## Verified evidence snapshot
+
+**Verified execution head before this documentation-only update:** `cdab10de4f3c2e374f12976230fb71c59ea7b0e2`
+
+- Rust Security Core: 14/14 unit tests passed.
+- Repository verification: PASS.
+- Secret scan: PASS.
+- Security policy verification: PASS.
+- Android Unit Tests: PASS.
+- Android Lint: PASS.
+- Android Debug Build: PASS.
+- CodeQL: PASS.
+- Gradle dependency submission: PASS.
+
+These results verify the implemented baseline only. They do not approve the unresolved protocol/key-management/recovery ADRs.
