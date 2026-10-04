@@ -33,17 +33,25 @@
 
 ## CI evidence
 
-The previously observed workflow run `37186816728` failed during `cargo test --workspace` because the transport oversized-frame test referenced an undefined `result` value. The same run also reported an unused `ProtocolError` import in storage.
+The first relevant workflow run `37186816728` failed during `cargo test --workspace` because the transport oversized-frame test referenced an undefined `result` value. It also reported an unused `ProtocolError` import in storage.
 
-Those two defects were corrected on the active branch:
+Those issues were corrected:
 - transport oversized-frame test now constructs the frame result before asserting rejection;
-- unused storage import was removed.
+- the unused top-level storage import was removed.
 
-The correction is not marked verified until a new CI run executes successfully.
+The next Rust Core run `37187087282` then exposed a second compile error: a storage unit test still referenced `ProtocolError` after the top-level import had been removed.
+
+That second issue was corrected by scoping the reference directly as `crate::protocol::ProtocolError::EmptyIdentifier` in the test.
+
+A further negative transport test was added to guarantee that a closed transport cannot reconnect.
+
+The current head is `7e56e26756bb2125b7124b60bfb5fbc4c4903c46`. New CI executions have been observed for this head; their completion result is not yet accepted as evidence until the run status is terminal.
 
 ## Current gate
 
 **NOT GREEN YET.**
+
+A green gate requires successful Rust Core and repository/Test Lab verification on the corrected head.
 
 Required next evidence:
 1. Rust Core: `cargo fmt --check`, `cargo test --workspace`, UniFFI Kotlin generation, and clippy.
