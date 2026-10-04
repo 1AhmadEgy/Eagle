@@ -158,6 +158,15 @@ scenarios:
     expected: DENY
     invariant: I-16
 
+  - id: IT-SC-018
+    name: rejected-identity-reverification
+    preconditions:
+      contact_state: QUARANTINED
+      reverification_verifier: REJECTS
+    action: reverify-identity
+    expected: DENY_AND_REMAIN_QUARANTINED
+    invariant: I-17
+
 deferred_protocol_cases:
   - transcript-tampering
   - identity-signature-forgery
