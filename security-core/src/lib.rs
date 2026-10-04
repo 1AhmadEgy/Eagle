@@ -50,6 +50,7 @@ pub enum TrustError {
     MembershipAccountMismatch,
     PairingDeviceMismatch,
     MalformedPairingContext,
+    PairingExpiryOverflow,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -107,7 +108,7 @@ impl AccountMembershipStatement {
             return Err(TrustError::MalformedMembershipStatement);
         }
         if let Some(not_after) = self.not_after_unix {
-            if not_after <= self.not_before_unix {
+            if not_after <= self.not_before_unix || self.issued_at_unix > not_after {
                 return Err(TrustError::MalformedMembershipStatement);
             }
         }
@@ -386,7 +387,9 @@ impl PairingContext {
             return Err(TrustError::MalformedPairingContext);
         }
         let now = now_unix().ok_or(TrustError::PairingExpired)?;
-        let expires_at_unix = now.saturating_add(ttl.as_secs());
+        let expires_at_unix = now
+            .checked_add(ttl.as_secs())
+            .ok_or(TrustError::PairingExpiryOverflow)?;
         Ok(Self {
             token_id,
             account_id,
@@ -671,6 +674,30 @@ mod tests {
     }
 
     #[test]
+    fn membership_statement_issued_after_expiry_is_rejected() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-1", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 100,
+            not_before_unix: 10,
+            not_after_unix: Some(50),
+            trust_epoch: 1,
+            capabilities: 0,
+        };
+
+        assert_eq!(
+            statement.validate_structure(),
+            Err(TrustError::MalformedMembershipStatement)
+        );
+    }
+
+    #[test]
     fn identity_key_change_enters_quarantine_until_reverified() {
         let old_key = PublicIdentityKey::new(vec![1]).unwrap();
         let new_key = PublicIdentityKey::new(vec![2]).unwrap();
@@ -745,6 +772,14 @@ mod tests {
         assert_eq!(
             PairingContext::new("pair-1", "acct-a", "", Duration::from_secs(60), 1),
             Err(TrustError::MalformedPairingContext)
+        );
+    }
+
+    #[test]
+    fn pairing_expiry_overflow_fails_closed() {
+        assert_eq!(
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(u64::MAX), 1),
+            Err(TrustError::PairingExpiryOverflow)
         );
     }
 
