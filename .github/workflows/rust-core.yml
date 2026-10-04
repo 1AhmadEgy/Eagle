@@ -1,0 +1,50 @@
+name: Rust Core
+
+on:
+  pull_request:
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - "core/**"
+      - ".github/workflows/rust-core.yml"
+  push:
+    branches:
+      - main
+      - "implementation/**"
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - "core/**"
+      - ".github/workflows/rust-core.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  rust-core:
+    name: Rust state foundation verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Rust 1.99.0
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # verified upstream commit
+        with:
+          toolchain: "1.99.0"
+          components: rustfmt, clippy
+
+      - name: Restore Rust cache
+        uses: Swatinem/rust-cache@66b1e9526150e74ddd7e4190356facd783fb3b44 # verified upstream commit
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Unit and integration tests
+        run: cargo test --workspace --locked
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
