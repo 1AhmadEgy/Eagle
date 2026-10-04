@@ -36,6 +36,8 @@ pub enum TrustError {
     PairingCancelled,
     PairingAlreadyCompleted,
     TrustEpochStale,
+    TrustEpochNotMonotonic,
+    TrustEpochOverflow,
     RevokedDevice,
     ReplacedDevice,
     DataRecoveryNotImpliedByAccountRecovery,
@@ -104,6 +106,9 @@ impl TrustRecord {
     }
 
     pub fn revoke(&mut self, new_epoch: u64) -> Result<SecurityEvent, TrustError> {
+        if new_epoch <= self.trust_epoch {
+            return Err(TrustError::TrustEpochNotMonotonic);
+        }
         match self.state {
             TrustState::Trusted | TrustState::Suspended => {
                 self.state = TrustState::Revoked;
@@ -119,6 +124,9 @@ impl TrustRecord {
     }
 
     pub fn replace(&mut self, new_epoch: u64) -> Result<(), TrustError> {
+        if new_epoch <= self.trust_epoch {
+            return Err(TrustError::TrustEpochNotMonotonic);
+        }
         if !matches!(self.state, TrustState::Trusted | TrustState::Suspended) {
             return Err(TrustError::InvalidStateTransition);
         }
@@ -261,15 +269,18 @@ impl TrustEpochSet {
         self.current
     }
 
-    pub fn advance(&mut self) -> u64 {
-        self.current = self.current.saturating_add(1);
-        self.current
+    pub fn advance(&mut self) -> Result<u64, TrustError> {
+        self.current = self
+            .current
+            .checked_add(1)
+            .ok_or(TrustError::TrustEpochOverflow)?;
+        Ok(self.current)
     }
 
-    pub fn revoke_device(&mut self, device_id: impl Into<String>) -> u64 {
-        let epoch = self.advance();
+    pub fn revoke_device(&mut self, device_id: impl Into<String>) -> Result<u64, TrustError> {
+        let epoch = self.advance()?;
         self.revoked_devices.insert(device_id.into());
-        epoch
+        Ok(epoch)
     }
 
     pub fn is_revoked(&self, device_id: &str) -> bool {
@@ -287,7 +298,8 @@ fn now_unix() -> Option<u64> {
 fn safe_identifier(value: &str) -> String {
     // Production identifiers/hashes belong to the approved cryptographic/key-management
     // module. This label is intentionally non-cryptographic and is safe for audit events.
-    format!("id:{}", value.len())
+    let _ = value;
+    "redacted".to_owned()
 }
 
 #[cfg(test)]
@@ -447,7 +459,7 @@ mod tests {
     fn trust_epoch_set_is_monotonic_and_tracks_revocation() {
         let mut epochs = TrustEpochSet::new(10);
         assert_eq!(epochs.current(), 10);
-        let next = epochs.revoke_device("dev-a");
+        let next = epochs.revoke_device("dev-a").unwrap();
         assert_eq!(next, 11);
         assert_eq!(epochs.current(), 11);
         assert!(epochs.is_revoked("dev-a"));
