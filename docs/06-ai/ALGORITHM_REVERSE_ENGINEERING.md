@@ -127,6 +127,8 @@ Never put:
 
 ## 8. Feature extraction
 
+Current implementation: `SecurityFeatureExtractor` converts bounded ordered `SecurityEvent` windows into integer-scaled `FeatureVector` values. Build verification remains pending.
+
 Feature extraction must be deterministic and versioned.
 
 Example:
