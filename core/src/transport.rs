@@ -188,6 +188,7 @@ mod tests {
         assert_eq!(transport.state(), TransportState::Closed);
         assert_eq!(transport.send(frame()), Err(TransportError::Closed));
         assert_eq!(transport.receive(), Err(TransportError::Closed));
+        assert_eq!(transport.connect(), Err(TransportError::Closed));
     }
 
     #[test]
