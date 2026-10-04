@@ -163,8 +163,24 @@ class StatisticalBaselineBenchmarkTest {
             }
             val end = System.nanoTime()
             timings[i] = (end - start) / (dataset.size * 5L)
+
+            if (cpuBean != null && cpuBean.isThreadCpuTimeEnabled) {
+                val cpuStart = cpuBean.currentThreadCpuTime
+                repeat(5) {
+                    dataset.forEach { sample ->
+                        run(method, sample.history, sample.current, thresholdMilli)
+                    }
+                }
+                val cpuEnd = cpuBean.currentThreadCpuTime
+                cpuTimes[i] = (cpuEnd - cpuStart) / (dataset.size * 5L)
+            }
         }
         timings.sort()
+        val sortedCpuTimes = cpuTimes.filter { it > 0 }.sorted()
+        val cpuIndex95 = if (sortedCpuTimes.isEmpty()) 0 else
+            (sortedCpuTimes.size * 95 / 100).coerceAtMost(sortedCpuTimes.lastIndex)
+        val medianCpu = sortedCpuTimes.getOrNull(sortedCpuTimes.size / 2) ?: 0L
+        val p95Cpu = sortedCpuTimes.getOrNull(cpuIndex95) ?: 0L
 
         return BenchmarkMethodResult(
             method = method,
@@ -173,6 +189,8 @@ class StatisticalBaselineBenchmarkTest {
             driftSensitivity = driftSensitivity,
             medianNsPerInference = timings[timings.size / 2],
             p95NsPerInference = timings[(timings.size * 95 / 100).coerceAtMost(timings.lastIndex)],
+            medianCpuNsPerInference = medianCpu,
+            p95CpuNsPerInference = p95Cpu,
             deterministicDigest = deterministicDigest
         )
     }
@@ -225,7 +243,7 @@ private object BenchmarkDataset {
     }
 
     fun digest(dataset: List<BenchmarkSample>): String {
-        val canonical = dataset.joinToString(System.lineSeparator()) { sample ->
+        val canonical = dataset.joinToString("\n") { sample ->
             listOf(
                 sample.id,
                 sample.feature.name,
@@ -267,6 +285,8 @@ private object StatisticalBenchmarkReport {
                 .append(",\"driftSensitivity\":").append(format(result.driftSensitivity))
                 .append(",\"medianNsPerInference\":").append(result.medianNsPerInference)
                 .append(",\"p95NsPerInference\":").append(result.p95NsPerInference)
+                .append(",\"medianCpuNsPerInference\":").append(result.medianCpuNsPerInference)
+                .append(",\"p95CpuNsPerInference\":").append(result.p95CpuNsPerInference)
                 .append(",\"deterministicDigest\":\"").append(result.deterministicDigest).append("\"")
                 .append("}")
         }
