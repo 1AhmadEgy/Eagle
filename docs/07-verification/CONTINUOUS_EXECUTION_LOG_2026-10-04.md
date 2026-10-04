@@ -168,6 +168,20 @@ The repository also does not contain a Gradle Wrapper, so there is no self-conta
 | FeatureVector extractor | Next implementation slice |
 | Z-score / EWMA production use | Deferred |
 
+### Statistical baseline
+
+Implementation:
+app/src/main/java/com/eagle/app/security/StatisticalBaseline.kt
+
+Tests:
+app/src/test/java/com/eagle/app/security/StatisticalBaselineTest.kt
+
+Documentation:
+- docs/04-security/STATISTICAL_BASELINE.md
+- docs/03-architecture/adr/ADR-0021.md
+
+Implemented deterministic Z-score, EWMA, and Median/MAD signals. Arithmetic was reviewed after implementation and changed to BigInteger intermediates for mean and EWMA updates so large signed inputs cannot overflow a 64-bit multiplication during baseline calculation. Production thresholds remain unapproved.
+
 ## 6. Next gated slice
 
 The deterministic SecurityEvent -> FeatureVector baseline is now implemented.
