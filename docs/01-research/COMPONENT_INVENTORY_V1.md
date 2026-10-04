@@ -31,3 +31,8 @@ No security-sensitive dependency is promoted from study to integration without:
 ## Explicit safety rule
 
 The Rust foundation is a policy/state layer. It does not verify cryptographic identity and does not encrypt messages. Any future API that performs those roles must be introduced only with the corresponding protocol/key-management evidence.
+
+
+## Evidence refresh 2026-10-04
+
+Protocol evidence was refreshed against current upstream repositories. The exact current vodozemac release is recorded as v0.11.1 at commit `3e11ae87d157da6bcac3cbf7825d37c8f5ed60af`; OpenMLS latest listed release is v0.9.0; libsignal upstream workspace reports 0.104.0 and remains blocked for external-use/support/license reasons. Android Keystore/StrongBox behavior was rechecked against current Android developer documentation.
