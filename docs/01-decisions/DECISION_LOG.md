@@ -14,3 +14,4 @@
 كل قرار جديد يجب أن يوضح: السياق، المشكلة، الخيارات، القرار، الآثار، المخاطر، وطريقة التراجع/التغيير.
 
 | ADR-0007 | Technology & Research Radar: reuse mature external components behind Eagle-owned contracts | معتمد مبدئيًا | docs/research/technology-radar.md + evidence register |
+| ADR-0008 | Canonical Source Selection for V1 Foundation | مقترح | docs/01-decisions/ADR-0008-canonical-source-selection.md + pre-consolidation evidence |
