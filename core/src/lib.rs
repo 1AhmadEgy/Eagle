@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod ai;
 pub mod identity;
 pub mod policy;
 pub mod self_model;
