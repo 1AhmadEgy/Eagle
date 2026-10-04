@@ -2,10 +2,12 @@
 
 pub mod identity;
 pub mod policy;
+pub mod protocol;
 pub mod session;
 
 pub use identity::{Identity, PrincipalId};
 pub use policy::{authorize, Capability};
+pub use protocol::{EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError};
 pub use session::Session;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
