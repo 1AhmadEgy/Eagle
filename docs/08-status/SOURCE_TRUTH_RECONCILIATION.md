@@ -6,68 +6,59 @@
 
 ## Finding
 
-The repository contains a **historical Android/test bootstrap**, but the current `main` tree does not contain the corresponding Android application source or Gradle project files.
+The current `main` tree **does contain a minimal Android application/test runtime**. Earlier wording that said no current Android source tree was verified was incorrect and is superseded by this record.
 
-This distinction is now treated as a repository invariant:
+Verified current source includes:
 
-- Historical commits are evidence of prior work.
-- Current `main` files are the source-of-truth for implemented behavior.
-- Architecture documents may describe intended structure, but they do not prove implementation.
-- Historical code must not be promoted back into the product without fresh review, dependency verification, tests, and an explicit implementation decision.
+- `settings.gradle.kts`
+- root `build.gradle.kts`
+- `gradle.properties`
+- `app/build.gradle.kts`
+- `app/src/main/AndroidManifest.xml`
+- `app/src/main/java/com/eagle/app/MainActivity.kt`
+- `app/src/test/java/com/eagle/app/SmokeTest.kt`
 
-## Evidence
+The current app is a minimal **Eagle Test Lab** bootstrap, not yet the intended Rust Security Core + KMP architecture.
 
-A historical commit `bcbf5c7b0df881a4b166fc26e3855cd26d642f51` added `settings.gradle.kts` with an Android `:app` include.
+## Historical evidence
 
-Other historical bootstrap commits added:
+Commit `bcbf5c7b0df881a4b166fc26e3855cd26d642f51` contains the same foundational Android files and confirms that this bootstrap was deliberately introduced historically.
 
-- root Gradle configuration;
-- `gradle.properties`;
-- `scripts/pre-push-gate.sh`;
-- Test Lab documentation;
-- Android CI configuration.
+Historical evidence is useful for provenance, but current files remain the implementation source of truth.
 
-The current `main` tree was independently searched for:
+## Current implementation boundary
 
-- `settings.gradle(.kts)`
-- `build.gradle(.kts)`
-- `gradlew`
-- `app/`
-- `src/`
-- `android/`
-- Kotlin source
-- Rust source / `Cargo.toml`
+The verified runtime is currently:
 
-No current product source tree was verified by that search.
+`Android Activity -> minimal application`
+
+It is **not yet verified** as:
+
+`Android -> KMP Shared Layer -> Rust Security Core / UniFFI`
+
+No product authentication, identity, session, replay, rate-limiting, or ML runtime was verified before this foundation work.
 
 ## Consequence
 
-The platform document previously described Android as “In progress — `androidApp/`”. That wording overstated implementation evidence and has been corrected to distinguish **target architecture** from **verified source**.
+Architecture documents must distinguish:
+
+- **Implemented:** present in the current source tree and testable.
+- **Target:** intended architecture not yet implemented.
+- **Historical:** previously present or proposed, but not current authority.
 
 ## Implementation rule
 
-Before implementing Authentication, Identity, Session, Replay Detection, Rate Limiting, or ML:
+Security components may now be implemented against the verified Android/JVM test runtime, but promotion into a production security boundary requires:
 
-1. Establish the authoritative V1 requirements.
-2. Decide whether the historical Android bootstrap is to be restored or replaced.
-3. Review its exact dependencies and versions.
-4. Establish the actual Rust/KMP/Android module layout.
-5. Add security contracts and tests in the real source tree.
-6. Run the repository verification gates.
-7. Record the decision in an ADR.
+1. authoritative requirement;
+2. threat-model mapping;
+3. deterministic contract;
+4. test vectors;
+5. runtime/build verification;
+6. concurrency/performance evidence where relevant;
+7. dependency/license review;
+8. ADR approval.
 
-## Security rule
+## Relation to AI/ML
 
-No historical artifact is executable authority merely because it exists in Git history. Archive and historical material remains evidence until independently reviewed.
-
-## Relation to AI/ML work
-
-The AI/ML reverse-engineering documents remain valid: there is no verified product ML implementation in the current `main` baseline. The correct next step is to establish the actual product source/runtime boundary first, then implement deterministic security telemetry and controls before introducing ML.
-
-## References
-
-- `docs/EXECUTION-READINESS.md`
-- `docs/13-execution/EXECUTION_CONTINUATION_PLAN.md`
-- `docs/03-architecture/PLATFORMS.md`
-- `docs/06-ai/AI_REVERSE_ENGINEERING.md`
-- `docs/06-ai/ALGORITHM_REVERSE_ENGINEERING.md`
+The AI/ML reverse-engineering documents remain valid regarding product AI: no verified product ML implementation was found. The next sequence is deterministic security controls and telemetry first, followed by measured statistical baselines, then ML only when real data and evaluation evidence justify it.
