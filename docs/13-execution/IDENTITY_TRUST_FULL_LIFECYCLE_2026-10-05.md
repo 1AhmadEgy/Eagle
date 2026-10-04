@@ -326,7 +326,7 @@ must restart the cycle from Inventory/Provenance/Classification and re-run affec
 
 ```text
 1–14 = completed to current evidence boundary
-15   = awaiting fresh CI evidence for latest hardening
+15   = awaiting fresh CI evidence for latest proof-boundary hardening
 16   = evidence maintained
 17–18 = BLOCKED / not releasable
 19   = not active
