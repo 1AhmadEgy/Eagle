@@ -84,8 +84,8 @@ impl EncryptedEnvelope {
 
     pub fn frame_header(&self) -> Result<FrameHeader, ProtocolError> {
         self.validate(CURRENT_PROTOCOL_VERSION)?;
-        let payload_len = u32::try_from(self.ciphertext.len())
-            .map_err(|_| ProtocolError::PayloadTooLarge)?;
+        let payload_len =
+            u32::try_from(self.ciphertext.len()).map_err(|_| ProtocolError::PayloadTooLarge)?;
         Ok(FrameHeader {
             protocol_version: self.protocol_version,
             payload_len,
@@ -106,10 +106,7 @@ impl FrameHeader {
     }
 }
 
-pub fn validate_version(
-    offered: u16,
-    minimum_version: u16,
-) -> Result<u16, ProtocolError> {
+pub fn validate_version(offered: u16, minimum_version: u16) -> Result<u16, ProtocolError> {
     if offered < minimum_version || offered < CURRENT_PROTOCOL_VERSION {
         return Err(ProtocolError::DowngradeRejected);
     }
