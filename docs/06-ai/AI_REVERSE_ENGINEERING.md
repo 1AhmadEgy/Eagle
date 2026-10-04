@@ -5,10 +5,11 @@ Branch: ai/reverse-engineering-foundation
 Audit baseline: main @ 6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee
 
 ## Executive finding
-The current repository must not be described as containing a product AI/ML engine.
-The verified repository evidence shows two distinct AI surfaces:
+The current repository must not be described as containing a product ML/AI inference engine. It does contain deterministic security analytics plus development-time AI agents.
+The verified repository evidence shows three distinct layers:
 1. Development-time AI agents — OpenCode agents driven by DeepSeek in GitHub Actions.
-2. Product AI/ML — no verified Android/Kotlin application source, model runtime, trained model, feature pipeline, anomaly detector, risk engine, reputation model, or inference module exists in the audited main baseline.
+2. Deterministic product security analytics — SecurityEvent, FeatureVector, TokenBucket, ReplayGuard, SessionStateMachine, and statistical baseline code are present in the working implementation branch.
+3. Product ML inference — no verified trained model artifact or ML inference runtime is present.
 The README phrase 'Built with AI Studio' and its Gemini wording identify repository starter provenance; they do not prove Gemini is an Eagle runtime security component.
 
 ## Verified development-time AI
@@ -22,14 +23,14 @@ AGENTS.md requires human review before merge, forbids direct pushes to main, for
 ## Product AI status
 | Capability | Status |
 |---|---|
-| Android/Kotlin product code | NOT IMPLEMENTED in audited main baseline |
+| Android/Kotlin minimal runtime | IMPLEMENTED / Test Lab baseline |
 | ML inference runtime | NOT IMPLEMENTED |
 | Model artifact | NOT IMPLEMENTED |
 | Feature extraction pipeline | DETERMINISTIC KOTLIN IMPLEMENTED; verification pending |
-| Anomaly detection | NOT IMPLEMENTED |
+| Statistical anomaly detection baseline | Z-score / EWMA / Median-MAD IMPLEMENTED; verification pending |
 | Risk scoring engine | NOT IMPLEMENTED |
 | Peer reputation model | NOT IMPLEMENTED |
-| Replay detection algorithm | NOT IMPLEMENTED |
+| Replay detection algorithm | ReplayGuard IMPLEMENTED; verification pending |
 | Sequence model | NOT IMPLEMENTED |
 | LLM inside product | NOT IMPLEMENTED |
 | AI-based security decision authority | PROHIBITED BY DESIGN |
@@ -46,9 +47,8 @@ Every model output should carry model identifier, model version, feature-schema 
 
 ## Adoption order
 1. deterministic feature extraction — implemented baseline
-
-2. robust statistical baselines
-3. EWMA / Z-score temporal deviation
+2. robust statistical baselines — implemented baseline
+3. benchmark and evidence evaluation
 4. bounded deterministic risk aggregation
 5. supervised/unsupervised ML after data and evaluation exist
 6. model runtime integration
