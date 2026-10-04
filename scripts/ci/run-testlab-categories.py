@@ -7,6 +7,7 @@ It never upgrades missing product tests to PASS.
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -101,9 +102,40 @@ def main() -> int:
         ),
     }
 
+    # Unit-test evidence is concrete when the repository exposes a Cargo workspace.
+    # Do not promote the broader Build category: Android/platform packaging remains a
+    # separate release surface verified by the platform workflow.
+    if (ROOT / "Cargo.toml").is_file():
+        cargo = shutil.which("cargo")
+        if cargo:
+            rc, output = run([cargo, "test", "--workspace", "--locked"])
+            (OUT / "rust-unit-tests.log").write_text(output, encoding="utf-8")
+            evidence["categories"]["Unit"] = {
+                "status": "PASS" if rc == 0 else "FAIL",
+                "command": "cargo test --workspace --locked",
+                "evidence": ".ci/testlab/rust-unit-tests.log",
+            }
+            if rc != 0:
+                evidence["verification"] = "FAIL"
+                (OUT / "categories.json").write_text(
+                    json.dumps(evidence, indent=2) + "\n", encoding="utf-8"
+                )
+                return rc
+        else:
+            evidence["categories"]["Unit"] = {
+                "status": "PENDING",
+                "command": "cargo test --workspace --locked",
+                "reason": "Cargo is not available in this execution environment.",
+            }
+    else:
+        evidence["categories"]["Unit"] = {
+            "status": "PENDING",
+            "reason": "No supported product unit-test toolchain detected.",
+        }
+
     # Product categories cannot be inferred from infrastructure-only checks.
     for category in (
-        "Build", "Unit", "Integration", "Cryptography", "Protocol",
+        "Build", "Integration", "Cryptography", "Protocol",
         "Regression", "Fuzz/property",
     ):
         evidence["categories"][category] = {
