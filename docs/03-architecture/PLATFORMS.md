@@ -24,7 +24,7 @@ This document describes platform scope. It does **not** replace ADRs that define
 
 | Phase | Platform | Priority | Status |
 |---|---|---:|---|
-| Phase 1 | Android | 1 | In progress — `androidApp/` |
+| Phase 1 | Android | 1 | In progress — `app/` |
 | Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned — `desktopApp/` |
 | Phase 2 | iOS | 3 | Planned — `iosApp/` |
 | Deferred | Web | — | Deferred — `webApp/` later |
