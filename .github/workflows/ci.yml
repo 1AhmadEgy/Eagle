@@ -64,7 +64,7 @@ jobs:
           python3 scripts/ci/run-testlab-categories.py
           category_rc=$?
 
-          export BASELINE_RC CATEGORY_RC
+          BASELINE_RC="$baseline_rc" CATEGORY_RC="$category_rc" export BASELINE_RC CATEGORY_RC
           python3 - <<'PY'
           import json
           import os
