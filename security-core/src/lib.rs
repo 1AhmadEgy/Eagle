@@ -137,8 +137,7 @@ impl TrustRecord {
         }
 
         match action {
-            AuthorizationAction::StartProtectedSession
-            | AuthorizationAction::GrantDeviceTrust => match self.state {
+            AuthorizationAction::StartProtectedSession => match self.state {
                 TrustState::Trusted if observed_epoch == self.trust_epoch => Ok(()),
                 TrustState::Revoked => Err(TrustError::RevokedDevice),
                 TrustState::Replaced => Err(TrustError::ReplacedDevice),
@@ -410,12 +409,17 @@ mod tests {
     }
 
     #[test]
-    fn revoked_or_replaced_state_cannot_reactivate() {
+    fn revoked_or_replaced_state_cannot_authorize() {
         let mut revoked = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 1).unwrap();
         revoked.approve_trust("acct-a", &mut pairing, 1).unwrap();
         revoked.revoke(2).unwrap();
+        assert_eq!(
+            revoked.authorize(AuthorizationAction::StartProtectedSession, 2),
+            Err(TrustError::RevokedDevice)
+        );
+
         let mut replaced = pending_record();
         let mut replacement_pairing =
             PairingContext::new("pair-2", "acct-a", Duration::from_secs(60), 3).unwrap();
@@ -423,6 +427,10 @@ mod tests {
             .approve_trust("acct-a", &mut replacement_pairing, 3)
             .unwrap();
         replaced.replace(4).unwrap();
+        assert_eq!(
+            replaced.authorize(AuthorizationAction::StartProtectedSession, 4),
+            Err(TrustError::ReplacedDevice)
+        );
     }
 
     #[test]
