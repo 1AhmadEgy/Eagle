@@ -90,39 +90,27 @@ impl EagleCore {
         })
     }
 
-    pub async fn register_device(
-        &self,
-        alias: String,
-    ) -> Result<DeviceIdentity, EagleError> {
+    pub async fn register_device(&self, alias: String) -> Result<DeviceIdentity, EagleError> {
         validate_non_empty("alias", &alias)?;
         Err(EagleError::ContractNotReady {
             operation: "register_device".to_owned(),
         })
     }
 
-    pub async fn begin_session(
-        &self,
-        peer_id: String,
-    ) -> Result<Arc<SessionHandle>, EagleError> {
+    pub async fn begin_session(&self, peer_id: String) -> Result<Arc<SessionHandle>, EagleError> {
         validate_non_empty("peer_id", &peer_id)?;
         Err(EagleError::ContractNotReady {
             operation: "begin_session".to_owned(),
         })
     }
 
-    pub async fn end_session(
-        &self,
-        _handle: Arc<SessionHandle>,
-    ) -> Result<(), EagleError> {
+    pub async fn end_session(&self, _handle: Arc<SessionHandle>) -> Result<(), EagleError> {
         Err(EagleError::ContractNotReady {
             operation: "end_session".to_owned(),
         })
     }
 
-    pub async fn trust_status(
-        &self,
-        device_id: String,
-    ) -> Result<TrustLevel, EagleError> {
+    pub async fn trust_status(&self, device_id: String) -> Result<TrustLevel, EagleError> {
         validate_non_empty("device_id", &device_id)?;
         Err(EagleError::ContractNotReady {
             operation: "trust_status".to_owned(),
@@ -145,11 +133,26 @@ mod tests {
 
     #[test]
     fn trust_mapping_preserves_core_device_lifecycle() {
-        assert_eq!(TrustLevel::from(DeviceTrustState::Unknown), TrustLevel::Untrusted);
-        assert_eq!(TrustLevel::from(DeviceTrustState::Pending), TrustLevel::Pending);
-        assert_eq!(TrustLevel::from(DeviceTrustState::Trusted), TrustLevel::Trusted);
-        assert_eq!(TrustLevel::from(DeviceTrustState::Revoked), TrustLevel::Revoked);
-        assert_eq!(TrustLevel::from(DeviceTrustState::Replaced), TrustLevel::Replaced);
+        assert_eq!(
+            TrustLevel::from(DeviceTrustState::Unknown),
+            TrustLevel::Untrusted
+        );
+        assert_eq!(
+            TrustLevel::from(DeviceTrustState::Pending),
+            TrustLevel::Pending
+        );
+        assert_eq!(
+            TrustLevel::from(DeviceTrustState::Trusted),
+            TrustLevel::Trusted
+        );
+        assert_eq!(
+            TrustLevel::from(DeviceTrustState::Revoked),
+            TrustLevel::Revoked
+        );
+        assert_eq!(
+            TrustLevel::from(DeviceTrustState::Replaced),
+            TrustLevel::Replaced
+        );
     }
 
     #[test]
