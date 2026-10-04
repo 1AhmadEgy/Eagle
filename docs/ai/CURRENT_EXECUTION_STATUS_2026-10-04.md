@@ -155,3 +155,58 @@ The immediate controlled sequence is:
 4. continue the next evidence-backed implementation slice without weakening security or SDK constraints;
 5. record every new result in repository-local documentation and evidence artifacts.
 
+
+
+## Fresh verification checkpoint — 2026-10-04
+
+### External EDA v1.4.0
+
+The external development assistant package was rechecked independently from its archive:
+
+- SHA-256: `0c0b1ea4f3b68c18de9207a3b5e911987b7fa74604157e6515ce68fcb4452e40`
+- Python test suite: **72 passed**
+- Python compile check: **passed**
+- The provider boundary remains external; no OpenAI, DeepSeek, Gemini or other provider SDKs/credentials are part of Eagle.
+
+### PR #45 — current verified head
+
+Head remains:
+
+`7bf9c9fdf62ac263a315e757daafdeaa5e35a71e`
+
+GitHub Actions currently report:
+
+- **CI:** success — run `37186730143`
+- **Eagle Test Lab:** success — run `37186730198`
+
+The successful Test Lab path includes JDK 17 setup, Gradle setup, Android 37 SDK installation and verification, unit tests, lint and debug build. The remediation keeps the Android 37 intent and build-tools `37.0.0`; it uses the published platform package `platforms;android-37.0` and immutable action SHAs.
+
+### PR #42 — latest verification of the documentation branch
+
+Head:
+
+`77880c89f2815828044fc96946acd7badf33006e`
+
+The latest runs for this documentation branch are **not green**:
+
+- **CI:** failure — run `37187057890`
+- **Eagle Test Lab:** failure — run `37187057932`
+
+Observed failure causes:
+
+1. The CI security-policy step rejected the older tag-based action references still present in `.github/workflows/testlab.yml`:
+   - `actions/checkout@v5`
+   - `actions/setup-java@v5`
+   - `gradle/actions/setup-gradle@v5`
+2. Eagle Test Lab stopped at Android SDK installation because the branch still requests unavailable `platforms;android-37`.
+3. Secret scanning itself passed with no leaks detected.
+4. Because the security-policy/Test Lab preconditions failed, downstream product verification steps were skipped on this branch.
+
+These failures are consistent with the already-isolated remediation in PR #45. They are **not evidence that the documentation content itself is functionally broken**.
+
+### Release interpretation
+
+- PR #45: **verified for its recorded commit, but still Draft and not merged**.
+- PR #42: **Draft; documentation branch currently has failing repository-level checks because it predates the PR #45 workflow/Test Lab remediation**.
+- Eagle production readiness: **not claimed**.
+- Release Gate: **not satisfied** until all required evidence is present on the release candidate and human review/approval is complete.
