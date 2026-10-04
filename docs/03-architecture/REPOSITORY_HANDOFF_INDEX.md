@@ -12,6 +12,8 @@
 - docs/03-architecture/adr/ADR-0011.md
 - docs/03-architecture/adr/ADR-0012.md
 - docs/03-architecture/adr/ADR-0015-RUST-FFI-KMP.md
+- docs/06-execution/PHONE_FIRST_EXECUTION_PLAN.md
+- docs/06-execution/EXECUTION_STATUS_2026-10-04.md
 
 ## Issue records
 - ARCH-001: https://github.com/1AhmadEgy/Eagle/issues/24
