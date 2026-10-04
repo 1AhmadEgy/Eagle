@@ -3,6 +3,7 @@ package com.eagle.app.security
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.lang.management.ManagementFactory
 import java.security.MessageDigest
 import java.util.Locale
 
@@ -38,6 +39,8 @@ private data class BenchmarkMethodResult(
     val driftSensitivity: Double,
     val medianNsPerInference: Long,
     val p95NsPerInference: Long,
+    val medianCpuNsPerInference: Long,
+    val p95CpuNsPerInference: Long,
     val deterministicDigest: String
 )
 
@@ -50,6 +53,7 @@ class StatisticalBaselineBenchmarkTest {
     fun benchmarkUsesTheSameDatasetForAllMethods() {
         val dataset = BenchmarkDataset.create(feature)
         val datasetDigest = BenchmarkDataset.digest(dataset)
+        assertEquals("f7d1562ab594d0d1459f73a1c91fbff671d3c8db9f82d9c4491b5f956069012b", datasetDigest)
 
         val results = AnomalyMethod.entries.map { method ->
             evaluate(method, dataset, defaultThreshold, datasetDigest)
@@ -142,6 +146,8 @@ class StatisticalBaselineBenchmarkTest {
         )
 
         val timings = LongArray(25)
+        val cpuTimes = LongArray(25)
+        val cpuBean = ManagementFactory.getThreadMXBean().takeIf { it.isCurrentThreadCpuTimeSupported }
         repeat(5) {
             dataset.forEach { sample ->
                 run(method, sample.history, sample.current, thresholdMilli)
