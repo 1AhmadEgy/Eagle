@@ -24,7 +24,7 @@ scenarios:
       device_binding: MATCH
     action: approve-device
     expected: TRUSTED
-    invariant: I-03
+    invariant: I-16
 
   - id: IT-SC-003
     name: pairing-replay
