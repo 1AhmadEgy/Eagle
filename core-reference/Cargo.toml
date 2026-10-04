@@ -1,0 +1,15 @@
+[package]
+name = "eagle-core-reference"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+eagle-core = { path = "../core" }
+
+[lib]
+name = "eagle_core_reference"
+path = "src/lib.rs"
+
+[lints.rust]
+unsafe_code = "forbid"
