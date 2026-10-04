@@ -77,17 +77,13 @@ pub struct SessionHandle {
 /// decisions fail closed with ContractNotReady rather than returning fabricated
 /// security state.
 #[derive(uniffi::Object)]
-pub struct EagleCore {
-    minimum_protocol: u16,
-}
+pub struct EagleCore {}
 
 #[uniffi::export]
 impl EagleCore {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
-        Arc::new(Self {
-            minimum_protocol: 1,
-        })
+        Arc::new(Self {})
     }
 
     pub async fn register_device(&self, alias: String) -> Result<DeviceIdentity, EagleError> {
@@ -165,9 +161,4 @@ mod tests {
         );
     }
 
-    #[test]
-    fn core_object_has_stable_minimum_protocol() {
-        let core = EagleCore::new();
-        assert_eq!(core.minimum_protocol, 1);
-    }
 }
