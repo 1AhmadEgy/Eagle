@@ -10,6 +10,7 @@ STATE_PATH = ROOT / "docs/03-architecture/REPOSITORY_STATE_V1.json"
 PLATFORMS_PATH = ROOT / "docs/03-architecture/PLATFORMS.md"
 ADR_INDEX_PATH = ROOT / "docs/03-architecture/ADR_INDEX.md"
 WORKLIST_PATH = ROOT / "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+ROOT_BUILD_PATH = ROOT / "build.gradle.kts"
 APP_BUILD_PATH = ROOT / "app/build.gradle.kts"
 
 errors: list[str] = []
@@ -28,7 +29,8 @@ def main() -> int:
         (PLATFORMS_PATH, "Platform strategy"),
         (ADR_INDEX_PATH, "ADR index"),
         (WORKLIST_PATH, "ADR worklist"),
-        (APP_BUILD_PATH, "Android build file"),
+        (ROOT_BUILD_PATH, "Root Android build file"),
+        (APP_BUILD_PATH, "Android app build file"),
     ):
         require_file(path, description)
 
@@ -46,6 +48,7 @@ def main() -> int:
     platforms = PLATFORMS_PATH.read_text(encoding="utf-8")
     adr_index = ADR_INDEX_PATH.read_text(encoding="utf-8")
     worklist = WORKLIST_PATH.read_text(encoding="utf-8")
+    root_build = ROOT_BUILD_PATH.read_text(encoding="utf-8")
     app_build = APP_BUILD_PATH.read_text(encoding="utf-8")
 
     actual_module = state["actual_android_module"]
@@ -84,7 +87,8 @@ def main() -> int:
         "junit": re.escape(expected["unit_test_framework"]),
     }
     for name, pattern in checks.items():
-        if re.search(pattern, app_build) is None:
+        haystack = root_build if name == "agp" else app_build
+        if re.search(pattern, haystack) is None:
             fail("Android build baseline drift detected for " + name)
 
     for dep in ("libsignal", "openmls", "libp2p", "sqlcipher", "androidx.room"):
@@ -118,7 +122,7 @@ def main() -> int:
         for path in base.rglob("*"):
             if not path.is_file() or path.suffix.lower() not in {".md", ".json", ".py", ".sh"}:
                 continue
-            if path == STATE_PATH:
+            if path in {STATE_PATH, path.parent / "REPOSITORY_CONSISTENCY_V1.md", path.parent / "verify-repository-consistency.py"}:
                 continue
             try:
                 content = path.read_text(encoding="utf-8")
