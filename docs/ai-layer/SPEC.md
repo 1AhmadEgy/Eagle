@@ -194,7 +194,7 @@ The current CI failure occurs before these commands, while trying to install the
 M0 - repository baseline: COMPLETE
 M1 - provider/finding/evidence contracts: COMPLETE
 M2 - canonical hash, chain verification, signer interface and JVM signer: IMPLEMENTED
-M3 - orchestration + routing: NOT IMPLEMENTED
+M3 - orchestration + routing: IMPLEMENTED (capability routing + independent verification boundary)
 M4 - concrete provider adapters: NOT IMPLEMENTED
 M5 - OpenCode integration: NOT IMPLEMENTED
 M6 - policy enforcement: PARTIAL CONTRACTS / IMPLEMENTATION PENDING
