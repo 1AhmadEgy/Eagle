@@ -188,7 +188,13 @@ A reproducible JVM harness was added at `app/src/test/java/com/eagle/app/securit
 
 Source-level Kotlin compilation was also verified with kotlinc-jvm 1.9.0 / OpenJDK 21.0.11 after correcting the FeatureVector Long denominator bug.
 
-## 7. Remaining verification
+### AI contract hardening
+
+Implemented bounded AI provider/evidence/finding payload contracts and enforced `cryptoSensitive -> requiresHumanApproval` at construction time.
+
+Source-level Kotlin compilation of the AI provider/finding/evidence contracts passed locally with kotlinc-jvm 1.9.0 on OpenJDK 21.0.11.
+
+## 8. Remaining verification
 
 The deterministic SecurityEvent -> FeatureVector baseline is implemented, and the feature-aware StatisticalBaseline plus reproducible JVM benchmark harness are now implemented.
 
