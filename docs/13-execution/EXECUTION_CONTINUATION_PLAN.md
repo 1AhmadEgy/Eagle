@@ -111,3 +111,26 @@ Requirement → Architecture Fit → Security History → Exact Version → Lice
 
 ## 11. الخطوة التشغيلية التالية
 الأولوية الآن هي المواد التاريخية ومصدر الكود الفعلي. بعد توفرهما، يتم تحديث Requirements Traceability وArchitecture وThreat Model وComponent Due Diligence مباشرة، ثم إنشاء أول Execution Slice قابل للاختبار.
+
+## Verified implementation checkpoint — 2026-10-04
+
+الحالة انتقلت من "Stack غير متحقق" إلى Stack قابل للإثبات من ملفات المستودع: مشروع Android/Gradle مع واجهة Rust workspace لـ `eagle-core`.
+
+تم التحقق في PR #40 من:
+- immutable SHA pinning للـGitHub Actions؛
+- Rust Core verification؛
+- CI/security policy verification؛
+- Android Test Lab بعد تصحيح مسار SDK الحقيقي لـ Android 37 إلى `platforms;android-37.0` عبر قناة SDK أوسع؛
+- عدم خفض `compileSdk` أو `targetSdk` لإخفاء المشكلة.
+
+### حد الإصدار الحالي
+
+PR #40 لا يعني Production Ready. ما يزال اعتماد cryptography/protocol/transport/persistence/device-linking/recovery/integration والاختبارات المتقدمة بحاجة إلى أدلة وقرارات ومراجعة بشرية مستقلة.
+
+### سياسة التنفيذ المستمر
+
+كل تغيير لاحق يمر عبر:
+Inventory → Provenance → Classification → Triage → Analysis → Reconciliation → Conflicts → Gaps → Canonical Authority → Remediation Plan → Correction → Implementation → Testing → Security Review → Verification → Evidence → Release Gate.
+
+ولا يُسمح لـAI أو CI أو repair automation بتجاوز بوابة الإصدار أو الدمج المباشر إلى `main`.
+
