@@ -13,6 +13,7 @@ ADR-0001 → ADR-0006 — existing project decisions referenced by the planning 
 - ADR-0013 — Architecture Enforcement
 - ADR-0014 — Observability
 - ADR-0015 — Rust FFI Boundary + Kotlin Multiplatform Application Layer
+- ADR-0016 — Storage / Recovery Contract
 
 ## Rule
 ADR = decision. Issue = implementation / verification / migration / follow-up.
