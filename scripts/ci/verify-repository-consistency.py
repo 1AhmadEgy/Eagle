@@ -111,6 +111,30 @@ def main() -> int:
         if record["status"].startswith("proposed") and adr_id not in adr_index:
             fail("ADR index/state mismatch for " + adr_id)
 
+
+    # 9. Every external GitHub Action or reusable workflow must use an immutable 40-hex SHA.
+    workflows_root = ROOT / ".github/workflows"
+    if workflows_root.is_dir():
+        uses_pattern = re.compile(r"^\\s*uses:\\s*([^\\s#]+)\\s*$")
+        for wf_path in workflows_root.glob("*.y*ml"):
+            try:
+                lines = wf_path.read_text(encoding="utf-8").splitlines()
+            except UnicodeDecodeError:
+                continue
+            for line_no, line in enumerate(lines, 1):
+                match = uses_pattern.match(line)
+                if not match:
+                    continue
+                target = match.group(1)
+                if target.startswith("./"):
+                    continue
+                if "@" not in target:
+                    fail(f"workflow uses entry without ref: {wf_path.relative_to(ROOT)}:{line_no}")
+                    continue
+                ref = target.rsplit("@", 1)[1]
+                if re.fullmatch(r"[0-9a-fA-F]{40}", ref) is None:
+                    fail(f"workflow uses entry is not pinned to full SHA: {wf_path.relative_to(ROOT)}:{line_no}")
+
     active_roots = (
         ROOT / "docs/01-research",
         ROOT / "docs/03-architecture",
