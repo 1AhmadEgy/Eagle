@@ -131,6 +131,23 @@ scenarios:
     expected: DENY
     invariant: I-04
 
+  - id: IT-SC-015
+    name: membership-issued-after-expiry
+    preconditions:
+      issued_at: AFTER_NOT_AFTER
+      membership: STRUCTURALLY_MALFORMED
+    action: accept-membership
+    expected: DENY
+    invariant: I-02
+
+  - id: IT-SC-016
+    name: pairing-expiry-overflow
+    preconditions:
+      expiry: UNREPRESENTABLE
+    action: create-pairing
+    expected: DENY
+    invariant: I-04
+
 deferred_protocol_cases:
   - transcript-tampering
   - identity-signature-forgery
