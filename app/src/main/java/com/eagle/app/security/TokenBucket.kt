@@ -30,11 +30,14 @@ class TokenBucket(
         require(costMicrotokens <= capacityMicrotokens) { "cost exceeds capacity" }
 
         val previous = lastRefillMillis
-        if (previous != null) {
-            val elapsed = (nowMonotonicMillis - previous).coerceAtLeast(0L)
-            refill(elapsed)
+        if (previous == null) {
+            lastRefillMillis = nowMonotonicMillis
+        } else {
+            refill(elapsedMillis(nowMonotonicMillis, previous))
+            if (nowMonotonicMillis > previous) {
+                lastRefillMillis = nowMonotonicMillis
+            }
         }
-        lastRefillMillis = nowMonotonicMillis
 
         if (tokensMicrotokens < costMicrotokens) return false
         tokensMicrotokens -= costMicrotokens
@@ -50,6 +53,14 @@ class TokenBucket(
         }
         lastRefillMillis = nowMonotonicMillis
         return tokensMicrotokens
+    }
+
+    private fun elapsedMillis(now: Long, previous: Long): Long {
+        if (now <= previous) return 0L
+        return BigInteger.valueOf(now)
+            .subtract(BigInteger.valueOf(previous))
+            .min(BigInteger.valueOf(Long.MAX_VALUE))
+            .longValueExact()
     }
 
     private fun refill(elapsedMillis: Long) {
