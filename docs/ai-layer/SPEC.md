@@ -1,8 +1,8 @@
 # Eagle AI Layer Specification
 
-Status: M1 CONTRACT BASELINE — COMPLETE
+Status: M2 IMPLEMENTATION BASELINE
 Branch: ai/reverse-engineering-foundation
-Revision baseline: f8ce28911597f8460f6bf0ecd02d5bf191386871
+Revision baseline: 6fa710578558450ade86e3ed1c7d0fc6bf8060d7
 
 ## 1. Purpose
 
@@ -27,20 +27,18 @@ The audited branch is a single Android application module:
 - Kotlin source is under app/src/main/java
 - unit tests are under app/src/test/java
 - current test dependency is JUnit 4.13.2
-- no app/src/androidTest tree is present on this branch
+- no app/src/androidTest tree is present at the M2 baseline
 - no separate :core or :security Gradle module exists
 - security primitives live under com.eagle.app.security
-- the concrete session class is SessionStateMachine, not SessionState
+- the concrete session class is SessionStateMachine
 
-Existing security primitives verified on the branch:
+Verified security primitives:
 - ReplayGuard
 - TokenBucket
 - SecurityEvent
 - SessionStateMachine
 - DeterministicSecurityEngine
 - FeatureVector / SecurityFeatureExtractor
-
-The repository already contains development-time OpenCode agents under .opencode/agents/. They remain a separate development orchestration surface.
 
 ## 3. Architectural boundaries
 
@@ -54,7 +52,7 @@ A proposer may inspect broader source context and produce:
 
 A verifier receives only the claim, declared evidence, and verification target required to evaluate it. The verifier must not receive the proposer's hidden reasoning or private chain-of-thought.
 
-Eagle evidence storage must never persist model chain-of-thought. Only final model output needed for the evidence record may be retained, subject to redaction and policy.
+Eagle evidence storage must never persist model chain-of-thought. Only final model output required by the evidence policy may be retained.
 
 ### 3.2 Deterministic authority
 
@@ -89,94 +87,117 @@ Required capabilities:
 - reasoningDepth
 - supportsCryptoReview
 
-The provider ID is metadata, not a routing rule.
+Provider ID is metadata, not a routing rule.
 
-## 5. Existing agents and their role
+## 5. Existing agents
 
-The current OpenCode agents are not Kotlin runtime components and must not be conflated with the future Kotlin AI layer.
+The OpenCode agents under .opencode/agents/ are development-time instruction/configuration artifacts, not Kotlin model-runtime components.
 
-- orchestrator.md: development-time coordinator; no direct code edits
+- orchestrator.md: coordinator, no direct edits
 - security-auditor.md: read-only security proposer
 - code-reviewer.md: read-only correctness/regression proposer
 - test-engineer.md: read-only verification/category evaluator
 - debugger.md: read-only root-cause verifier
-- gatekeeper.md: evidence-only decision gate
+- gatekeeper.md: evidence-only gate
 - repair-agent.md: restricted repair worker
 - documentation-agent.md: strict read-only provenance/documentation worker
 
-The Kotlin AiOrchestrator may consume or integrate with these development-time roles later, but it does not replace their Markdown definitions.
+The Kotlin AI layer does not replace these definitions.
 
-## 6. Evidence model
+## 6. Evidence contract
 
-Every evidence record must bind:
+Every EvidenceRecord binds:
 - target/task identity;
 - analyzed source snapshot hash;
 - provider identity/version;
-- prompt hash (not the prompt itself);
-- final model output;
-- parsed finding, if any;
-- reproduction-test identity/result;
-- SAST identity/result;
+- prompt hash;
+- final provider output subject to redaction policy;
+- parsed finding if present;
+- reproduction-test identity;
+- SAST identity;
 - regression results;
-- build identity/result;
-- human approval, if required;
+- build identity;
+- human approval if required;
 - previous record hash;
 - current record hash;
-- signature, once the signing implementation is available.
+- signature if produced.
 
-Evidence must be append-only at the logical layer.
+recordHash is a derived value and is not included in its own hash preimage. signature is also excluded from the preimage and signs the canonical recordHash.
 
-The exact signing-key storage mechanism is deliberately deferred to M2. The private signing key must never be stored in the repository.
+Evidence is logically append-only. Persistence technology is intentionally decoupled from the contract.
 
-## 7. Verification pipeline
+## 7. M2 canonical hash
 
-Canonical pipeline:
+EvidenceHasher uses SHA-256 over a deterministic binary representation with:
+- domain/version marker;
+- fixed field order;
+- type-aware enum encoding;
+- length-delimited UTF-8 strings;
+- explicit null/presence markers;
+- deterministic ordering for set-valued fields;
+- explicit list cardinality and order;
+- fixed-width Instant fields.
 
-AI Finding
-  -> Reproduction Test
-  -> Static Analysis / SAST
-  -> Patch Proposal
-  -> Human Crypto Review when required
-  -> Regression Test
-  -> Android Build + Lint
-  -> Independent Verification
-  -> Gatekeeper
+This framing prevents ambiguous concatenation/canonicalization. It is not claimed as a general remedy for SHA-256 length-extension attacks.
 
-Important repository-specific verification commands are currently:
+## 8. M2 chain verification
+
+EvidenceChain.verifyChain:
+1. requires genesis previousHash == null;
+2. requires each later previousHash to equal the prior recordHash;
+3. recomputes every record hash;
+4. stops at the first mismatch;
+5. returns isValid, firstBrokenIndex, and reason.
+
+## 9. M2 signing
+
+EvidenceSigner is intentionally independent of key storage.
+
+Current executable signer exists only in JVM tests:
+- InMemoryTestSigner
+- Ed25519
+- test-only fixed key material
+
+Production adapters remain deferred:
+- Android Keystore for on-device operation;
+- CI-managed key source for controlled tooling.
+
+No production private key belongs in repository source.
+
+## 10. Storage decision
+
+M2 intentionally does not choose JSON/JSONL or Room.
+
+The chain is a logical verification primitive. A later storage adapter must preserve:
+- order;
+- recordHash;
+- previousHash;
+- signature;
+- verification metadata;
+- append-only semantics.
+
+A persistence choice requires its own ADR after the evidence schema and operating boundary are known.
+
+## 11. Verification boundary
+
+The repository's scripts/ci/verify.sh does not currently detect Gradle/Android and therefore is not sufficient Android-build evidence.
+
+The Test Lab workflow invokes:
 - gradle :app:testDebugUnitTest --no-daemon --console=plain
 - gradle :app:lint --no-daemon --console=plain
 - gradle :app:assembleDebug --no-daemon --console=plain
 
-The current scripts/ci/verify.sh does not detect a Gradle/Android application. Therefore it must not be treated as proof of an Android build until that gap is closed.
+The current CI failure occurs before these commands, while trying to install the unavailable Android SDK package platforms;android-37 on the GitHub runner.
 
-## 8. Human approval policy
-
-- CRYPTO_REVIEW: REQUIRED_FOR_CRYPTO
-- security findings with HIGH or CRITICAL severity: REQUIRED_FOR_MERGE
-- architecture changes that alter trust boundaries: REQUIRED_FOR_ARCHITECTURE
-- documentation and non-sensitive analysis: NONE unless a downstream policy says otherwise
-- no patch is mergeable solely because an AI provider reports success
-
-## 9. Package layout for M1+
-
-The initial contracts are placed under:
-
-app/src/main/java/com/eagle/app/ai/
-  provider/
-  findings/
-  evidence/
-
-Future orchestration/policy/storage implementations may extend this namespace after contract validation.
-
-## 10. Lifecycle
+## 12. Lifecycle
 
 M0 - repository baseline: COMPLETE
-M1 - contracts + unit tests: COMPLETE
-M2 - hash-chain + signing: NOT IMPLEMENTED
+M1 - provider/finding/evidence contracts: COMPLETE
+M2 - canonical hash, chain verification, signer interface and JVM signer: IMPLEMENTED
 M3 - orchestration + routing: NOT IMPLEMENTED
 M4 - concrete provider adapters: NOT IMPLEMENTED
 M5 - OpenCode integration: NOT IMPLEMENTED
-M6 - policy enforcement: NOT IMPLEMENTED
+M6 - policy enforcement: PARTIAL CONTRACTS / IMPLEMENTATION PENDING
 M7 - final architecture/documentation review: NOT IMPLEMENTED
 
-No future phase may be described as implemented until its executable evidence exists.
+No future phase may be described as implemented until executable evidence exists.
