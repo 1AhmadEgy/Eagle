@@ -77,10 +77,10 @@ object SecurityFeatureExtractor {
             windowDurationMillis = windowEndMillis - windowStartMillis,
             eventCount = count,
             eventsPerMinuteMicros = scaledRate(count.toLong(), MICROS_PER_MINUTE, windowEndMillis - windowStartMillis),
-            rejectionRateBps = scaledRate(rejected.toLong(), BASIS_POINTS, count).toInt(),
-            replayFailureRateBps = scaledRate(replayFailures.toLong(), BASIS_POINTS, count).toInt(),
-            rateLimitRateBps = scaledRate(rateLimited.toLong(), BASIS_POINTS, count).toInt(),
-            sessionTransitionRejectRateBps = scaledRate(sessionRejects.toLong(), BASIS_POINTS, count).toInt()
+            rejectionRateBps = scaledRate(rejected.toLong(), BASIS_POINTS, count.toLong()).toInt(),
+            replayFailureRateBps = scaledRate(replayFailures.toLong(), BASIS_POINTS, count.toLong()).toInt(),
+            rateLimitRateBps = scaledRate(rateLimited.toLong(), BASIS_POINTS, count.toLong()).toInt(),
+            sessionTransitionRejectRateBps = scaledRate(sessionRejects.toLong(), BASIS_POINTS, count.toLong()).toInt()
         )
     }
 
