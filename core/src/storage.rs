@@ -109,7 +109,11 @@ impl RecordStore for MemoryRecordStore {
             return Err(StorageError::RecoveryRequired);
         }
 
-        if self.records.iter().any(|item| item.record_id == record.record_id) {
+        if self
+            .records
+            .iter()
+            .any(|item| item.record_id == record.record_id)
+        {
             return Err(StorageError::AlreadyExists);
         }
 
