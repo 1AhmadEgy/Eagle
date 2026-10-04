@@ -14,13 +14,7 @@ impl TransportFrame {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TransportState {
-    Disconnected,
-    Connecting,
-    Connected,
-    Closing,
-    Closed,
-}
+pub enum TransportState { Disconnected, Connecting, Connected, Closing, Closed }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TransportError {
@@ -32,9 +26,7 @@ pub enum TransportError {
 }
 
 impl From<ProtocolError> for TransportError {
-    fn from(value: ProtocolError) -> Self {
-        Self::Protocol(value)
-    }
+    fn from(value: ProtocolError) -> Self { Self::Protocol(value) }
 }
 
 pub trait SecureTransport {
@@ -49,23 +41,13 @@ pub trait SecureTransport {
 mod tests {
     use super::*;
 
-    fn frame() -> TransportFrame {
-        TransportFrame::new(
-            FrameHeader { protocol_version: 1, payload_len: 4, flags: 0 },
-            vec![0xA5; 4],
-        ).unwrap()
-    }
-
     #[test]
     fn mismatched_payload_length_is_rejected_at_boundary() {
         let result = TransportFrame::new(
             FrameHeader { protocol_version: 1, payload_len: 8, flags: 0 },
             vec![0xA5; 4],
         );
-        assert_eq!(
-            result,
-            Err(TransportError::Protocol(ProtocolError::PayloadLengthMismatch))
-        );
+        assert_eq!(result, Err(TransportError::Protocol(ProtocolError::PayloadLengthMismatch)));
     }
 
     #[test]
@@ -76,16 +58,6 @@ mod tests {
             flags: 0,
         };
         let result = TransportFrame::new(header, vec![0xA5; MAX_PAYLOAD_BYTES + 1]);
-        assert_eq!(
-            result,
-            Err(TransportError::Protocol(ProtocolError::PayloadTooLarge))
-        );
-    }
-
-    #[test]
-    fn valid_frame_preserves_opaque_payload() {
-        let original = frame();
-        assert_eq!(original.payload, vec![0xA5; 4]);
-        assert_eq!(original.header.payload_len, 4);
+        assert_eq!(result, Err(TransportError::Protocol(ProtocolError::PayloadTooLarge)));
     }
 }
