@@ -25,7 +25,7 @@ AGENTS.md requires human review before merge, forbids direct pushes to main, for
 | Android/Kotlin product code | NOT IMPLEMENTED in audited main baseline |
 | ML inference runtime | NOT IMPLEMENTED |
 | Model artifact | NOT IMPLEMENTED |
-| Feature extraction pipeline | NOT IMPLEMENTED |
+| Feature extraction pipeline | DETERMINISTIC KOTLIN IMPLEMENTED; verification pending |
 | Anomaly detection | NOT IMPLEMENTED |
 | Risk scoring engine | NOT IMPLEMENTED |
 | Peer reputation model | NOT IMPLEMENTED |
@@ -45,7 +45,8 @@ SecurityEvent, FeatureVector, AnomalySignal, RiskAssessment, ReputationEvidence,
 Every model output should carry model identifier, model version, feature-schema version, inference timestamp, score semantics, evidence identifiers, and fail-safe behavior.
 
 ## Adoption order
-1. deterministic feature extraction
+1. deterministic feature extraction — implemented baseline
+
 2. robust statistical baselines
 3. EWMA / Z-score temporal deviation
 4. bounded deterministic risk aggregation
