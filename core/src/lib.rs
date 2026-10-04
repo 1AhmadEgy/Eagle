@@ -14,7 +14,7 @@ pub use policy::{authorize, Capability};
 pub use protocol::{EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError};
 pub use session::Session;
 pub use storage::{
-    EncryptedRecord, DeletionReceipt, MemoryRecordStore, RecordId, RecordStore, RecoveryState,
+    DeletionReceipt, EncryptedRecord, MemoryRecordStore, RecordId, RecordStore, RecoveryState,
     SchemaVersion, StorageError, CURRENT_SCHEMA_VERSION, MAX_RECORD_BYTES,
 };
 pub use transport::{
