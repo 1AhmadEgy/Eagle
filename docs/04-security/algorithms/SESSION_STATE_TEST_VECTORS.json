@@ -1,0 +1,13 @@
+{
+  "document_type": "reference-test-vectors",
+  "version": "1.0.0",
+  "initial_state": "NEW",
+  "cases": [
+    {"id":"normal-handshake","transitions":["AUTHENTICATING","ESTABLISHED","REKEYING","ESTABLISHED","CLOSED"],"expected":["ACCEPTED","ACCEPTED","ACCEPTED","ACCEPTED","ACCEPTED"]},
+    {"id":"invalid-skip-auth","transitions":["ESTABLISHED"],"expected":["REJECTED"]},
+    {"id":"invalid-rekey-before-established","transitions":["AUTHENTICATING","REKEYING"],"expected":["ACCEPTED","REJECTED"]},
+    {"id":"early-close","transitions":["CLOSED"],"expected":["ACCEPTED"]},
+    {"id":"closed-terminal","transitions":["CLOSED","AUTHENTICATING"],"expected":["ACCEPTED","REJECTED"]},
+    {"id":"same-state","transitions":["AUTHENTICATING","AUTHENTICATING"],"expected":["ACCEPTED","REJECTED"]}
+  ]
+}
