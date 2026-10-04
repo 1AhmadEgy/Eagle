@@ -2,7 +2,8 @@
 
 **Audit scope:** Identity & Trust workstream  
 **Audit baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
-**Verified execution head:** `6de670a947c06b8bd00a1944b4f8743f5b13d5da`  
+**Verified execution head before latest hardening:** `6de670a947c06b8bd00a1944b4f8743f5b13d5da`
+**Latest unverified hardening head:** `07933eb53b2f8497e833b1af85f0dd75fdc270b9`  
 **Execution branch:** `execution/identity-trust-foundation-v1`  
 **Audit posture:** evidence-first / fail-closed
 
@@ -109,7 +110,7 @@ The Rust crate includes negative, membership, identity-change, and state-transit
 - suspended authorization denial;
 - trust epoch overflow.
 
-**Result:** IMPLEMENTED; GitHub CI verified 22/22 Rust identity/trust unit tests passing.
+**Result:** IMPLEMENTED baseline; the hardening update adds device-bound pairing and malformed-pairing-context negative coverage. The latest 24-test count requires fresh CI evidence before being marked verified.
 
 ## Stage 10 — Security audit
 Static review confirms:
@@ -130,7 +131,7 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Current evidence includes successful repository verification, 22 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission.
+Current prior evidence includes successful repository verification, 22 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. Fresh independent verification is required for the latest pairing-hardening commits.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
@@ -144,3 +145,12 @@ Identity & Trust is not release-ready because:
 **Final gate:** BLOCKED.
 
 This blocker status is evidence-driven and does not invalidate the completed specification/implementation baseline.
+
+
+## Hardening delta
+
+The Security Core now binds a pairing context to the intended device identity in addition to account and trust epoch. Promotion is denied when the pending device does not match the pairing context. Pairing contexts also reject empty token/account/device identifiers at construction.
+
+The scenario corpus was restored on the execution branch and extended with pairing-device-mismatch and malformed-pairing-context cases. These controls remain protocol-boundary hardening and do not assert that transcript authentication or cryptographic proof is complete.
+
+**Gate impact:** no weakening of the release gate. Identity & Trust remains BLOCKED until approved ADRs, final cryptographic/key-management and protocol profiles, cross-platform parity, end-to-end adversarial tests, revocation reconciliation, and independent security review are evidenced.
