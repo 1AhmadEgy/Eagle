@@ -423,6 +423,8 @@ new trusted identity binding
 
 There must be no silent key replacement for a previously verified contact.
 
+Leaving QUARANTINED requires an explicit reverification-verifier boundary. A caller may not restore VERIFIED solely by presenting a replacement identity object.
+
 ---
 
 ## 9. Device compromise
