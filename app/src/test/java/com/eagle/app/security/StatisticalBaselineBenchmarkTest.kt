@@ -219,8 +219,7 @@ private object BenchmarkDataset {
     }
 
     fun digest(dataset: List<BenchmarkSample>): String {
-        val canonical = dataset.joinToString("
-") { sample ->
+        val canonical = dataset.joinToString(System.lineSeparator()) { sample ->
             listOf(
                 sample.id,
                 sample.feature.name,
