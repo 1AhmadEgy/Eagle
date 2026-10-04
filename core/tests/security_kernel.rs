@@ -48,7 +48,7 @@ fn session_cannot_self_elevate_unverified_context() {
 }
 
 #[test]
-fn authenticated_context_establishes_and_rekeys() {
+fn pending_context_cannot_establish_or_rekey() {
     let mut ctx = trusted_context();
     assert_eq!(ctx.trust_state(), eagle_core::TrustState::Pending);
 
@@ -56,11 +56,10 @@ fn authenticated_context_establishes_and_rekeys() {
     // authentication/cryptographic protocol is integrated.
     assert!(ctx.establish().is_err());
 
-    #[allow(unused_must_use)]
-    {
-        // No public trust-elevation path exists by design.
-        let _ = Session::state(&ctx);
-    }
+    assert_eq!(
+        Session::begin_rekey(&mut ctx),
+        Err(SecurityError::InvalidSessionTransition)
+    );
 }
 
 #[test]
