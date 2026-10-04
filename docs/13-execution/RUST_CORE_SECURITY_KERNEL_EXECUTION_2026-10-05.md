@@ -1,27 +1,57 @@
 # Rust Core / Security Kernel Execution Record
 
-Date: 2026-10-05
-Branch: execution/rust-core-security-kernel-complete-2026-10-05
-Base: main at abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9
+Date: 2026-10-05  
+Branch: `execution/rust-core-security-kernel-complete-2026-10-05`  
+Base: `main` at `abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`
 
-Inventory: prior Rust work exists on divergent execution branches; current main had no root Rust workspace.
+## Inventory
 
-Provenance: accepted platform strategy, security baseline, ADR-0008 and historical PrivateMesh material were reviewed.
+Prior Rust Security Kernel work existed on divergent execution branches. The specialization branch retained reusable safe state-machine concepts but was independently based on the then-current canonical main baseline.
 
-Classification: architecture, baseline, proposed decision, historical reference, implementation and test evidence were kept distinct.
+## Provenance / classification
 
-Version comparison: reusable state-machine concepts were retained while public trust elevation was removed and protocol negotiation was tightened.
+Reviewed:
 
-Canonicalization: branch rebuilt from the then-current main baseline after main advanced.
+- accepted Rust/KMP/platform boundary in `docs/03-architecture/PLATFORMS.md`;
+- security baseline;
+- ADR-0008 / ADR-0009 / ADR-0010 proposal records;
+- Identity & Trust threat model and implementation map;
+- historical PrivateMesh references.
 
-Correction: protocol negotiation validates state and bounds before mutation; public callers cannot promote trust.
+Historical material remains evidence, not automatic authority.
 
-Implementation: deterministic non-cryptographic Rust Core under core.
+## Canonical specialization result
 
-Testing: unit and integration tests are present. Local Cargo is unavailable in the agent runtime; GitHub Actions is the execution evidence.
+Rust Core is the Layer C security authority for deterministic security policy and state transitions.
 
-Security audit: no unsafe code, secrets, custom cryptographic primitive, transport/storage bypass or public trust-elevation operation.
+This branch intentionally does not promote an unapproved cryptographic protocol, key hierarchy, serialization format, or transport design.
 
-Verification: PASS — GitHub Actions Rust Security Kernel run `37242437393` for commit `99ee763cc67b3e1a0f67de520d66150f19e55c09` completed successfully. Format, tests, and Clippy passed.
+## Implementation
 
-Release gate: Rust Core non-cryptographic slice is VERIFIED. Product release remains blocked by unresolved cryptographic, key-management and protocol decisions plus required independent security review.
+- Security-sensitive mutable state is private.
+- Device identity fields are immutable through the public API.
+- Protocol identifiers and envelope fields are constructed through validated APIs.
+- Session protocol state is immutable after session creation.
+- Trust, session, rekey, revocation, and replacement transitions fail closed.
+- Protocol negotiation is bounded and monotonic.
+- Integration and unit tests cover negative/failure paths.
+
+## Verification
+
+GitHub Actions Rust Security Kernel run `37242479683` completed successfully for branch head `9e909fbe4aec3f5666efa524c301cd63b22169ed`.
+
+Passed:
+
+- Format
+- Tests
+- Clippy
+
+## Security audit disposition
+
+No unsafe Rust, secrets, custom cryptographic primitive, public trust-elevation operation, storage bypass, or transport implementation was introduced in this specialization slice.
+
+## Gate
+
+**Rust Core non-cryptographic specialization: VERIFIED.**
+
+**Product release: BLOCKED** by unresolved cryptographic protocol, key-management, serialization, transport, FFI, platform integration, and required independent security review.
