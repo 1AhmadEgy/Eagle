@@ -117,7 +117,7 @@ impl SecureTransport for MemoryTransport {
                 if self.inbox.is_empty() {
                     Ok(None)
                 } else {
-                    Ok(Some(self.inbox.remove(0)))
+                    Ok(Some(self.inbox.swap_remove(0)))
                 }
             }
             TransportState::Closing => Err(TransportError::Closing),
