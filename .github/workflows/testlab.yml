@@ -41,8 +41,9 @@ jobs:
 
       - name: Install Android 37 SDK
         run: |
+          set -euo pipefail
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" --channel=1 "platforms;android-37" "build-tools;37.0.0"
 
       - name: Verify Android SDK
         run: |
