@@ -45,13 +45,16 @@ fn session_rejects_protocol_downgrade_without_mutation() {
 }
 
 #[test]
-fn session_rejects_renegotiation_downgrade_without_mutation() {
+fn protocol_cannot_be_renegotiated_after_session_establishment() {
     let mut ctx = SecurityContext::new(1);
     Identity::from_verified_principal(&mut ctx, PrincipalId(7)).unwrap();
     assert_eq!(Session::establish(&mut ctx, 3).unwrap().protocol, 3);
 
-    let result = ctx.negotiate_protocol(2);
-    assert_eq!(result, Err(eagle_core::SecurityError::ProtocolDowngrade));
+    let result = ctx.negotiate_protocol(4);
+    assert_eq!(
+        result,
+        Err(eagle_core::SecurityError::InvalidSessionTransition)
+    );
     assert_eq!(ctx.negotiated_protocol(), 3);
     assert_eq!(ctx.session_state(), SessionState::Authenticated);
 }
