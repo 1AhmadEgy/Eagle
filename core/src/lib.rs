@@ -1,10 +1,12 @@
 #![forbid(unsafe_code)]
 
+pub mod devices;
 pub mod identity;
 pub mod policy;
 pub mod protocol;
 pub mod session;
 
+pub use devices::{Device, DeviceError, DeviceTrustState, Platform};
 pub use identity::{Identity, PrincipalId};
 pub use policy::{authorize, Capability};
 pub use protocol::{EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError};
