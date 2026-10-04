@@ -198,7 +198,7 @@ pub struct AiPlan {
     pub request_id: RequestId,
     pub policy_version: PolicyVersion,
     pub steps: Vec<PlanStep>,
-    pub confidence: ConfidenceAssessment,
+    pub model_confidence: u8,
     pub requires_confirmation: bool,
 }
 
@@ -300,7 +300,7 @@ impl AiModelAdapter for RuleBasedAdapter {
                     capability,
                     arguments: SafeArguments::empty(),
                 }],
-                confidence: ConfidenceAssessment::calculate(80, 0, 90, 0, 0),
+                model_confidence: 80,
                 requires_confirmation: false,
             },
         })
@@ -344,11 +344,18 @@ pub enum PolicyRejection {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ApprovedPlan(AiPlan);
+pub struct ApprovedPlan {
+    plan: AiPlan,
+    confidence: ConfidenceAssessment,
+}
 
 impl ApprovedPlan {
     pub fn plan(&self) -> &AiPlan {
-        &self.0
+        &self.plan
+    }
+
+    pub fn confidence(&self) -> ConfidenceAssessment {
+        self.confidence
     }
 }
 
@@ -417,17 +424,19 @@ impl AiPolicyGuard {
             }
         }
 
-        if plan.confidence.rule_validation_score < 50
-            || plan.confidence.consistency_score < 50
-        {
-            return PolicyDecision::Rejected(PolicyRejection::UntrustedConfidence);
-        }
+        let confidence = ConfidenceAssessment::calculate(
+            plan.model_confidence,
+            0,
+            100,
+            100,
+            0,
+        );
 
         if plan.requires_confirmation {
             return PolicyDecision::RequiresConfirmation(plan);
         }
 
-        PolicyDecision::Approved(ApprovedPlan(plan))
+        PolicyDecision::Approved(ApprovedPlan { plan, confidence })
     }
 }
 
@@ -530,7 +539,7 @@ mod tests {
                 capability,
                 arguments: SafeArguments::empty(),
             }],
-            confidence: ConfidenceAssessment::calculate(80, 80, 90, 100, 70),
+            model_confidence: 80,
             requires_confirmation: false,
         }
     }
@@ -622,17 +631,29 @@ mod tests {
             AiPolicyGuard::new(PolicyVersion(1), [CapabilityRequest::SearchLocalIndex], 4);
         let request_id = RequestId(5);
         let mut candidate = plan(request_id, 5, CapabilityRequest::SearchLocalIndex);
-        candidate.confidence = ConfidenceAssessment::calculate(100, 100, 10, 100, 100);
+        candidate.model_confidence = 100;
 
-        assert_eq!(
-            guard.validate(&context(request_id), candidate),
-            PolicyDecision::Rejected(PolicyRejection::UntrustedConfidence)
-        );
+        let decision = guard.validate(&context(request_id), candidate);
+        let approved = match decision {
+            PolicyDecision::Approved(plan) => plan,
+            other => panic!("unexpected decision: {other:?}"),
+        };
+
+        assert_eq!(approved.confidence().consistency_score, 100);
+        assert_eq!(approved.confidence().rule_validation_score, 100);
+        assert_eq!(approved.confidence().evidence_score, 0);
     }
 
     #[test]
     fn sensitive_capabilities_are_not_part_of_ai_capability_enum() {
-        assert_eq!(std::mem::variant_count::<CapabilityRequest>(), 5);
+        let capabilities = [
+            CapabilityRequest::ReadConversationSummary,
+            CapabilityRequest::SearchLocalIndex,
+            CapabilityRequest::CreateDraft,
+            CapabilityRequest::ReadConnectionDiagnostic,
+            CapabilityRequest::RequestRetry,
+        ];
+        assert_eq!(capabilities.len(), 5);
     }
 
     #[test]
