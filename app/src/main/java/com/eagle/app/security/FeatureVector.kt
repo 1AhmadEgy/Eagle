@@ -96,3 +96,12 @@ object SecurityFeatureExtractor {
     private fun BigInteger.coerceAtMost(max: BigInteger): BigInteger =
         if (this > max) max else this
 }
+
+
+fun FeatureVector.value(feature: SecurityFeature): Long = when (feature) {
+    SecurityFeature.EVENTS_PER_MINUTE_MICROS -> eventsPerMinuteMicros
+    SecurityFeature.REJECTION_RATE_BPS -> rejectionRateBps.toLong()
+    SecurityFeature.REPLAY_FAILURE_RATE_BPS -> replayFailureRateBps.toLong()
+    SecurityFeature.RATE_LIMIT_RATE_BPS -> rateLimitRateBps.toLong()
+    SecurityFeature.SESSION_TRANSITION_REJECT_RATE_BPS -> sessionTransitionRejectRateBps.toLong()
+}
