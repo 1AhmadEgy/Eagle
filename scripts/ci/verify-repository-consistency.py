@@ -116,7 +116,24 @@ def main() -> int:
             fail("ADR index/state mismatch for " + adr_id)
 
 
-    # 9. Every external GitHub Action or reusable workflow must use an immutable 40-hex SHA.
+    # 9. When the Rust foundation exists, its explicit non-crypto contract must be present.
+    rust_manifest = ROOT / "Cargo.toml"
+    rust_core_manifest = ROOT / "core/Cargo.toml"
+    rust_lib = ROOT / "core/src/lib.rs"
+    rust_identity = ROOT / "core/src/identity.rs"
+    if rust_manifest.is_file():
+        if not rust_core_manifest.is_file() or not rust_lib.is_file() or not rust_identity.is_file():
+            fail("Rust foundation is partially present; required core files are missing")
+        else:
+            if '#![forbid(unsafe_code)]' not in rust_lib.read_text(encoding="utf-8"):
+                fail("Rust foundation must forbid unsafe code")
+            if 'from_verified_principal' not in rust_identity.read_text(encoding="utf-8"):
+                fail("Rust identity boundary must expose from_verified_principal()")
+            state_foundation = state["implementation_baseline"].get("rust_security_state_machine_foundation")
+            if state_foundation is not True:
+                fail("Rust foundation exists in code but repository state does not mark the foundation implemented")
+
+    # 10. Every external GitHub Action or reusable workflow must use an immutable 40-hex SHA.
     workflows_root = ROOT / ".github/workflows"
     if workflows_root.is_dir():
         uses_pattern = re.compile(r"^\s*uses:\s*([^\s#]+)(?:\s+#.*)?$")
