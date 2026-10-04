@@ -76,3 +76,59 @@ Step 2 remains open until the actual supported construction path is established 
 - A: impossible by invariant → remove or document `EmptyOwnerId` as defensive-only.
 - B: valid supported path exists → test the real path.
 - C: public bypass exists → BLOCKER; do not start SLICE-01.
+
+## 6. Phase 1 — Toolchain policy applied
+
+- Step 1 commit: `3561d7b6259a4f2727a7c7c6cde7212559883ce1`
+- Commit message: `chore(build): pin toolchain to 1.99.0 via repo-level policy`
+- The Step 1 code/config commit contains exactly:
+  - root `rust-toolchain.toml`
+  - `.github/workflows/rust-core.yml`
+  - `.github/workflows/ci.yml`
+  - `scripts/ci/verify.sh`
+- Root `Cargo.toml` was not modified or created in Step 1.
+- The repository policy is:
+  - channel: `1.99.0`
+  - profile: `minimal`
+  - components: `rustfmt`, `clippy`
+- CI reads the root TOML with Python `tomllib`, passes the parsed channel/components to the SHA-pinned `dtolnay/rust-toolchain` action, then explicitly verifies rustc/cargo/rustup and checks that the active toolchain is not merely the rustup default.
+- `scripts/ci/verify.sh` performs the same Rust-toolchain assertion immediately before the first Rust cargo call.
+
+### Phase 1 repository-state verification
+
+- Remote `main` = `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`
+- Remote `implementation/v1-foundation` = `3561d7b6259a4f2727a7c7c6cde7212559883ce1`
+- Relation: target branch is 2 commits ahead and 0 behind `main`:
+  1. baseline Evidence commit
+  2. Step 1 toolchain-policy commit
+- Current branch remains unprotected.
+- The combined GitHub status endpoint currently reports no status entries for the Step 1 commit.
+
+### Local command evidence limitation
+
+The exact local outputs requested by the operating checklist could not be executed in this environment because there is no local Eagle checkout and outbound Git access is unavailable:
+
+```
+rustc --version
+cargo --version
+rustup show active-toolchain
+git rev-parse HEAD
+git status --short
+git diff --check
+```
+
+Remote GitHub state was verified instead. This does not count as a local toolchain PASS.
+
+## 7. Workspace architecture finding before Step 2
+
+The current `main` baseline does not contain a root `Cargo.toml` or a `core/` directory.
+
+The historical `execution/core-foundation-v1` branch does contain:
+
+```toml
+[workspace]
+resolver = "2"
+members = ["core", "core/ffi"]
+```
+
+Therefore Step 2 must port the existing Rust workspace foundation from the historical execution branch onto the clean `main` baseline before adding `eagle-core-reference`. This is an execution dependency, not a justification to modify the Step 1 commit.
