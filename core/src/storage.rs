@@ -140,7 +140,7 @@ impl RecordStore for MemoryRecordStore {
             .position(|item| item.record_id == record_id)
             .ok_or(StorageError::NotFound)?;
 
-        let removed = self.records.remove(index);
+        let removed = self.records.swap_remove(index);
         Ok(DeletionReceipt {
             record_id: removed.record_id,
             schema_version: removed.schema_version,
