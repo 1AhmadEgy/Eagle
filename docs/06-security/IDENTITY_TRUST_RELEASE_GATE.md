@@ -60,7 +60,7 @@ No stage may be skipped by administrative declaration.
 
 **Verified execution head for the latest code update:** `48445f40c6bdced9e94db93e215f6430e32d7156`
 
-- Rust Security Core: 27/27 unit tests expected after the latest fail-closed hardening update; fresh CI verification remains required.
+- Rust Security Core: 28/28 unit tests expected after the latest fail-closed hardening update; fresh CI verification remains required.
 - Repository verification: PASS.
 - Secret scan: PASS.
 - Security policy verification: PASS.
@@ -82,3 +82,7 @@ The release gate remains **BLOCKED** because these implementation controls do no
 ## Latest hardening gate note
 
 Trust promotion is not exposed as an unconditional API. A pairing approval verifier is required at the Security Core boundary, and a dedicated rejection test keeps the device in PENDING. This remains a local policy control; it does not complete cryptographic transcript verification.
+
+## Current gate note
+
+Approval, membership-identity binding, and contact-reverification proof boundaries are explicit in the Security Core. The gate remains BLOCKED until fresh CI evidence and all unresolved cross-boundary/protocol/security review requirements are satisfied.
