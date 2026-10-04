@@ -6,6 +6,8 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "core/**"
+      - "core-reference/**"
+      - "scripts/ci/verify-reference-boundary.py"
       - "rust-toolchain.toml"
       - ".github/workflows/rust-core.yml"
       - "scripts/ci/verify.sh"
@@ -118,6 +120,10 @@ jobs:
             --language kotlin \
             --out-dir shared/build/generated/uniffi/ci
           test -n "$(find shared/build/generated/uniffi/ci -type f -name '*.kt' -print -quit)"
+
+      - name: Gate 5.7 — reference implementation boundary
+        if: steps.rust_workspace.outputs.present == 'true'
+        run: python3 scripts/ci/verify-reference-boundary.py
 
       - name: Clippy
         if: steps.rust_workspace.outputs.present == 'true'
