@@ -80,7 +80,7 @@ def main() -> int:
 
     expected = state["android_build"]
     checks = {
-        "agp": 'id("com.android.application") version "' + re.escape(expected["agp"]) + '"',
+        "agp": 'id("com.android.application") version "' + expected["agp"] + '"',
         "compileSdk": "compileSdk = " + str(expected["compile_sdk"]),
         "targetSdk": "targetSdk = " + str(expected["target_sdk"]),
         "minSdk": "minSdk = " + str(expected["min_sdk"]),
@@ -88,7 +88,11 @@ def main() -> int:
     }
     for name, pattern in checks.items():
         haystack = root_build if name == "agp" else app_build
-        if re.search(pattern, haystack) is None:
+        if name == "agp":
+            present = pattern in haystack
+        else:
+            present = re.search(pattern, haystack) is not None
+        if not present:
             fail("Android build baseline drift detected for " + name)
 
     for dep in ("libsignal", "openmls", "libp2p", "sqlcipher", "androidx.room"):
@@ -115,7 +119,7 @@ def main() -> int:
     # 9. Every external GitHub Action or reusable workflow must use an immutable 40-hex SHA.
     workflows_root = ROOT / ".github/workflows"
     if workflows_root.is_dir():
-        uses_pattern = re.compile(r"^\\s*uses:\\s*([^\\s#]+)\\s*$")
+        uses_pattern = re.compile(r"^\s*uses:\s*([^\s#]+)(?:\s+#.*)?$")
         for wf_path in workflows_root.glob("*.y*ml"):
             try:
                 lines = wf_path.read_text(encoding="utf-8").splitlines()
