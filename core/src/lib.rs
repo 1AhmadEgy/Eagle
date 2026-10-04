@@ -245,7 +245,10 @@ mod tests {
         );
         ctx.finish_rekey().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Established);
-        assert_eq!(ctx.finish_rekey(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.finish_rekey(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
     }
 
     #[test]
