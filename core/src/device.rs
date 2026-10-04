@@ -45,6 +45,7 @@ impl Device {
         self.trust
     }
 
+    #[cfg(test)]
     pub(crate) fn begin_pairing(&mut self) -> Result<(), DeviceError> {
         if self.trust != DeviceTrustState::Unknown {
             return Err(DeviceError::InvalidTransition);
@@ -53,6 +54,7 @@ impl Device {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(crate) fn approve(&mut self) -> Result<(), DeviceError> {
         if self.trust != DeviceTrustState::Pending {
             return Err(DeviceError::InvalidTransition);
