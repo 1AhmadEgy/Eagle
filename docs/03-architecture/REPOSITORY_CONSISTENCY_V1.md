@@ -47,3 +47,9 @@ Do not edit the registry merely to make the checker pass.
 As of 2026-10-04, Eagle has an Android bootstrap under `app/`, JUnit smoke coverage, CI/Test Lab infrastructure, and architecture/security documentation. It does not yet contain the production E2E cryptographic stack, Rust Security Core, KMP shared module, or mesh engine.
 
 This status is intentionally machine-checked.
+
+## Validation history
+
+- 2026-10-04 CI run 37210145630 exposed two gate defects: AGP was read from the app module instead of the root build file, and the stale-token detector matched the gate's own documentation/example text.
+- The gate was corrected to read the root AGP declaration and to exclude the self-documenting gate files from that specific stale-token assertion.
+- CI artifact upload behavior was changed from an error on missing evidence files to a warning so a secondary artifact failure cannot obscure a primary verification failure.
