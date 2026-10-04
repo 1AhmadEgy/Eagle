@@ -1,6 +1,6 @@
 # Eagle AI Layer Specification
 
-Status: M1 CONTRACT BASELINE
+Status: M1 CONTRACT BASELINE — COMPLETE
 Branch: ai/reverse-engineering-foundation
 Revision baseline: f8ce28911597f8460f6bf0ecd02d5bf191386871
 
@@ -171,7 +171,7 @@ Future orchestration/policy/storage implementations may extend this namespace af
 ## 10. Lifecycle
 
 M0 - repository baseline: COMPLETE
-M1 - contracts + unit tests: IN PROGRESS / first implementation committed with this specification
+M1 - contracts + unit tests: COMPLETE
 M2 - hash-chain + signing: NOT IMPLEMENTED
 M3 - orchestration + routing: NOT IMPLEMENTED
 M4 - concrete provider adapters: NOT IMPLEMENTED
