@@ -64,11 +64,14 @@ jobs:
           python3 scripts/ci/run-testlab-categories.py
           category_rc=$?
 
+          export BASELINE_RC CATEGORY_RC
           python3 - <<'PY'
           import json
           import os
           from pathlib import Path
 
+          baseline_rc = int(os.environ["BASELINE_RC"])
+          category_rc = int(os.environ["CATEGORY_RC"])
           path = Path(".ci/testlab/categories.json")
           data = json.loads(path.read_text(encoding="utf-8"))
           data["commit"] = os.environ["GITHUB_SHA"]
