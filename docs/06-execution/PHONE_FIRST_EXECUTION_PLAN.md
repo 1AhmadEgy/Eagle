@@ -1,6 +1,6 @@
 # Eagle / PrivateMesh — Phone-First Execution Plan
 
-**Scope:** Phase 1 — Android-first foundation with a platform-neutral core.
+**Scope:** Phase 1 — Android-first foundation with a platform-neutral core and KMP application layer.
 **Branch:** `execution/core-foundation-v1`
 **Status:** Implementation baseline; cryptographic/profile decisions remain gated.
 
@@ -23,14 +23,15 @@
 
 1. Security Kernel and state machines.
 2. Protocol contracts and conformance vectors.
-3. Storage/recovery/deletion boundaries.
-4. Transport adapters.
-5. Android secure-storage and lifecycle adapters.
-6. Android application services.
-7. UI integration.
-8. Cross-module, negative, fuzz and failure-injection tests.
-9. Provenance/SBOM/signing evidence.
-10. Independent verification and release gate.
+3. KMP application boundary and FFI contract scaffold.
+4. Storage/recovery/deletion boundaries.
+5. Transport adapters.
+6. Android secure-storage and lifecycle adapters.
+7. Android application services.
+8. UI integration.
+9. Cross-module, negative, fuzz and failure-injection tests.
+10. Provenance/SBOM/signing evidence.
+11. Independent verification and release gate.
 
 ## Hard gates
 
@@ -41,8 +42,12 @@
 - Mesh/protocol boundaries do not receive application plaintext.
 - Storage does not become a private-key repository.
 - A feature is not marked verified without executable evidence.
+- Generated UniFFI bindings are platform-specific build artifacts, not commonMain domain code.
 
 ## Current implementation note
 
-The current Phase 1 core is intentionally cryptography-free. It implements deterministic trust/session state transitions and downgrade rejection so higher layers can integrate against stable contracts without creating a false security claim.
+The Phase 1 Rust core remains intentionally cryptography-free. It implements deterministic trust/session state transitions and downgrade rejection.
 
+The new KMP layer is currently a domain/port scaffold. The Rust FFI exposes the future contract but deliberately fails closed for operations that require the still-pending cryptographic, key-management, and serialization ADRs.
+
+Generated bindings are not committed yet because the native library packaging targets have not been defined. The generator script is provided for reproducible binding generation once the Rust artifact is available.
