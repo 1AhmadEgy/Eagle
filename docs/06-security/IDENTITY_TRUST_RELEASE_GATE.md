@@ -60,7 +60,7 @@ No stage may be skipped by administrative declaration.
 
 **Verified execution head for the latest code update:** `48445f40c6bdced9e94db93e215f6430e32d7156`
 
-- Rust Security Core: 26/26 unit tests expected after the latest fail-closed hardening update; CI verification remains required.
+- Rust Security Core: 27/27 unit tests expected after the latest fail-closed hardening update; fresh CI verification remains required.
 - Repository verification: PASS.
 - Secret scan: PASS.
 - Security policy verification: PASS.
@@ -78,3 +78,7 @@ These results verify the implemented baseline only. They do not approve the unre
 The pairing lifecycle is explicitly bound to the target device identity in the Security Core. A valid account/epoch pairing context cannot be consumed to promote a different pending device. Empty pairing identifiers are rejected at construction, membership validity windows are bounded, expiry arithmetic fails closed on overflow, and the test suite includes negative coverage for each case.
 
 The release gate remains **BLOCKED** because these implementation controls do not substitute for the unresolved ADR-005/006/007 approvals, cryptographic/key-management freeze, protocol adversarial proof, cross-platform parity, revocation reconciliation, and independent security review.
+
+## Latest hardening gate note
+
+Trust promotion is not exposed as an unconditional API. A pairing approval verifier is required at the Security Core boundary, and a dedicated rejection test keeps the device in PENDING. This remains a local policy control; it does not complete cryptographic transcript verification.
