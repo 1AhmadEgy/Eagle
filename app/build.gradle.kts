@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId = "com.eagle.app"
         minSdk = 29
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
 
@@ -37,10 +37,6 @@ android {
     lint {
         abortOnError = true
         warningsAsErrors = true
-        // The Linux CI runner intentionally installs Android 36 only.
-        // targetSdk remains 37; GradleDependency would otherwise fail solely
-        // because SDK 37 is newer than the build environment's installed SDK.
-        disable += "GradleDependency"
     }
 }
 
