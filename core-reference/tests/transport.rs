@@ -37,28 +37,21 @@ fn close_blocks_future_transport_operations() {
 }
 
 #[test]
-fn oversized_injected_frame_is_rejected() {
-    let mut transport = MemoryTransport::new();
+fn mismatched_payload_length_is_rejected_at_boundary() {
+    let result = TransportFrame::new(
+        FrameHeader { protocol_version: 1, payload_len: 8, flags: 0 },
+        vec![0xA5; 4],
+    );
+    assert_eq!(result, Err(TransportError::Protocol(ProtocolError::PayloadLengthMismatch)));
+}
+
+#[test]
+fn oversized_frame_is_rejected() {
     let header = FrameHeader {
         protocol_version: 1,
         payload_len: (MAX_PAYLOAD_BYTES + 1) as u32,
         flags: 0,
     };
-    let result = transport.inject_for_test(TransportFrame {
-        header,
-        payload: vec![0xA5; MAX_PAYLOAD_BYTES + 1],
-    });
-    assert_eq!(result, Err(TransportError::FrameTooLarge));
-}
-
-#[test]
-fn protocol_error_boundary_remains_in_core_contract() {
-    let result = TransportFrame::new(
-        FrameHeader { protocol_version: 1, payload_len: 8, flags: 0 },
-        vec![0xA5; 4],
-    );
-    assert_eq!(
-        result,
-        Err(TransportError::Protocol(ProtocolError::PayloadLengthMismatch))
-    );
+    let result = TransportFrame::new(header, vec![0xA5; MAX_PAYLOAD_BYTES + 1]);
+    assert_eq!(result, Err(TransportError::Protocol(ProtocolError::PayloadTooLarge)));
 }
