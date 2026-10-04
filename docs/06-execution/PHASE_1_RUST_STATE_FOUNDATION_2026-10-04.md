@@ -46,3 +46,12 @@ Rust CI verifies:
 `cargo clippy --workspace --all-targets --locked -- -D warnings`
 
 Android CI/Test Lab remains a separate verification track.
+
+## Verified CI evidence
+
+- CI run 37211005813: **SUCCESS**
+- Eagle Test Lab run 37211005822: **SUCCESS**
+- Rust Core run 37211005776: **SUCCESS**
+- Verified commit: 561a005afe106ec3c8f73bca767a26383b73acc1
+
+These results verify the foundation and its automated checks. They do not approve cryptographic protocol, device identity, or production readiness.
