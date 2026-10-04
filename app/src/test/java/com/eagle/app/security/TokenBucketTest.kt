@@ -44,6 +44,7 @@ class TokenBucketTest {
     @Test
     fun fractionalSecondRefillIsRepresentable() {
         val bucket = TokenBucket(10_000_000, 2_000_000, 0)
+        assertEquals(0L, bucket.availableTokensMicrotokens(0))
         assertEquals(500_000L, bucket.availableTokensMicrotokens(250))
     }
 
@@ -65,6 +66,7 @@ class TokenBucketTest {
             refillMicrotokensPerSecond = Long.MAX_VALUE,
             initialTokensMicrotokens = 0
         )
+        assertEquals(0L, bucket.availableTokensMicrotokens(0))
         assertEquals(1_000_000L, bucket.availableTokensMicrotokens(1_000_000))
     }
 
