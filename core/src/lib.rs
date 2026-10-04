@@ -5,12 +5,17 @@ pub mod identity;
 pub mod policy;
 pub mod protocol;
 pub mod session;
+pub mod storage;
 
 pub use devices::{Device, DeviceError, DeviceTrustState, Platform};
 pub use identity::{Identity, PrincipalId};
 pub use policy::{authorize, Capability};
 pub use protocol::{EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError};
 pub use session::Session;
+pub use storage::{
+    EncryptedRecord, DeletionReceipt, MemoryRecordStore, RecordId, RecordStore, RecoveryState,
+    SchemaVersion, StorageError, CURRENT_SCHEMA_VERSION, MAX_RECORD_BYTES,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TrustState {
