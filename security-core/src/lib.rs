@@ -51,6 +51,7 @@ pub enum TrustError {
     PairingDeviceMismatch,
     MalformedPairingContext,
     PairingExpiryOverflow,
+    PairingApprovalRequired,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,6 +122,16 @@ impl AccountMembershipStatement {
 
 pub trait MembershipProofVerifier {
     fn verify_membership(&self, statement: &AccountMembershipStatement) -> Result<(), TrustError>;
+}
+
+pub trait PairingApprovalVerifier {
+    fn verify_approval(
+        &self,
+        pairing: &PairingContext,
+        account_id: &str,
+        device_id: &str,
+        current_epoch: u64,
+    ) -> Result<(), TrustError>;
 }
 
 pub fn validate_membership(
@@ -267,6 +278,7 @@ impl TrustRecord {
         account_id: &str,
         pairing: &mut PairingContext,
         current_epoch: u64,
+        approval_verifier: &impl PairingApprovalVerifier,
     ) -> Result<SecurityEvent, TrustError> {
         if self.state != TrustState::Pending {
             return Err(TrustError::InvalidStateTransition);
@@ -277,6 +289,13 @@ impl TrustRecord {
         if pairing.account_id != self.account_id || pairing.device_id != self.device_id {
             return Err(TrustError::PairingDeviceMismatch);
         }
+        pairing.verify(&self.account_id, &self.device_id, current_epoch)?;
+        approval_verifier.verify_approval(
+            pairing,
+            &self.account_id,
+            &self.device_id,
+            current_epoch,
+        )?;
         pairing.consume(current_epoch)?;
         self.state = TrustState::Trusted;
         self.trust_epoch = current_epoch;
@@ -530,6 +549,34 @@ mod tests {
         }
     }
 
+    struct AcceptApprovalVerifier;
+
+    impl PairingApprovalVerifier for AcceptApprovalVerifier {
+        fn verify_approval(
+            &self,
+            _pairing: &PairingContext,
+            _account_id: &str,
+            _device_id: &str,
+            _current_epoch: u64,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+    }
+
+    struct RejectApprovalVerifier;
+
+    impl PairingApprovalVerifier for RejectApprovalVerifier {
+        fn verify_approval(
+            &self,
+            _pairing: &PairingContext,
+            _account_id: &str,
+            _device_id: &str,
+            _current_epoch: u64,
+        ) -> Result<(), TrustError> {
+            Err(TrustError::PairingApprovalRequired)
+        }
+    }
+
 
     #[test]
     fn membership_registry_rejects_cross_account_device_reuse() {
@@ -741,7 +788,7 @@ mod tests {
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 7).unwrap();
 
-        let event = record.approve_trust("acct-a", &mut pairing, 7).unwrap();
+        let event = record.approve_trust("acct-a", &mut pairing, 7, &AcceptApprovalVerifier).unwrap();
 
         assert_eq!(record.state, TrustState::Trusted);
         assert_eq!(record.trust_epoch, 7);
@@ -752,13 +799,31 @@ mod tests {
     }
 
     #[test]
+    fn rejected_pairing_approval_cannot_promote_device() {
+        let mut record = pending_record();
+        let mut pairing =
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
+
+        assert_eq!(
+            record.approve_trust(
+                "acct-a",
+                &mut pairing,
+                1,
+                &RejectApprovalVerifier
+            ),
+            Err(TrustError::PairingApprovalRequired)
+        );
+        assert_eq!(record.state, TrustState::Pending);
+    }
+
+    #[test]
     fn mismatched_account_is_rejected() {
         let mut record = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
         assert_eq!(
-            record.approve_trust("acct-b", &mut pairing, 1),
+            record.approve_trust("acct-b", &mut pairing, 1, &AcceptApprovalVerifier),
             Err(TrustError::AccountMismatch)
         );
     }
@@ -790,7 +855,7 @@ mod tests {
             PairingContext::new("pair-1", "acct-a", "dev-other", Duration::from_secs(60), 3).unwrap();
 
         assert_eq!(
-            record.approve_trust("acct-a", &mut pairing, 3),
+            record.approve_trust("acct-a", &mut pairing, 3, &AcceptApprovalVerifier),
             Err(TrustError::PairingDeviceMismatch)
         );
         assert_eq!(record.state, TrustState::Pending);
@@ -802,7 +867,7 @@ mod tests {
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 3).unwrap();
 
-        record.approve_trust("acct-a", &mut pairing, 3).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 3, &AcceptApprovalVerifier).unwrap();
 
         assert_eq!(
             pairing.verify("acct-a", "dev-a", 3),
@@ -829,7 +894,7 @@ mod tests {
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 8).unwrap();
 
-        record.approve_trust("acct-a", &mut pairing, 8).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 8, &AcceptApprovalVerifier).unwrap();
 
         assert_eq!(
             record.authorize(AuthorizationAction::StartProtectedSession, 7),
@@ -847,7 +912,7 @@ mod tests {
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
-        record.approve_trust("acct-a", &mut pairing, 1).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 1, &AcceptApprovalVerifier).unwrap();
         let event = record.revoke(2).unwrap();
 
         assert!(matches!(
@@ -894,7 +959,7 @@ mod tests {
         let mut record = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 5).unwrap();
-        record.approve_trust("acct-a", &mut pairing, 5).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 5, &AcceptApprovalVerifier).unwrap();
         record.suspend().unwrap();
 
         assert_eq!(
@@ -918,7 +983,7 @@ mod tests {
         let mut record = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 2).unwrap();
-        record.approve_trust("acct-a", &mut pairing, 2).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 2, &AcceptApprovalVerifier).unwrap();
 
         assert_eq!(
             record.revoke(2),
