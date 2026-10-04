@@ -56,6 +56,19 @@ A foundational import MAY exceed the normal 500-line PR-size target when all of 
 
 The 500-line target applies to subsequent modifications, not to the unavoidable initial introduction of an absent subsystem.
 
+### D3-R1 — Snapshot import evidence standard
+
+A foundational subsystem absent from the baseline MAY be imported as a single snapshot commit when:
+
+1. The source commit is named explicitly in the commit message.
+2. Per-file blob SHAs are verified equal between source and target.
+3. The import leaves the repository in a buildable and testable state.
+4. Intermediate states are documented in Evidence and closed within the immediately following slice.
+5. The import is NOT a cherry-pick; per-commit review is not required.
+6. The import commit message follows: feat(<area>): import <subsystem> snapshot from <sha>.
+
+Standard PR size limits apply to subsequent modifications, not to the import itself. A separate Evidence annex records each snapshot import: source SHA, target SHA, file inventory, blob hashes, and the closing slice that stabilized it.
+
 ### D5 — Non-ported commit ledger
 
 Every historical commit not replayed onto the new foundation line SHALL be recorded with:
