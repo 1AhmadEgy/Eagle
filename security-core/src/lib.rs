@@ -934,7 +934,9 @@ mod tests {
         let mut revoked = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
-        revoked.approve_trust("acct-a", &mut pairing, 1).unwrap();
+        revoked
+            .approve_trust("acct-a", &mut pairing, 1, &AcceptApprovalVerifier)
+            .unwrap();
         revoked.revoke(2).unwrap();
         assert_eq!(
             revoked.authorize(AuthorizationAction::StartProtectedSession, 2),
@@ -945,7 +947,12 @@ mod tests {
         let mut replacement_pairing =
             PairingContext::new("pair-2", "acct-a", "dev-a", Duration::from_secs(60), 3).unwrap();
         replaced
-            .approve_trust("acct-a", &mut replacement_pairing, 3)
+            .approve_trust(
+                "acct-a",
+                &mut replacement_pairing,
+                3,
+                &AcceptApprovalVerifier,
+            )
             .unwrap();
         replaced.replace(4).unwrap();
         assert_eq!(
