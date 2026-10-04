@@ -737,6 +737,18 @@ mod tests {
     }
 
     #[test]
+    fn malformed_pairing_context_is_rejected() {
+        assert_eq!(
+            PairingContext::new("", "acct-a", "dev-a", Duration::from_secs(60), 1),
+            Err(TrustError::MalformedPairingContext)
+        );
+        assert_eq!(
+            PairingContext::new("pair-1", "acct-a", "", Duration::from_secs(60), 1),
+            Err(TrustError::MalformedPairingContext)
+        );
+    }
+
+    #[test]
     fn pairing_is_bound_to_the_expected_device() {
         let mut record = pending_record();
         let mut pairing =
