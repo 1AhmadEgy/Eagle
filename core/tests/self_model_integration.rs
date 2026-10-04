@@ -1,6 +1,4 @@
-use eagle_core::{
-    CognitiveState, Goal, GoalStatus, MemoryKind, SelfModel,
-};
+use eagle_core::{CognitiveState, Goal, GoalStatus, MemoryKind, SelfModel};
 
 #[test]
 fn self_model_supports_observe_reason_act_verify_cycle() {
@@ -10,7 +8,11 @@ fn self_model_supports_observe_reason_act_verify_cycle() {
     model.record_memory(MemoryKind::Observation, "validation failure observed", 95);
 
     model.set_state(CognitiveState::Reasoning);
-    model.record_memory(MemoryKind::Decision, "repair is bounded to source files", 90);
+    model.record_memory(
+        MemoryKind::Decision,
+        "repair is bounded to source files",
+        90,
+    );
 
     model.set_state(CognitiveState::Acting);
     model.record_memory(MemoryKind::Action, "applied minimal repair", 85);
@@ -23,7 +25,10 @@ fn self_model_supports_observe_reason_act_verify_cycle() {
     assert_eq!(snapshot.state, CognitiveState::Verifying);
     assert_eq!(snapshot.memory_size, 4);
     assert_eq!(
-        snapshot.last_memory.as_ref().map(|event| event.summary.as_str()),
+        snapshot
+            .last_memory
+            .as_ref()
+            .map(|event| event.summary.as_str()),
         Some("verification passed")
     );
 }
