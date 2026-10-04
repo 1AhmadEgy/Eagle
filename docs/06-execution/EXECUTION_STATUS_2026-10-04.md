@@ -45,7 +45,7 @@ That second issue was corrected by scoping the reference directly as `crate::pro
 
 A further negative transport test was added to guarantee that a closed transport cannot reconnect.
 
-The current head is `7e56e26756bb2125b7124b60bfb5fbc4c4903c46`. New CI executions have been observed for this head; their completion result is not yet accepted as evidence until the run status is terminal.
+The last core-modifying verification target is `7e56e26756bb2125b7124b60bfb5fbc4c4903c46`. Documentation-only commits may advance the branch head without changing that Rust verification target. New CI executions have been observed for the target; their completion result is not yet accepted as evidence until the run status is terminal.
 
 ## Current gate
 
