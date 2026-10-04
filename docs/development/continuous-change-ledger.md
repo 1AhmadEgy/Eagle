@@ -15,6 +15,10 @@ This ledger records significant security, engineering, CI/CD, provenance, and do
 
 ## Change ledger
 
+| 2026-10-04 | Repository consistency / Architecture | Corrected active Android module documentation from androidApp/ to app/; added machine-readable repository state and a deterministic consistency gate; wired it into local verification and CI. | IN_REVIEW | PR #54; validation runs 37210145630 and 37210391735 exposed and were used to correct gate defects; current verification branch implementation/repository-consistency-v1 |
+| 2026-10-04 | Protocol/Security Research | Added protocol/component selection matrix covering Signal/libsignal, vodozemac, OpenMLS, Noise, and explicit rejection of a custom cryptographic protocol. | CONFIRMED | docs/01-research/PROTOCOL_SECURITY_SELECTION_MATRIX_V0.1.md; external research captured 2026-10-04 |
+| 2026-10-04 | Supply chain | Pinned Test Lab checkout/setup-java/setup-gradle actions to immutable full commit SHAs and extended the repository consistency gate to enforce full-SHA refs for external actions and reusable workflows. | IN_REVIEW | PR #54; current upstream releases verified 2026-10-04; exact pins stored in docs/03-architecture/REPOSITORY_STATE_V1.json |
+
 | Date | Area | Change | Status | Evidence |
 |---|---|---|---|---|
 | 2026-10-01 | Foundation | Established secure V1 execution/reference baseline and reviewable PR workflow. | CONFIRMED | PR #2, PR #1 |
