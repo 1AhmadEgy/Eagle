@@ -58,9 +58,9 @@ No stage may be skipped by administrative declaration.
 
 ## Verified evidence snapshot
 
-**Verified execution head before this documentation-only update:** `cdab10de4f3c2e374f12976230fb71c59ea7b0e2`
+**Verified execution head for the latest code update:** `48445f40c6bdced9e94db93e215f6430e32d7156`
 
-- Rust Security Core: 14/14 unit tests passed.
+- Rust Security Core: 24/24 unit tests expected after the latest pairing-hardening update; CI verification remains required.
 - Repository verification: PASS.
 - Secret scan: PASS.
 - Security policy verification: PASS.
@@ -71,3 +71,10 @@ No stage may be skipped by administrative declaration.
 - Gradle dependency submission: PASS.
 
 These results verify the implemented baseline only. They do not approve the unresolved protocol/key-management/recovery ADRs.
+
+
+## Identity & Trust hardening evidence
+
+The pairing lifecycle is explicitly bound to the target device identity in the Security Core. A valid account/epoch pairing context cannot be consumed to promote a different pending device. Empty pairing identifiers are rejected at construction, and the test suite includes negative coverage for both device mismatch and malformed pairing context.
+
+The release gate remains **BLOCKED** because these implementation controls do not substitute for the unresolved ADR-005/006/007 approvals, cryptographic/key-management freeze, protocol adversarial proof, cross-platform parity, revocation reconciliation, and independent security review.
