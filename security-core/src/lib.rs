@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -45,6 +45,9 @@ pub enum TrustError {
     MalformedMembershipStatement,
     IdentityCollision,
     UnchangedIdentity,
+    DeviceAlreadyBound,
+    MembershipEpochStale,
+    MembershipAccountMismatch,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -123,6 +126,62 @@ pub fn validate_membership(
 ) -> Result<(), TrustError> {
     statement.validate_structure()?;
     verifier.verify_membership(statement)
+}
+
+
+#[derive(Debug, Default)]
+pub struct MembershipRegistry {
+    device_accounts: HashMap<String, String>,
+    account_epochs: HashMap<String, u64>,
+}
+
+impl MembershipRegistry {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn observe_account_epoch(
+        &mut self,
+        account_id: impl Into<String>,
+        epoch: u64,
+    ) -> Result<(), TrustError> {
+        let account_id = account_id.into();
+        match self.account_epochs.get(&account_id).copied() {
+            Some(current) if epoch < current => Err(TrustError::MembershipEpochStale),
+            _ => {
+                self.account_epochs.insert(account_id, epoch);
+                Ok(())
+            }
+        }
+    }
+
+    pub fn bind(
+        &mut self,
+        statement: &AccountMembershipStatement,
+        current_epoch: u64,
+        verifier: &impl MembershipProofVerifier,
+    ) -> Result<(), TrustError> {
+        validate_membership(statement, verifier)?;
+        if statement.trust_epoch < current_epoch {
+            return Err(TrustError::MembershipEpochStale);
+        }
+
+        if let Some(bound_account) = self.device_accounts.get(&statement.device.id) {
+            if bound_account != &statement.account.id {
+                return Err(TrustError::MembershipAccountMismatch);
+            }
+            return Err(TrustError::DeviceAlreadyBound);
+        }
+
+        self.observe_account_epoch(statement.account.id.clone(), statement.trust_epoch)?;
+        self.device_accounts
+            .insert(statement.device.id.clone(), statement.account.id.clone());
+        Ok(())
+    }
+
+    pub fn bound_account(&self, device_id: &str) -> Option<&str> {
+        self.device_accounts.get(device_id).map(String::as_str)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -448,6 +507,96 @@ mod tests {
         ) -> Result<(), TrustError> {
             Ok(())
         }
+    }
+
+
+    #[test]
+    fn membership_registry_rejects_cross_account_device_reuse() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let key_c = PublicIdentityKey::new(vec![3]).unwrap();
+        let account_a = IdentityReference::new("acct-a", key_a).unwrap();
+        let account_b = IdentityReference::new("acct-b", key_b).unwrap();
+        let device = IdentityReference::new("dev-1", key_c).unwrap();
+        let verifier = AcceptAllVerifier;
+        let mut registry = MembershipRegistry::new();
+
+        let first = AccountMembershipStatement {
+            protocol_version: 1,
+            account: account_a,
+            device: device.clone(),
+            issued_at_unix: 10,
+            not_before_unix: 10,
+            not_after_unix: None,
+            trust_epoch: 4,
+            capabilities: 0,
+        };
+        registry.bind(&first, 4, &verifier).unwrap();
+
+        let second = AccountMembershipStatement {
+            protocol_version: 1,
+            account: account_b,
+            device,
+            issued_at_unix: 11,
+            not_before_unix: 11,
+            not_after_unix: None,
+            trust_epoch: 4,
+            capabilities: 0,
+        };
+
+        assert_eq!(
+            registry.bind(&second, 4, &verifier),
+            Err(TrustError::MembershipAccountMismatch)
+        );
+    }
+
+    #[test]
+    fn membership_registry_rejects_stale_membership_epoch() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-a", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 10,
+            not_before_unix: 10,
+            not_after_unix: None,
+            trust_epoch: 3,
+            capabilities: 0,
+        };
+        let mut registry = MembershipRegistry::new();
+
+        assert_eq!(
+            registry.bind(&statement, 4, &AcceptAllVerifier),
+            Err(TrustError::MembershipEpochStale)
+        );
+    }
+
+    #[test]
+    fn membership_registry_rejects_duplicate_same_account_binding() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-a", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 10,
+            not_before_unix: 10,
+            not_after_unix: None,
+            trust_epoch: 4,
+            capabilities: 0,
+        };
+        let mut registry = MembershipRegistry::new();
+
+        registry.bind(&statement, 4, &AcceptAllVerifier).unwrap();
+        assert_eq!(
+            registry.bind(&statement, 4, &AcceptAllVerifier),
+            Err(TrustError::DeviceAlreadyBound)
+        );
     }
 
     #[test]
