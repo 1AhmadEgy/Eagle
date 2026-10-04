@@ -237,7 +237,10 @@ mod tests {
 
     #[test]
     fn identifier_bounds_are_enforced_at_construction() {
-        assert_eq!(OpaqueId::new(Vec::new()), Err(ProtocolError::EmptyIdentifier));
+        assert_eq!(
+            OpaqueId::new(Vec::new()),
+            Err(ProtocolError::EmptyIdentifier)
+        );
         assert_eq!(
             OpaqueId::new(vec![0; MAX_ID_BYTES + 1]),
             Err(ProtocolError::IdentifierTooLarge)
