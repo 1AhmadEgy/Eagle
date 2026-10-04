@@ -456,6 +456,32 @@ mod tests {
     }
 
     #[test]
+    fn trust_epoch_must_increase_for_revocation() {
+        let mut record = pending_record();
+        let mut pairing =
+            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 2).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 2).unwrap();
+
+        assert_eq!(
+            record.revoke(2),
+            Err(TrustError::TrustEpochNotMonotonic)
+        );
+        assert_eq!(
+            record.replace(1),
+            Err(TrustError::TrustEpochNotMonotonic)
+        );
+    }
+
+    #[test]
+    fn trust_epoch_overflow_fails_closed() {
+        let mut epochs = TrustEpochSet::new(u64::MAX);
+        assert_eq!(
+            epochs.advance(),
+            Err(TrustError::TrustEpochOverflow)
+        );
+    }
+
+    #[test]
     fn trust_epoch_set_is_monotonic_and_tracks_revocation() {
         let mut epochs = TrustEpochSet::new(10);
         assert_eq!(epochs.current(), 10);
