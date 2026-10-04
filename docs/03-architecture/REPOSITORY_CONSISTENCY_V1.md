@@ -1,0 +1,49 @@
+# Eagle — Repository Consistency & Evidence Gate v1
+
+## Purpose
+
+This gate turns the evidence-first rule into executable repository policy. It is deterministic and network-free so local runs and CI evaluate the same baseline.
+
+## What it verifies
+
+- the documented Android module matches the real Gradle module (`app/`);
+- active platform documentation does not retain the stale `androidApp/` path;
+- ADR-0008..0010 have dedicated proposed records;
+- ADR-0011..0014 remain explicitly pending and are represented by the shared worklist;
+- Android build/tooling facts match the current implementation baseline;
+- the current app does not silently gain libsignal, OpenMLS, libp2p, SQLCipher, or Room before the component gate is passed;
+- product-security maturity claims remain false until actual implementation evidence exists.
+
+## Why this exists
+
+The repository already distinguishes implementation from planning. The remaining problem is drift: a future documentation or code edit can accidentally claim a component exists, or refer to a module/path that does not exist.
+
+The checker makes those contradictions fail the verification path rather than relying on memory or manual review.
+
+## Command
+
+```bash
+python3 scripts/ci/verify-repository-consistency.py
+```
+
+It is also invoked by `scripts/ci/verify.sh`, so the same check participates in the local pre-push verification path.
+
+## Update protocol
+
+Whenever a protected fact genuinely changes:
+
+1. implement the change;
+2. add tests/evidence;
+3. update `docs/03-architecture/REPOSITORY_STATE_V1.json`;
+4. update the affected architecture documentation/ADR;
+5. run the consistency gate;
+6. run the full repository verification;
+7. record the exact commit/version and evidence in the relevant research/ADR record.
+
+Do not edit the registry merely to make the checker pass.
+
+## Current baseline
+
+As of 2026-10-04, Eagle has an Android bootstrap under `app/`, JUnit smoke coverage, CI/Test Lab infrastructure, and architecture/security documentation. It does not yet contain the production E2E cryptographic stack, Rust Security Core, KMP shared module, or mesh engine.
+
+This status is intentionally machine-checked.
