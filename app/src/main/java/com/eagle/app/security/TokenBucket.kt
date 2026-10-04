@@ -47,11 +47,14 @@ class TokenBucket(
     @Synchronized
     fun availableTokensMicrotokens(nowMonotonicMillis: Long): Long {
         val previous = lastRefillMillis
-        if (previous != null) {
-            val elapsed = (nowMonotonicMillis - previous).coerceAtLeast(0L)
-            refill(elapsed)
+        if (previous == null) {
+            lastRefillMillis = nowMonotonicMillis
+        } else {
+            refill(elapsedMillis(nowMonotonicMillis, previous))
+            if (nowMonotonicMillis > previous) {
+                lastRefillMillis = nowMonotonicMillis
+            }
         }
-        lastRefillMillis = nowMonotonicMillis
         return tokensMicrotokens
     }
 
