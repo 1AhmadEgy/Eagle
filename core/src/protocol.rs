@@ -214,27 +214,6 @@ mod tests {
         OpaqueId::new(vec![value; 8]).unwrap()
     }
 
-    fn envelope(version: u16, size: usize) -> EncryptedEnvelope {
-        EncryptedEnvelope::new(
-            MessageId::new([1; 16]),
-            id(2),
-            id(3),
-            Some(id(4)),
-            vec![0xAA; size],
-            version,
-            1,
-        )
-        .unwrap_or_else(|_| EncryptedEnvelope {
-            message_id: MessageId::new([1; 16]),
-            conversation_id: id(2),
-            sender_device_id: id(3),
-            recipient_device_id: Some(id(4)),
-            ciphertext: vec![0xAA; size],
-            protocol_version: version,
-            created_at_epoch_ms: 1,
-        })
-    }
-
     #[test]
     fn identifier_bounds_are_enforced_at_construction() {
         assert_eq!(
