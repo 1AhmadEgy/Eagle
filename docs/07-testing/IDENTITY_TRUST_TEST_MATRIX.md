@@ -14,6 +14,18 @@
 | IT-010 | Recovery separation | request historical data authorization from account state | DENY | Implemented |
 | IT-011 | Revocation epoch | revoke device increments monotonic epoch | PASS | Implemented |
 | IT-012 | Pairing cancellation | resume cancelled pairing | DENY | Implemented |
+| IT-013 | Identity key structural validity | construct empty public identity key | DENY | Implemented |
+| IT-014 | Membership time-window validity | malformed membership validity interval | DENY | Implemented |
+| IT-015 | Cross-account device reuse | bind an already-bound device to another account | DENY | Implemented |
+| IT-016 | Duplicate membership binding | bind the same device twice for one account | DENY | Implemented |
+| IT-017 | Membership epoch freshness | bind membership below current account epoch | DENY | Implemented |
+| IT-018 | Identity-change quarantine | observe changed contact identity without reverification | QUARANTINE | Implemented |
+| IT-019 | Unchanged identity update | submit identical identity as a change | DENY | Implemented |
+| IT-020 | Suspended authorization | start protected session while SUSPENDED | DENY | Implemented |
+| IT-021 | Trust epoch overflow | advance epoch at maximum value | DENY | Implemented |
+| IT-022 | Trust epoch monotonicity | revoke/replace without increasing epoch | DENY | Implemented |
+| IT-023 | Pairing device binding | consume a valid pairing for a different device | DENY | Implemented |
+| IT-024 | Pairing context validity | construct pairing with empty token/device identifiers | DENY | Implemented |
 
 ## Evidence rule
 
@@ -45,3 +57,10 @@ The workstream can only progress to release readiness when:
 - recovery semantics are approved;
 - revocation reconciliation is tested end-to-end;
 - external security review has no open critical/high findings affecting identity trust.
+
+
+## Latest hardening coverage
+
+IT-023 and IT-024 close two pre-protocol boundary gaps: pairing authorization is now cryptographically/protocol-agnostic but explicitly bound to the intended device identity at the Security Core boundary, and malformed pairing contexts are rejected before they can enter the lifecycle.
+
+These tests do not replace the deferred end-to-end transcript-integrity, replay, signature-forgery, downgrade, rollback, or cross-platform interoperability tests.
