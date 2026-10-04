@@ -25,14 +25,12 @@ class EvidenceRecordTest {
             createdAt = Instant.EPOCH,
             proposerProviderId = "provider-a"
         )
-
         val approval = HumanApproval(
             approvedBy = "human-reviewer",
             approvedAt = Instant.EPOCH,
             decision = HumanApproval.Decision.APPROVED,
             note = "Approved test-only evidence"
         )
-
         val record = EvidenceRecord(
             id = "evidence-1",
             timestamp = Instant.EPOCH,
@@ -58,5 +56,52 @@ class EvidenceRecordTest {
         assertEquals("sast-1", record.sastResultId)
         assertEquals("build-1", record.buildId)
         assertEquals(HumanApproval.Decision.APPROVED, record.humanApproval?.decision)
+    }
+
+    @Test
+    fun evidenceOutputIsBounded() {
+        try {
+            EvidenceRecord(
+                id = "evidence-1",
+                timestamp = Instant.EPOCH,
+                taskType = TaskType.CODE_REVIEW,
+                providerId = "provider-a",
+                providerVersion = "2026-test",
+                codeHash = "sha256:code",
+                promptHash = "sha256:prompt",
+                rawOutput = "x".repeat(65_537),
+                parsedFinding = null,
+                reproductionTestId = null,
+                sastResultId = null,
+                regressionTestIds = emptyList(),
+                buildId = null,
+                humanApproval = null,
+                previousHash = null,
+                recordHash = "sha256:record"
+            )
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        throw AssertionError("Expected oversized evidence output to be rejected")
+    }
+
+    @Test
+    fun findingPayloadIsBounded() {
+        try {
+            SecurityFinding(
+                id = "finding-1",
+                taskType = TaskType.CODE_REVIEW,
+                severity = FindingSeverity.LOW,
+                status = FindingStatus.OPEN,
+                title = "x".repeat(257),
+                description = "description",
+                affectedPaths = emptySet(),
+                createdAt = Instant.EPOCH,
+                proposerProviderId = "provider-a"
+            )
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        throw AssertionError("Expected oversized finding title to be rejected")
     }
 }
