@@ -2,6 +2,7 @@
 
 | ID | القرار | الحالة | المصدر/الدليل |
 |---|---|---|---|
+| ADR-0000 | Branch, Toolchain, and Consolidation Policy | مقترح | docs/01-decisions/ADR-0000-branch-toolchain-consolidation.md + pre-consolidation evidence |
 | ADR-0001 | اعتماد 1AhmadEgy/Eagle كمستودع مركزي | معتمد | قرار الفريق + تحقق GitHub |
 | ADR-0002 | تقسيم العمل إلى محادثات/مسارات متخصصة | معتمد | قرار تنظيمي للفريق |
 | ADR-0003 | العمل عبر فروع وPR ومراجعة واختبارات | معتمد | سياسة هندسية للمشروع |
