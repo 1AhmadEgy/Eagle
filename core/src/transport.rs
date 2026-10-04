@@ -217,10 +217,7 @@ mod tests {
             flags: 0,
         };
 
-        assert_eq!(
-            result,
-            Err(TransportError::Protocol(ProtocolError::PayloadTooLarge))
-        );
+        let result = TransportFrame::new(header, vec![0xA5; MAX_PAYLOAD_BYTES + 1]);
 
         assert_eq!(
             result,
