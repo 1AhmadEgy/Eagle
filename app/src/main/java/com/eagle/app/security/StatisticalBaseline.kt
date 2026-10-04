@@ -39,7 +39,8 @@ object StatisticalBaseline {
 
     fun zScore(history: List<Long>, current: Long, thresholdMilli: Int = DEFAULT_THRESHOLD_MILLI): AnomalySignal {
         requireValid(history, current, thresholdMilli)
-        val mean = history.sumOf { it }.toBigInteger().divide(BigInteger.valueOf(history.size.toLong()))
+        val sum = history.fold(BigInteger.ZERO) { acc, value -> acc.add(BigInteger.valueOf(value)) }
+        val mean = sum.divide(BigInteger.valueOf(history.size.toLong()))
         val varianceNumerator = history.fold(BigInteger.ZERO) { acc, value ->
             val d = BigInteger.valueOf(value).subtract(mean)
             acc.add(d.multiply(d))
@@ -63,7 +64,9 @@ object StatisticalBaseline {
         requireValid(history, current, thresholdMilli)
         var baseline = history.first()
         for (value in history.drop(1)) {
-            baseline = baseline + ((value - baseline) * EWMA_ALPHA_MILLI) / 1_000
+            val delta = BigInteger.valueOf(value).subtract(BigInteger.valueOf(baseline))
+            baseline = BigInteger.valueOf(baseline).add(delta.multiply(BigInteger.valueOf(EWMA_ALPHA_MILLI.toLong()))
+                .divide(BigInteger.valueOf(1_000L))).longValueExact()
         }
         val deviation = absDiff(current, baseline)
         val scale = max(1L, absDiff(baseline, 0L))
