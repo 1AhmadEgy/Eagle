@@ -2,7 +2,7 @@
 
 Status: CONFIRMED
 Branch: ai/reverse-engineering-foundation
-Commit: f8ce28911597f8460f6bf0ecd02d5bf191386871
+Baseline note: superseded by subsequent implementation commits; see the verification log for current evidence.
 Commit time: 2026-10-04T16:10:30Z
 
 ## Build structure
@@ -29,6 +29,15 @@ Production sources:
 - app/src/main/java/com/eagle/app/security/SessionStateMachine.kt
 - app/src/main/java/com/eagle/app/security/DeterministicSecurityEngine.kt
 - app/src/main/java/com/eagle/app/security/FeatureVector.kt
+- app/src/main/java/com/eagle/app/security/StatisticalBaseline.kt
+- app/src/main/java/com/eagle/app/security/SecurityBoundaryContracts.kt
+
+AI contracts:
+- app/src/main/java/com/eagle/app/ai/provider/AIProvider.kt
+- app/src/main/java/com/eagle/app/ai/provider/ProviderPolicy.kt
+- app/src/main/java/com/eagle/app/ai/provider/ProviderCapabilities.kt
+- app/src/main/java/com/eagle/app/ai/findings/SecurityFinding.kt
+- app/src/main/java/com/eagle/app/ai/evidence/EvidenceRecord.kt
 
 Tests:
 - app/src/test/java/com/eagle/app/security/ReplayGuardTest.kt
@@ -58,7 +67,7 @@ Therefore a green scripts/ci/verify.sh run alone must not be interpreted as Andr
 
 ## Current product-AI status
 
-No evidence was found on this branch of a product-integrated LLM/model runtime or remote model provider adapter.
+No evidence was found on this branch of a product-integrated LLM/model runtime or concrete remote/local model provider adapter. The implemented AI surface is provider/evidence contracts and policy constraints.
 
 The existing deterministic security layer is the authority surface. The new AI layer begins as contracts/evidence infrastructure and remains outside enforcement until later phases establish explicit controls.
 
