@@ -27,6 +27,8 @@ Use a monotonic clock, never wall-clock time, for refill calculations.
 If the clock moves backward or produces an invalid delta, treat elapsed time as zero and preserve the last-refill high-water mark. A backward reading must not move the anchor backward and later create extra refill. Never create tokens from a negative delta.
 
 ## 5. Deterministic algorithm
+The first call establishes the monotonic clock anchor and does not create refill time. This prevents an arbitrary first timestamp from minting tokens.
+
 For request cost:
 1. Validate policy and cost.
 2. Read monotonic time now.
