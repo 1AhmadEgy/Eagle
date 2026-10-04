@@ -13,7 +13,8 @@
 | TokenBucket | Security/Core candidate | Verified Kotlin source | Verified | Android/JVM | Keep → extract shared contract |
 | SecurityEvent | Security/Core candidate | Verified Kotlin source | Verified | Android/JVM | Keep → extract shared contract |
 | FeatureVector / SecurityFeatureExtractor | Security/Core candidate | Verified Kotlin source | Verified | Android/JVM | Keep → extract shared contract |
-| StatisticalBaseline | Security/Analytics candidate | Verified Kotlin source | Verified | Android/JVM | Keep → audit algorithms before expansion |
+| StatisticalBaseline | Security/Analytics candidate | Verified Kotlin source | Present; execution unverified | Android/JVM | Keep → audit algorithms before expansion |
+| DeterministicSecurityEngine | Security/Core orchestration | Implemented Kotlin source | Present; execution unverified | Android/JVM; platform-neutral API | Keep → extract into first shared module |
 | Identity | Core | Not verified | Pending | None | Implement after requirements/threat model |
 | Authentication | Core | Not verified | Pending | None | Implement after identity contract |
 | Crypto / E2E | Security Core | Not verified | Pending | None | Evaluate mature implementations first |
@@ -81,3 +82,9 @@ It must not yet be described as:
 - KMP Shared Layer.
 
 Those remain unverified/target states.
+
+## Latest execution increment — 2026-10-04
+
+Added `DeterministicSecurityEngine` to compose the verified session, replay, and rate-policy primitives without introducing Android APIs. Added `DeterministicSecurityEngineTest` and documented the boundary in `docs/08-status/SECURITY_CORE_CONTRACTS.md`.
+
+This is an implementation increment, not a cross-platform support claim.
