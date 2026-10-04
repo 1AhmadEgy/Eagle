@@ -1,0 +1,66 @@
+{
+  "document_type": "statistical-baseline-reference-vectors",
+  "version": "1.0.0",
+  "feature": "REJECTION_RATE_BPS",
+  "default_threshold_milli": 3000,
+  "cases": [
+    {
+      "id": "z-score-stable",
+      "method": "Z_SCORE",
+      "history": [100,100,100,100],
+      "current": 100,
+      "expected_score_milli": 0,
+      "expected_anomalous": false,
+      "score_semantics": "ABSOLUTE_Z_SCORE_X1000"
+    },
+    {
+      "id": "z-score-deviation-zero-variance",
+      "method": "Z_SCORE",
+      "history": [100,100,100,100],
+      "current": 200,
+      "expected_score_milli": 100000,
+      "expected_anomalous": true,
+      "score_semantics": "ABSOLUTE_Z_SCORE_X1000"
+    },
+    {
+      "id": "ewma-stable-relative",
+      "method": "EWMA",
+      "history": [100,100,100],
+      "current": 110,
+      "expected_score_milli": 100,
+      "expected_anomalous": false,
+      "score_semantics": "RELATIVE_DEVIATION_X1000"
+    },
+    {
+      "id": "median-mad-exact-three-mad",
+      "method": "MEDIAN_MAD",
+      "history": [90,100,100,110,120],
+      "current": 130,
+      "expected_score_milli": 3000,
+      "expected_anomalous": true,
+      "score_semantics": "ABSOLUTE_MAD_UNITS_X1000"
+    },
+    {
+      "id": "minimum-history",
+      "method": "Z_SCORE",
+      "history": [1,2],
+      "current": 3,
+      "expected": "invalid"
+    },
+    {
+      "id": "negative-history-rejected",
+      "method": "MEDIAN_MAD",
+      "history": [-9223372036854775808,1,1],
+      "current": 1,
+      "expected": "invalid"
+    },
+    {
+      "id": "maximum-value-stable",
+      "method": "Z_SCORE",
+      "history": [9223372036854775807,9223372036854775807,9223372036854775807],
+      "current": 9223372036854775807,
+      "expected_score_milli": 0,
+      "expected_anomalous": false
+    }
+  ]
+}
