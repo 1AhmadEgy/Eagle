@@ -26,6 +26,8 @@
 | IT-022 | Trust epoch monotonicity | revoke/replace without increasing epoch | DENY | Implemented |
 | IT-023 | Pairing device binding | consume a valid pairing for a different device | DENY | Implemented |
 | IT-024 | Pairing context validity | construct pairing with empty token/device identifiers | DENY | Implemented |
+| IT-025 | Membership validity upper bound | issued-at later than not-after | DENY | Implemented |
+| IT-026 | Pairing expiry overflow | construct expiry beyond representable UNIX time | DENY | Implemented |
 
 ## Evidence rule
 
@@ -64,3 +66,6 @@ The workstream can only progress to release readiness when:
 IT-023 and IT-024 close two pre-protocol boundary gaps: pairing authorization is now cryptographically/protocol-agnostic but explicitly bound to the intended device identity at the Security Core boundary, and malformed pairing contexts are rejected before they can enter the lifecycle.
 
 These tests do not replace the deferred end-to-end transcript-integrity, replay, signature-forgery, downgrade, rollback, or cross-platform interoperability tests.
+
+
+Latest hardening extends the executable boundary matrix to IT-026. These remain Security Core negative tests; protocol-cryptographic and cross-platform cases remain deferred until their authoritative interfaces are frozen.
