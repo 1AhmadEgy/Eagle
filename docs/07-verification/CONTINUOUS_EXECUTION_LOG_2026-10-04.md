@@ -105,6 +105,20 @@ Documentation:
 
 The contract is versioned, enum-based, bounded, privacy-minimized, and contains no secrets or raw message content.
 
+### FeatureVector
+
+Implementation:
+app/src/main/java/com/eagle/app/security/FeatureVector.kt
+
+Tests:
+app/src/test/java/com/eagle/app/security/SecurityFeatureExtractorTest.kt
+
+Documentation:
+- docs/04-security/FEATURE_VECTOR_CONTRACT.md
+- docs/03-architecture/adr/ADR-0020.md
+
+Features use integer scaling: event rate in micro-events/minute and categorical rates in basis points. The extractor rejects unordered/out-of-window events and bounds the event window at 10,000 records.
+
 ## 3. AI/ML boundary
 
 The current product does not contain a verified ML inference runtime or model artifact.
