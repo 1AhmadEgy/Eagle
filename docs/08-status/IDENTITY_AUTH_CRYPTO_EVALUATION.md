@@ -25,18 +25,24 @@ An evaluation result is not a legal determination and is not a substitute for fo
 
 ## Decision matrix
 
-| Component | Role | Evidence | Eagle fit | Decision |
+| Component | Role | Current evidence | Eagle fit | Decision |
 |---|---|---|---|---|
-| Signal libsignal | Full Signal protocol + Rust implementation + Java/Swift/TypeScript wrappers | Current repo; used by Signal clients; README explicitly says outside use is unsupported; AGPL-3.0 | Strong technical fit, but direct dependency has explicit support/provenance and licensing constraints for an independently-owned project | **Reject as direct dependency for now**; retain as protocol/reference material; revisit only with explicit compatibility/support/legal review |
-| OpenMLS | MLS / group E2EE | RFC 9420 implementation; current release line includes v0.9.0; MIT; CI-tested Linux/Windows/macOS; Android targets are built on CI but listed as unsupported/test-unverified | Strong candidate for future group messaging; not itself the answer to Eagle's 1:1 protocol/server async design | **Adapt** as group-protocol candidate |
-| vodozemac | 1:1 Olm + Megolm ratchets | Current docs identify asynchronous Double Ratchet 1:1 support; project reports one security audit with no significant findings; Apache-2.0 | Technically attractive for 1:1; separate historical bindings repository is unmaintained, so Eagle would need a controlled Rust integration path | **Adapt** as 1:1 candidate for an integration proof |
-| Noise Protocol Framework | Handshake framework | Official specification; authenticated handshakes and forward secrecy | Does not provide the complete asynchronous message ratchet Eagle needs by itself | **Reject as complete E2E protocol**; possible scoped handshake building block only |
-| libsodium | Cross-platform crypto primitives | Current stable docs; portable across Android/iOS/Windows and more | Good primitive toolbox, not a message-ratchet protocol | **Adapt** only where a selected protocol needs its primitives |
-| RustCrypto | Rust crypto primitives | Active pure-Rust algorithm collection with broad primitive coverage; permissive licensing on referenced utilities | Good provider/substrate for Rust components, subject to exact crate review | **Adapt** where the selected protocol/provider requires it |
-| Google Tink | High-level crypto API | Google-maintained; broad Java/C++/Go/Python support plus Objective-C support | Useful primitive/keyset library, but not Eagle's cross-platform E2E authority and not a ratchet protocol | **Reject for primary E2E core**; reevaluate for local application data protection |
-| Android Keystore | Native Android key protection | Android official docs; hardware-backed StrongBox available on supported devices | Direct match for Android native key boundary | **Adopt** as Android key-storage boundary |
-| Apple Keychain | Native Apple secret/key storage | Apple official docs; intended for small secrets and cryptographic keys | Direct match for iOS/macOS native key boundary | **Adopt** as Apple secure-storage boundary |
-| Windows CNG / DPAPI | Native Windows key/data protection | Microsoft official docs; CNG KSPs and DPAPI | Direct match for Windows native adapter boundary | **Adopt** as Windows native key/storage boundary; exact API depends on key purpose |
+| Signal libsignal | Full Signal protocol + Rust implementation + Java/Swift/TypeScript wrappers | Current project README says use outside Signal is unsupported; current repository is AGPL-3.0-only | Strong technical fit, but direct dependency has explicit support, provenance, and licensing constraints for an independently-developed project | **Reject as direct dependency for now**; retain as protocol/reference material; revisit only with explicit compatibility, support, and legal review |
+| OpenMLS | MLS / group E2EE | RFC 9420 implementation; latest release observed v0.9.0 (2026-08-03); MIT; CI coverage includes major desktop targets, while Android/iOS runtime support needs separate validation | Strong candidate for future group messaging; not automatically a fit for Eagle's 1:1 and delivery-service requirements | **Adapt** as group-protocol candidate |
+| vodozemac | 1:1 Olm + Megolm ratchets | Latest crate observed v0.11.1 (2026-09-30); 1:1 Olm is Double Ratchet with forward secrecy and self-healing; one reported security audit with no significant findings; Apache-2.0 | Technically attractive for 1:1; Eagle still needs its own controlled Rust-to-platform integration boundary | **Adapt** as 1:1 candidate for an integration proof |
+| Noise Protocol Framework | Handshake framework | Official specification; authenticated handshakes and forward secrecy | Does not provide Eagle's complete asynchronous message-ratcheting protocol by itself | **Reject as complete E2E protocol**; possible scoped handshake building block only |
+| libsodium | Cross-platform crypto primitives | Mature portable crypto library with Android/iOS/Windows support and bindings | Good primitive toolbox, not a message-ratchet protocol | **Adapt** only where a selected protocol requires its primitives |
+| RustCrypto | Rust crypto primitives | Active pure-Rust algorithm collection with broad primitive coverage | Good provider/substrate for Rust components, subject to exact crate-by-crate review | **Adapt** where the selected protocol/provider requires it |
+| Google Tink | High-level crypto API | Google-maintained high-level primitive/keyset library with broad language support | Useful for application/data protection, but not Eagle's primary E2E ratchet authority | **Reject for primary E2E core**; reevaluate for local application data protection |
+| Android Keystore | Native Android key protection | Official Android key storage boundary; hardware-backed StrongBox available on supported devices | Direct match for Eagle's Android native key boundary | **Adopt** as Android key-storage boundary |
+| Apple Keychain | Native Apple secret/key storage | Official Apple secure storage/key boundary | Direct match for iOS/macOS native key boundary | **Adopt** as Apple secure-storage boundary |
+| Windows CNG / DPAPI | Native Windows key/data protection | Official Microsoft key-storage and data-protection facilities | Direct match for Windows native adapter boundary | **Adopt** as Windows native key/storage boundary; exact API depends on key purpose |
+
+## Protocol implications
+
+RFC 9420 defines MLS as an asynchronous group key-establishment protocol with forward secrecy and post-compromise security for groups from two to thousands of members. This makes MLS strategically relevant to Eagle's group roadmap, but it does not remove the need to evaluate application authentication, delivery-service, lifecycle, storage, and 1:1 requirements separately.
+
+For 1:1 messaging, the repository keeps vodozemac as the leading candidate for a controlled integration proof because its current Olm implementation provides an established Double Ratchet API rather than forcing Eagle to implement the ratchet itself.
 
 ## Integration conclusion
 
@@ -63,7 +69,7 @@ DeterministicSecurityEngine remains responsible only for deterministic session/r
 ## Current selection posture
 
 - 1:1 E2E protocol: **unselected; vodozemac is the leading integration candidate to prototype; libsignal remains reference-only for now.**
-- Group E2E protocol: **OpenMLS is the leading candidate to prototype after 1:1 contract stabilization.**
+- Group E2E protocol: **OpenMLS is the leading candidate to prototype after the 1:1 contract stabilizes.**
 - Primitive provider: **unselected globally until the protocol candidate defines exact primitive requirements.**
 - Native key storage: **platform-native adapters selected at the boundary level.**
 - Shared technology (KMP/Rust/UniFFI): **still a separate decision; this record does not authorize adding it prematurely.**
@@ -74,6 +80,7 @@ DeterministicSecurityEngine remains responsible only for deterministic session/r
 - https://github.com/openmls/openmls
 - https://github.com/matrix-org/vodozemac
 - https://docs.rs/vodozemac/latest/vodozemac/
+- https://www.rfc-editor.org/rfc/rfc9420
 - https://noiseprotocol.org/noise.html
 - https://doc.libsodium.org/doc
 - https://github.com/RustCrypto
