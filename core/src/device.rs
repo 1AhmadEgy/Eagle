@@ -117,10 +117,7 @@ mod tests {
         assert_eq!(device.approve(), Err(DeviceError::InvalidTransition));
 
         device.begin_pairing().unwrap();
-        assert_eq!(
-            device.begin_pairing(),
-            Err(DeviceError::InvalidTransition)
-        );
+        assert_eq!(device.begin_pairing(), Err(DeviceError::InvalidTransition));
 
         device.approve().unwrap();
         assert_eq!(device.trust_state(), DeviceTrustState::Trusted);
