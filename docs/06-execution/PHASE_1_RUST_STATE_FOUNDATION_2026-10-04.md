@@ -11,7 +11,7 @@
 - Explicit trust state machine: Untrusted → Pending → Trusted / Revoked.
 - Explicit session state machine: Idle → Authenticated → Closed.
 - Capability policy boundary with administrative access denied by default.
-- Protocol downgrade protection with no state mutation on rejection.
+- Protocol downgrade protection with no state mutation on rejection.\n- Protocol version is frozen once a session is established.
 - Positive and negative unit/integration tests.
 - Dedicated Rust CI with format, tests, and Clippy checks.
 
