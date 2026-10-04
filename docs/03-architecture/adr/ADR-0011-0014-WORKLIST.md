@@ -6,7 +6,6 @@ These are pending decision scopes, not accepted decisions.
   - Review issue: #43
   - Current implementation gate: platform-neutral record/deletion/recovery contract only.
 - ADR-0012 — Transport Architecture: transport abstraction, supported channels, reliability, lifecycle, framing, background behavior.
-- ADR-0012 — Transport Architecture: transport abstraction, supported channels, reliability, lifecycle, framing, background behavior.
   - Review issue: #44
   - Current implementation gate: opaque-frame/lifecycle contract only.
 - ADR-0013 — Architecture Enforcement: automated module-dependency enforcement and CI gate implementation.
