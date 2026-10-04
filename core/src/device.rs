@@ -25,9 +25,9 @@ pub enum DeviceError {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Device {
-    pub account: u64,
-    pub device: u64,
-    pub platform: Platform,
+    account: u64,
+    device: u64,
+    platform: Platform,
     trust: DeviceTrustState,
 }
 
@@ -41,12 +41,23 @@ impl Device {
         }
     }
 
+    pub fn account(&self) -> u64 {
+        self.account
+    }
+
+    pub fn device(&self) -> u64 {
+        self.device
+    }
+
+    pub fn platform(&self) -> Platform {
+        self.platform
+    }
+
     pub fn trust_state(&self) -> DeviceTrustState {
         self.trust
     }
 
     #[cfg(test)]
-    #[allow(dead_code)]
     pub(crate) fn begin_pairing(&mut self) -> Result<(), DeviceError> {
         if self.trust != DeviceTrustState::Unknown {
             return Err(DeviceError::InvalidTransition);
@@ -56,7 +67,6 @@ impl Device {
     }
 
     #[cfg(test)]
-    #[allow(dead_code)]
     pub(crate) fn approve(&mut self) -> Result<(), DeviceError> {
         if self.trust != DeviceTrustState::Pending {
             return Err(DeviceError::InvalidTransition);
@@ -100,8 +110,18 @@ mod tests {
     #[test]
     fn trust_requires_pairing() {
         let mut device = Device::new(1, 2, Platform::Android);
+        assert_eq!(device.account(), 1);
+        assert_eq!(device.device(), 2);
+        assert_eq!(device.platform(), Platform::Android);
+        assert_eq!(device.trust_state(), DeviceTrustState::Unknown);
         assert_eq!(device.approve(), Err(DeviceError::InvalidTransition));
+
         device.begin_pairing().unwrap();
+        assert_eq!(
+            device.begin_pairing(),
+            Err(DeviceError::InvalidTransition)
+        );
+
         device.approve().unwrap();
         assert_eq!(device.trust_state(), DeviceTrustState::Trusted);
         assert_eq!(device.can_authorize(), Ok(()));
@@ -114,11 +134,15 @@ mod tests {
         revoked.approve().unwrap();
         revoked.revoke().unwrap();
         assert_eq!(revoked.can_authorize(), Err(DeviceError::Revoked));
+        assert_eq!(revoked.revoke(), Err(DeviceError::InvalidTransition));
+        assert_eq!(revoked.replace(), Err(DeviceError::InvalidTransition));
 
         let mut replaced = Device::new(1, 3, Platform::Ios);
         replaced.begin_pairing().unwrap();
         replaced.approve().unwrap();
         replaced.replace().unwrap();
         assert_eq!(replaced.can_authorize(), Err(DeviceError::Replaced));
+        assert_eq!(replaced.revoke(), Err(DeviceError::InvalidTransition));
+        assert_eq!(replaced.replace(), Err(DeviceError::InvalidTransition));
     }
 }
