@@ -6,10 +6,12 @@ package com.eagle.app.security
  * These contracts deliberately describe capabilities and data flow, not a specific
  * cryptographic algorithm or wire protocol. Implementations must keep private keys
  * behind the KeyManagementBoundary and must not expose them to UI/application code.
+ *
+ * The types intentionally avoid JVM-only annotations so they can be moved into a
+ * future common/shared source set without changing their security semantics.
  */
 
-@JvmInline
-value class IdentityId(val value: String) {
+data class IdentityId(val value: String) {
     init {
         require(value.isNotBlank()) { "identity id must not be blank" }
         require(value.length <= MAX_LENGTH) { "identity id is too long" }
@@ -20,8 +22,7 @@ value class IdentityId(val value: String) {
     }
 }
 
-@JvmInline
-value class KeyHandle(val value: String) {
+data class KeyHandle(val value: String) {
     init {
         require(value.isNotBlank()) { "key handle must not be blank" }
         require(value.length <= MAX_LENGTH) { "key handle is too long" }
@@ -32,8 +33,7 @@ value class KeyHandle(val value: String) {
     }
 }
 
-@JvmInline
-value class SecureRecordId(val value: String) {
+data class SecureRecordId(val value: String) {
     init {
         require(value.isNotBlank()) { "record id must not be blank" }
         require(value.length <= MAX_LENGTH) { "record id is too long" }
