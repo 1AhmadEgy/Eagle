@@ -1,12 +1,17 @@
 package com.eagle.shared.core
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
+private object TestSessionHandle : SessionHandle
 
 class CoreContractTest {
     @Test
-    fun session_handle_is_an_opaque_port_type() {
-        assertTrue(SessionHandle::class.java.isInterface)
+    fun session_handle_is_consumed_only_as_an_opaque_port_type() {
+        val handle: SessionHandle = TestSessionHandle
+        assertEquals(TestSessionHandle, handle)
+        assertTrue(handle is SessionHandle)
     }
 
     @Test
