@@ -6,6 +6,7 @@ pub mod policy;
 pub mod protocol;
 pub mod session;
 pub mod storage;
+pub mod transport;
 
 pub use devices::{Device, DeviceError, DeviceTrustState, Platform};
 pub use identity::{Identity, PrincipalId};
@@ -15,6 +16,9 @@ pub use session::Session;
 pub use storage::{
     EncryptedRecord, DeletionReceipt, MemoryRecordStore, RecordId, RecordStore, RecoveryState,
     SchemaVersion, StorageError, CURRENT_SCHEMA_VERSION, MAX_RECORD_BYTES,
+};
+pub use transport::{
+    MemoryTransport, SecureTransport, TransportError, TransportFrame, TransportState,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
