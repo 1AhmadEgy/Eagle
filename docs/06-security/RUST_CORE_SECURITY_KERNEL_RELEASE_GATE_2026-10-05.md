@@ -5,7 +5,7 @@
 
 ## Gate result
 
-**PASS — specialization baseline verified.**
+**IMPLEMENTATION COMPLETE — VERIFICATION PENDING FOR CURRENT HEAD.**
 
 The gate covers only the deterministic non-cryptographic Security Kernel slice.
 
@@ -18,9 +18,13 @@ The gate covers only the deterministic non-cryptographic Security Kernel slice.
 - trust/session transitions are fail-closed.
 - downgrade and unsupported protocol offers do not mutate state.
 - revoked/replaced device states deny authorization.
-- integration and unit tests cover negative paths.
-- GitHub Actions run `37242479683` completed successfully for the branch head: Format, Tests, and Clippy all passed.
-- No runtime crypto dependency has been introduced before protocol/key decisions are accepted.
+- unit/integration tests cover negative paths.
+- Previous GitHub Actions Rust Security Kernel run `37242479683` passed Format, Tests, and Clippy on the pre-final test-only hardening revision.
+- A new Rust Security Kernel run `37244013996` is queued for the current head `07f62bdfa693b8b02223f63bdb691b044b6fe7a3`; current-head PASS is therefore not yet evidenced.
+
+## Non-specialization CI
+
+A broader repository CI run failed on an existing Test Lab workflow-action pinning policy violation in `.github/workflows/testlab.yml`. This is outside the Rust Core specialization and was not modified.
 
 ## Required pre-production blockers outside this gate
 
