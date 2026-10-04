@@ -26,13 +26,13 @@ Toolchain:
 
 ## Smoke-test results
 
-| Method | TP | TN | FP | FN | Precision | Recall | FPR | FNR | Drift sensitivity | Median ns/inference | P95 ns/inference |
+| Method | TP | TN | FP | FN | Precision | Recall | FPR | FNR | Drift sensitivity | Median wall ns/inference | P95 wall ns/inference | Median CPU ns/inference | P95 CPU ns/inference |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Z-score | 60 | 240 | 0 | 0 | 1.000000 | 1.000000 | 0.000000 | 0.000000 | 1.000000 | 4454 | 7773 |
-| EWMA | 30 | 240 | 0 | 30 | 1.000000 | 0.500000 | 0.000000 | 0.500000 | 0.000000 | 4913 | 8488 |
-| Median/MAD | 60 | 240 | 0 | 0 | 1.000000 | 1.000000 | 0.000000 | 0.000000 | 1.000000 | 5271 | 7306 |
+| Z-score | 60 | 240 | 0 | 0 | 1.000000 | 1.000000 | 0.000000 | 0.000000 | 1.000000 | 4076 | 6228 | 4074 | 7057 |
+| EWMA | 30 | 240 | 0 | 30 | 1.000000 | 0.500000 | 0.000000 | 0.000000 | 0.000000 | 3054 | 7978 | 2923 | 8425 |
+| Median/MAD | 60 | 240 | 0 | 0 | 1.000000 | 1.000000 | 0.000000 | 0.000000 | 1.000000 | 5316 | 10350 | 5266 | 11078 |
 
-These timing numbers are JVM diagnostics only.
+These timing and CPU-time numbers are JVM diagnostics only. They vary with JIT, host load, and runtime state and are not Android acceptance numbers.
 
 ## Threshold sweep
 
