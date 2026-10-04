@@ -39,7 +39,9 @@ android {
         warningsAsErrors = true
         // Android 17 (API 37) is currently preview-only in the CI SDK repository;
         // keep stable Android 16 targeting while retaining the upgrade signal.
-        warning.add("OldTargetApi")
+        // Android 17 is preview-only in this CI environment; keep stable API 36 and
+        // suppress only the preview-target advisory. Other lint warnings remain errors.
+        disable.add("OldTargetApi")
     }
 }
 
