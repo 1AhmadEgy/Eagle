@@ -48,9 +48,6 @@ pub enum TrustError {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PublicIdentityKey {
     bytes: Vec<u8>,
 }
