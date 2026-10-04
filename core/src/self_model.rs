@@ -79,11 +79,7 @@ impl SelfModel {
     pub const DEFAULT_MEMORY_CAPACITY: usize = 32;
 
     pub fn new(agent_name: impl Into<String>, agent_version: impl Into<String>) -> Self {
-        Self::with_memory_capacity(
-            agent_name,
-            agent_version,
-            Self::DEFAULT_MEMORY_CAPACITY,
-        )
+        Self::with_memory_capacity(agent_name, agent_version, Self::DEFAULT_MEMORY_CAPACITY)
     }
 
     pub fn with_memory_capacity(
