@@ -1,12 +1,12 @@
 # Eagle — Algorithm-by-Algorithm Reverse Engineering
 
-Status: VERIFIED DESIGN BASELINE — PRODUCT IMPLEMENTATION NOT YET AUTHORIZED
+Status: VERIFIED DESIGN + IMPLEMENTATION BASELINE — production security behavior still gated
 
 This document separates algorithms evidenced by the repository from algorithms proposed for future implementation.
 
 ## 1. Authentication
 
-Current evidence: no product authentication implementation is present in the audited main baseline.
+Current evidence: no product authentication protocol implementation is present; current security primitives are groundwork only.
 
 Required design:
 - deterministic protocol validation
@@ -32,7 +32,7 @@ Tests:
 
 ## 2. Identity
 
-Current evidence: no product identity implementation is present in the audited main baseline.
+Current evidence: no full product identity implementation is present; current code does not establish cryptographic device identity.
 
 Required design:
 Identity -> authenticated public-key binding -> device/session state -> authorization policy.
@@ -175,6 +175,8 @@ RiskAssessment(score, reasons, schemaVersion, policyVersion)
 
 ## 10. Statistical anomaly detection
 
+Current implementation: `StatisticalBaseline` exposes feature-aware Z-score, EWMA, and Median/MAD signals. Score semantics are explicitly tagged in `AnomalySignal`.
+
 ### Z-score
 
 z = (x - mean) / sigma
@@ -268,9 +270,9 @@ The LLM cannot:
 |---|---|---|
 | Deterministic state machine | YES | Security correctness |
 | Token bucket | YES | Transparent abuse control |
-| Z-score | Candidate | Cheap baseline |
-| EWMA | Candidate | Cheap temporal baseline |
-| Median/MAD | Candidate | Robust statistics |
+| Z-score | Implemented baseline | Cheap, transparent baseline |
+| EWMA | Implemented baseline | Cheap temporal baseline |
+| Median/MAD | Implemented baseline | Robust statistics |
 | Isolation Forest | Later | Requires data |
 | One-Class SVM | Later | More tuning/complexity |
 | Clustering | Later | Exploratory evidence |
