@@ -52,6 +52,7 @@ pub enum TrustError {
     MalformedPairingContext,
     PairingExpiryOverflow,
     PairingApprovalRequired,
+    IdentityReverificationRequired,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,7 +122,20 @@ impl AccountMembershipStatement {
 }
 
 pub trait MembershipProofVerifier {
+    fn verify_identity_binding(
+        &self,
+        identity: &IdentityReference,
+    ) -> Result<(), TrustError>;
+
     fn verify_membership(&self, statement: &AccountMembershipStatement) -> Result<(), TrustError>;
+}
+
+pub trait ContactReverificationVerifier {
+    fn verify_reverification(
+        &self,
+        current: &ContactIdentity,
+        replacement: &IdentityReference,
+    ) -> Result<(), TrustError>;
 }
 
 pub trait PairingApprovalVerifier {
@@ -139,6 +153,8 @@ pub fn validate_membership(
     verifier: &impl MembershipProofVerifier,
 ) -> Result<(), TrustError> {
     statement.validate_structure()?;
+    verifier.verify_identity_binding(&statement.account)?;
+    verifier.verify_identity_binding(&statement.device)?;
     verifier.verify_membership(statement)
 }
 
@@ -232,10 +248,15 @@ impl ContactIdentity {
         Ok(())
     }
 
-    pub fn reverify(&mut self, verified_identity: IdentityReference) -> Result<(), TrustError> {
+    pub fn reverify(
+        &mut self,
+        verified_identity: IdentityReference,
+        verifier: &impl ContactReverificationVerifier,
+    ) -> Result<(), TrustError> {
         if self.state != ContactIdentityState::Quarantined {
             return Err(TrustError::InvalidStateTransition);
         }
+        verifier.verify_reverification(self, &verified_identity)?;
         self.identity = verified_identity;
         self.state = ContactIdentityState::Verified;
         Ok(())
@@ -551,6 +572,22 @@ mod tests {
 
     struct AcceptApprovalVerifier;
 
+    impl MembershipProofVerifier for AcceptApprovalVerifier {
+        fn verify_identity_binding(
+            &self,
+            _identity: &IdentityReference,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+
+        fn verify_membership(
+            &self,
+            _statement: &AccountMembershipStatement,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+    }
+
     impl PairingApprovalVerifier for AcceptApprovalVerifier {
         fn verify_approval(
             &self,
@@ -565,6 +602,22 @@ mod tests {
 
     struct RejectApprovalVerifier;
 
+    impl MembershipProofVerifier for RejectApprovalVerifier {
+        fn verify_identity_binding(
+            &self,
+            _identity: &IdentityReference,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+
+        fn verify_membership(
+            &self,
+            _statement: &AccountMembershipStatement,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+    }
+
     impl PairingApprovalVerifier for RejectApprovalVerifier {
         fn verify_approval(
             &self,
@@ -577,6 +630,18 @@ mod tests {
         }
     }
 
+
+    struct RejectReverificationVerifier;
+
+    impl ContactReverificationVerifier for RejectReverificationVerifier {
+        fn verify_reverification(
+            &self,
+            _current: &ContactIdentity,
+            _replacement: &IdentityReference,
+        ) -> Result<(), TrustError> {
+            Err(TrustError::IdentityReverificationRequired)
+        }
+    }
 
     #[test]
     fn membership_registry_rejects_cross_account_device_reuse() {
@@ -755,8 +820,27 @@ mod tests {
         contact.observe_identity_change(new_identity.clone()).unwrap();
         assert_eq!(contact.state, ContactIdentityState::Quarantined);
 
-        contact.reverify(new_identity).unwrap();
+        contact
+            .reverify(new_identity, &AcceptApprovalVerifier)
+            .unwrap();
         assert_eq!(contact.state, ContactIdentityState::Verified);
+    }
+
+    #[test]
+    fn rejected_identity_reverification_keeps_quarantine() {
+        let old_key = PublicIdentityKey::new(vec![1]).unwrap();
+        let new_key = PublicIdentityKey::new(vec![2]).unwrap();
+        let old_identity = IdentityReference::new("dev-old", old_key).unwrap();
+        let new_identity = IdentityReference::new("dev-new", new_key).unwrap();
+        let mut contact = ContactIdentity::new(old_identity);
+
+        contact.observe_identity_change(new_identity.clone()).unwrap();
+
+        assert_eq!(
+            contact.reverify(new_identity, &RejectReverificationVerifier),
+            Err(TrustError::IdentityReverificationRequired)
+        );
+        assert_eq!(contact.state, ContactIdentityState::Quarantined);
     }
 
     #[test]
