@@ -165,8 +165,8 @@ The repository also does not contain a Gradle Wrapper, so there is no self-conta
 | Identity | Not implemented |
 | Full session coordinator | Not implemented |
 | Cryptographic replay binding | Not implemented |
-| FeatureVector extractor | Next implementation slice |
-| Z-score / EWMA production use | Deferred |
+| FeatureVector extractor | Implemented; verification pending |
+| Z-score / EWMA / Median-MAD baseline | Implemented; production thresholds deferred |
 
 ### Statistical baseline
 
@@ -182,11 +182,11 @@ Documentation:
 
 Implemented deterministic Z-score, EWMA, and Median/MAD signals. Arithmetic was reviewed after implementation and changed to BigInteger intermediates for mean and EWMA updates so large signed inputs cannot overflow a 64-bit multiplication during baseline calculation. Production thresholds remain unapproved.
 
-## 6. Next gated slice
+## 6. Statistical benchmark slice
 
-The deterministic SecurityEvent -> FeatureVector baseline is now implemented.
+The deterministic SecurityEvent -> FeatureVector baseline is implemented, and the feature-aware StatisticalBaseline plus reproducible JVM benchmark harness are now implemented.
 
-Next gate: evaluate Z-score, EWMA, and Median/MAD against representative real telemetry. No production anomaly detector or ML runtime is authorized yet.
+Next gate: run the reproducible benchmark harness, then evaluate the three baselines against representative real telemetry. No production anomaly detector or ML runtime is authorized yet.
 
 Required evidence before promotion:
 - representative dataset identity/hash;
