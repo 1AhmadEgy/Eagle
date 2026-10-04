@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "document_type": "reference-test-vectors",
   "title": "Eagle Token Bucket Reference Vectors",
   "version": "1.0.0",
   "time_unit": "milliseconds",
