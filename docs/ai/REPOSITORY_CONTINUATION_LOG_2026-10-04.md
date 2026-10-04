@@ -19,7 +19,7 @@ It does not grant production approval.
 | Repository | `1AhmadEgy/Eagle` |
 | `main` | `a2e4138199d8f296bea0bce21a9a8d7be7cda703` |
 | PR #45 head | `7bf9c9fdf62ac263a315e757daafdeaa5e35a71e` |
-| PR #42 head | `77880c89f2815828044fc96946acd7badf33006e` |
+| PR #42 documentation branch latest head | `dc26ac59ab122822c33767784d6c900271591cf9` |
 | PR #40 head | `fc68326cbad591e9ecdb8acf7d0d6b1c981d5165` |
 | PR #41 head | `7e56e26756bb2125b7124b60bfb5fbc4c4903c46` |
 
@@ -54,10 +54,12 @@ Purpose:
 - archive/reuse knowledge;
 - deterministic evidence contract.
 
-Latest verification:
+Latest completed verification before the fresh documentation checkpoint:
 
 - CI run **37187057890** — failure.
 - Eagle Test Lab run **37187057932** — failure.
+
+Fresh checkpoint commit `dc26ac59ab122822c33767784d6c900271591cf9` triggered a new CI run **37187233823**, currently failed on the repository verification job. A new Eagle Test Lab run **37187233755** is still in progress at this checkpoint, so its final result is intentionally not asserted.
 
 The failures are caused by the unreconciled base state:
 
