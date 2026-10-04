@@ -1,0 +1,15 @@
+{
+  "document_type": "reference-test-vectors",
+  "version": "1.0.0",
+  "window_semantics": "1..64",
+  "cases": [
+    {"id":"first","window":4,"sequence":[10],"expected":["ACCEPT"]},
+    {"id":"duplicate","window":4,"sequence":[10,10],"expected":["ACCEPT","DUPLICATE"]},
+    {"id":"reorder-within-window","window":4,"sequence":[10,8,9],"expected":["ACCEPT","ACCEPT","ACCEPT"]},
+    {"id":"duplicate-after-reorder","window":4,"sequence":[10,8,8],"expected":["ACCEPT","ACCEPT","DUPLICATE"]},
+    {"id":"too-old","window":4,"sequence":[10,6],"expected":["ACCEPT","TOO_OLD"]},
+    {"id":"large-advance","window":4,"sequence":[10,11,100,99,10],"expected":["ACCEPT","ACCEPT","ACCEPT","ACCEPT","TOO_OLD"]},
+    {"id":"negative","window":4,"sequence":[-1,0],"expected":["INVALID_SEQUENCE","ACCEPT"]},
+    {"id":"max-long","window":8,"sequence":[9223372036854775807,9223372036854775807,0],"expected":["ACCEPT","DUPLICATE","TOO_OLD"]}
+  ]
+}
