@@ -7,240 +7,89 @@
 
 ## 0. Evidence correction — 2026-10-04
 
-This document is a **target platform strategy**, not proof that the listed Rust Security Core, KMP Shared Layer, UniFFI, or Compose Multiplatform implementation already exists.
+This document is a target platform strategy, not proof that Rust Security Core, KMP Shared Layer, UniFFI, or Compose Multiplatform implementation already exists.
 
-Current source verification on `ai/reverse-engineering-foundation` found an Android/JVM Kotlin runtime and a deterministic security foundation under `app/src/main/java/com/eagle/app/security/`. It did **not** verify Rust, KMP, UniFFI, iOS, or desktop implementations.
+The current source tree on ai/reverse-engineering-foundation contains a minimal Android/JVM Kotlin runtime and an implemented deterministic security foundation under app/src/main/java/com/eagle/app/security/.
 
 Accordingly:
 
-- Rust Security Core = **Target / candidate**, not verified implementation.
-- KMP Shared Layer = **Target / candidate**, not verified implementation.
-- Compose Multiplatform = **Target / candidate**, not verified implementation.
-- iOS/Desktop/Web directories = **Target**, not verified implementation.
-- Android security foundation = **Verified source**, subject to build/CI execution evidence.
+- Rust Security Core = Target / candidate, not verified implementation.
+- KMP Shared Layer = Target / candidate, not verified implementation.
+- Compose Multiplatform = Target / candidate, not verified implementation.
+- iOS/Desktop/Web implementations = Target, not verified implementation.
+- Android/JVM security foundation = Implemented source; runtime verification still pending.
 
-Technology selection is governed by ADR-0015 and must follow evidence before adoption.
+Architecture documents must not outrank current source/test/build evidence.
 
-## 1. Purpose
-
-This document is the canonical platform reference for Eagle.
-
-It defines:
-
-- the target platforms;
-- the delivery priority and timing;
-- the role of the Rust Security Core;
-- the role of the KMP Shared Layer;
-- the platform-specific adapter boundary;
-- the constraints imposed on future platform expansion.
-
-This document describes platform scope. It does **not** replace ADRs that define cryptography, key management, serialization, transport, storage, or other technical decisions.
-
-## 2. Target platforms
+## 1. Target platforms
 
 | Phase | Platform | Priority | Status |
 |---|---|---:|---|
-| Phase 1 | Android | 1 | Target architecture — source tree not currently verified |
-| Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned — `desktopApp/` |
-| Phase 2 | iOS | 3 | Planned — `iosApp/` |
-| Deferred | Web | — | Deferred — `webApp/` later |
+| Phase 1 | Android | 1 | Current implementation runtime |
+| Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned |
+| Phase 2 | iOS | 3 | Planned |
+| Deferred | Web | — | Deferred |
 
-### 2.1 Delivery intent
+## 2. Current implementation boundary
 
-**Android is the primary implementation platform.** It provides the first production-oriented validation loop for the shared domain, security boundary, messaging, synchronization, and UI architecture.
+The current deterministic security slice is:
 
-**Desktop is developed in parallel with KMP stabilization.** It reuses the shared layer and Compose Multiplatform without introducing a separate application architecture.
+SessionStateMachine → ReplayGuard → TokenBucket → SecurityEvent → FeatureVector → StatisticalBaseline
 
-**iOS follows the stabilization of the shared layer and Layer C security boundary.** It reuses KMP and the Rust/UniFFI boundary while retaining platform-specific Swift/Xcode integration where required.
+and:
 
-**Web is explicitly deferred.** Web support must not force premature changes to the security boundary or constrain ADR-0008/0009/0010.
+Authenticated Message → ReplayGuard → TokenBucket → Security Decision
 
-## 3. Cross-platform architecture
+The current contract extension is:
 
-The intended dependency direction is:
+Identity → Authentication → Session → CryptoBoundary → KeyManagementBoundary → SecureStorageBoundary
 
-```text
-                    Rust Security Core
-                 (cross-compile + UniFFI)
-                            │
-                            ▼
-                     KMP Shared Layer
-          ┌─────────────────┴─────────────────┐
-          │ Domain / Auth / Messaging / Sync │
-          │             Presentation          │
-          └─────────────────┬─────────────────┘
-                            │
-                    Platform Adapters
-          ┌────────────┬────────────┬────────────┐
-          ▼            ▼            ▼            ▼
-       Android      Desktop        iOS         Web
-       Kotlin +     JVM +          Kotlin/     Wasm +
-       Compose      Compose MP     Native +    Compose MP
-                                  Swift       (deferred)
-```
+These are Kotlin/JVM contracts only. They are not a second platform implementation.
 
-### 3.1 Rust Security Core
+## 3. Platform adapter policy
 
-The Rust Security Core is the platform-independent security boundary.
+### Android
 
-Its implementation is shared through cross-compilation and UniFFI bindings. Platform-specific integration must not duplicate security-critical primitives in Kotlin, Swift, or other UI/application layers unless explicitly approved by an ADR.
+Android is the first executable validation environment. Security-critical persistent key material must be isolated behind the key-management adapter.
 
-The initial target set includes:
+### iOS
 
-**Android**
-- `aarch64-linux-android`
-- `armv7-linux-androideabi`
+Use Apple Keychain/Key APIs behind the same Eagle key-management contract. Do not fork security semantics.
 
-**Desktop**
-- `x86_64-pc-windows-msvc`
-- `x86_64-apple-darwin`
-- `aarch64-apple-darwin`
-- `x86_64-unknown-linux-gnu`
+### Windows
 
-Additional targets are additive decisions and must not silently alter the security contract.
+Use Windows CNG/DPAPI behind the same Eagle key/storage contract. Exact API depends on whether material is a long-lived key, user-scoped secret, or opaque encrypted record.
 
-### 3.2 KMP Shared Layer
+### macOS
 
-The KMP Shared Layer is responsible for reusable application behavior, including:
+Use Apple Keychain/Key APIs behind the same abstraction used by iOS, while retaining OS-specific lifecycle/access-control handling.
 
-- Domain;
-- Authentication orchestration;
-- Messaging;
-- Synchronization;
-- Shared presentation/state where appropriate;
-- Platform-neutral application contracts.
+### Linux
 
-The shared layer must remain independent of Android-only APIs and must not absorb platform-specific lifecycle, storage, notification, permission, or UI behavior.
+Use an OS-native secret/key service behind the same abstraction. Exact provider remains a later selection based on supported desktop environments and threat model.
 
-### 3.3 Platform adapters
+## 4. Technology selection rule
 
-Platform adapters isolate platform-specific concerns.
+KMP, Rust, UniFFI, Compose Multiplatform, native Kotlin/Swift, or another approach may be selected only after source/build evidence, dependency maturity review, security boundary review, testability, licensing/provenance review, platform coverage, and a reproducible CI/build plan.
 
-| Platform | Primary technology | Adapter responsibilities |
-|---|---|---|
-| Android | Kotlin + Compose | Android lifecycle, permissions, services, notifications, platform storage/integration |
-| Desktop | JVM + Compose Multiplatform | Windowing, desktop lifecycle, OS integration, packaging |
-| iOS | Kotlin/Native + Swift + Compose Multiplatform | Apple lifecycle, signing, native integration, platform services |
-| Web | Wasm + Compose Multiplatform | Browser APIs and web-specific runtime integration; deferred |
+No framework is adopted by architecture text alone.
 
-## 4. Why this order
+## 5. Validation invariant
 
-### Android first
+Same Input → Same Core Semantics → Same Security Decision
 
-Android is the first implementation target because it offers the fastest validation loop for the current KMP architecture and avoids introducing Apple-specific build/signing constraints during the earliest security and domain stabilization work.
+Platform-specific differences must be explicit adapter behavior, not divergent security semantics.
 
-### Desktop in parallel
+## 6. Current status
 
-Desktop shares the KMP layer and Compose Multiplatform approach. It therefore provides a second runtime environment without requiring a fundamentally separate shared architecture.
+**Implemented source:** Android/JVM deterministic security foundation + platform-neutral contract boundaries.
 
-Desktop also expands validation across JVM and multiple operating systems while the shared layer is still being stabilized.
+**Runtime verification:** Pending successful execution of bash scripts/ci/verify.sh or equivalent CI evidence.
 
-### iOS second phase
+**Shared technology:** Unselected.
 
-iOS is intentionally scheduled after the shared layer and Layer C security boundary are stable.
+**E2E protocol:** Unselected.
 
-The iOS application should consume the same security core and shared contracts rather than becoming a second source of security-critical logic.
+**Native key storage:** Adapter boundaries selected; implementations pending.
 
-### Web deferred
-
-Web is a separate expansion decision.
-
-The current architecture must **not** be redesigned around Web/Wasm requirements before Web is an approved target. In particular, Web must not weaken, bypass, or redefine the Rust Security Core boundary or the cryptographic decisions in ADR-0008, ADR-0009, and ADR-0010.
-
-## 5. Layer A→E implications
-
-The platform strategy maps to the existing A→E planning model as follows:
-
-- **Layer A — Architecture / governance:** platform target policy and dependency direction.
-- **Layer B — Shared application architecture:** KMP shared contracts and reusable application behavior.
-- **Layer C — Security boundary:** Rust Security Core, cross-compilation, UniFFI, and platform bindings.
-- **Layer D — Platform implementation:** Android, Desktop, and later iOS/Web adapters.
-- **Layer E — Delivery / verification:** CI matrices, packaging, platform-specific tests, signing, release verification, and operational readiness.
-
-The exact responsibilities of each layer remain governed by the corresponding architecture/ADR records.
-
-## 6. Architectural invariants
-
-The following are mandatory constraints:
-
-1. Platform UI must not own security-critical primitives.
-2. Platform adapters must consume shared contracts rather than fork domain behavior.
-3. Rust Security Core remains the security authority across supported platforms.
-4. UniFFI is an integration boundary, not a license to duplicate Rust security logic in platform code.
-5. Desktop and iOS must reuse the KMP Shared Layer.
-6. Web must remain isolated from current security-boundary decisions until explicitly approved.
-7. Adding a platform must not silently change the cryptographic protocol or key-management model.
-8. Platform-specific dependencies must remain behind explicit adapter boundaries.
-9. CI must validate every supported native target before that target is considered release-ready.
-10. A platform becomes a supported release target only after its security, build, integration, and verification gates are satisfied.
-
-## 7. CI and build implications
-
-The platform matrix is expected to grow with the implementation:
-
-```text
-Android
- ├─ arm64-v8a
- └─ armeabi-v7a
-
-Desktop
- ├─ Windows x86_64
- ├─ macOS x86_64
- ├─ macOS arm64
- └─ Linux x86_64
-
-iOS
- ├─ device
- └─ simulator
-
-Web
- └─ deferred
-```
-
-The CI system should keep platform-independent tests in the shared layer and add platform-specific verification only where the runtime requires it.
-
-## 8. Relationship to ADRs
-
-This document is a platform-scope reference, not a replacement for technical ADRs.
-
-Relevant existing ADRs include:
-
-- ADR-0008 — Cryptographic Protocol
-- ADR-0009 — Key Management
-- ADR-0010 — Serialization
-- ADR-0011 — Local Storage
-- ADR-0012 — Transport Architecture
-- ADR-0013 — Architecture Enforcement
-- ADR-0014 — Observability
-
-The current working architecture also refers to **ADR-0015**. If/when ADR-0015 is committed to the repository, it should link back to this document for the platform matrix rather than duplicating the full platform strategy.
-
-## 9. Change policy
-
-Changes to platform priority, platform phase, or the Rust/KMP/platform boundary require an architecture review.
-
-Adding a new platform should answer at minimum:
-
-- Why is the platform needed?
-- Which shared contracts are reused?
-- Which platform adapters are required?
-- Which Rust targets and UniFFI bindings are required?
-- What CI/build changes are required?
-- What security and verification gates apply?
-- Does the change affect an existing ADR?
-
-No platform should be added merely by creating a new application directory.
-
-## 10. Current baseline
-
-**Current implementation target:** Android.
-
-**Current source evidence:** Android application source is not currently verified in the branch baseline; see `docs/08-status/SOURCE_TRUTH_RECONCILIATION.md`.
-
-**Parallel architectural focus:** KMP Shared Layer + Desktop readiness.
-
-**Next platform expansion:** iOS after Layer C and shared contracts stabilize.
-
-**Deferred expansion:** Web/Wasm.
-
-This baseline is the reference point for planning, implementation issues, CI matrices, and future platform ADRs.
+**Next execution slice:** protocol integration proof for the leading 1:1 candidate, followed by group-protocol proof, without duplicating cryptographic logic in platform UI/application layers.
