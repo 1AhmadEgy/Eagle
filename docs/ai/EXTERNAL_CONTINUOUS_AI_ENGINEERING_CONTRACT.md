@@ -29,6 +29,29 @@ Observe
  -> Next cycle
 ```
 
+## Autonomous repair loop
+
+When a **real repository validation** experiment fails, EDA may enter this loop:
+
+```text
+Validation FAIL
+ -> preserve failure evidence
+ -> build bounded repair context
+ -> multi-model patch proposal
+ -> independent reviewer output
+ -> patch policy validation
+ -> apply on agent/* branch
+ -> deterministic tests
+ -> security review
+ -> path verification
+ -> commit only if all gates pass
+ -> independent revalidation
+ -> regression / learning update
+ -> next scenario
+```
+
+A simulated failure never triggers an automatic repository patch.
+
 ## AI modes
 
 EDA can route work through:
@@ -144,6 +167,7 @@ Runtime artifacts may be written under:
   experiments.jsonl
   training-cases.jsonl
   regressions.jsonl
+  repair-attempts.jsonl
   knowledge-graph.json
   coverage.json
   evidence-chain.json
