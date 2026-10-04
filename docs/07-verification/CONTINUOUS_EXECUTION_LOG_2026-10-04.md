@@ -184,6 +184,12 @@ Implemented deterministic Z-score, EWMA, and Median/MAD signals. Arithmetic was 
 
 ## 6. Statistical benchmark slice
 
+A reproducible JVM harness was added at `app/src/test/java/com/eagle/app/security/StatisticalBaselineBenchmarkTest.kt`. Synthetic dataset SHA-256: `f7d1562ab594d0d1459f73a1c91fbff671d3c8db9f82d9c4491b5f956069012b`. At threshold 3000, Z-score: TP 60 / TN 240 / FP 0 / FN 0; EWMA: TP 30 / TN 240 / FP 0 / FN 30; Median/MAD: TP 60 / TN 240 / FP 0 / FN 0. Median/P95 JVM diagnostic timings were approximately 4.454/7.773 µs (Z-score), 4.913/8.488 µs (EWMA), 5.271/7.306 µs (Median/MAD). These are synthetic/JVM diagnostics and are not production or Android measurements.
+
+Source-level Kotlin compilation was also verified with kotlinc-jvm 1.9.0 / OpenJDK 21.0.11 after correcting the FeatureVector Long denominator bug.
+
+## 7. Remaining verification
+
 The deterministic SecurityEvent -> FeatureVector baseline is implemented, and the feature-aware StatisticalBaseline plus reproducible JVM benchmark harness are now implemented.
 
 Next gate: run the reproducible benchmark harness, then evaluate the three baselines against representative real telemetry. No production anomaly detector or ML runtime is authorized yet.
