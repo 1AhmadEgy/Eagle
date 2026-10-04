@@ -2,8 +2,8 @@
 
 **Audit scope:** Identity & Trust workstream  
 **Audit baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
-**Verified execution head before latest hardening:** `6de670a947c06b8bd00a1944b4f8743f5b13d5da`
-**Latest unverified hardening head:** `07cec209ced2d747cdbad398db92995ff9762c34`  
+**Verified execution head before latest hardening:** historical evidence
+**Latest hardening status:** fresh CI verification required for current head  
 **Execution branch:** `execution/identity-trust-foundation-v1`  
 **Audit posture:** evidence-first / fail-closed
 
@@ -110,7 +110,7 @@ The Rust crate includes negative, membership, identity-change, and state-transit
 - suspended authorization denial;
 - trust epoch overflow.
 
-**Result:** IMPLEMENTED baseline; the hardening update adds device-bound pairing and malformed-pairing-context negative coverage. The latest 24-test count requires fresh CI evidence before being marked verified.
+**Result:** IMPLEMENTED baseline; the hardening update adds device-bound pairing and malformed-pairing-context negative coverage. The latest 27-test count requires fresh CI evidence before being marked verified.
 
 ## Stage 10 — Security audit
 Static review confirms:
@@ -131,7 +131,7 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Current prior evidence includes successful repository verification, 22 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. The latest hardening adds four additional negative tests (24→26 total). Fresh independent verification is required before those new tests are marked PASS.
+Current prior evidence includes successful repository verification, 26 passing Rust identity/trust unit tests before the approval-verifier hardening, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. The latest hardening adds four additional negative tests (26→27 total). Fresh independent verification is required before those new tests are marked PASS.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
@@ -149,7 +149,7 @@ This blocker status is evidence-driven and does not invalidate the completed spe
 
 ## Hardening delta
 
-The Security Core now binds a pairing context to the intended device identity in addition to account and trust epoch. Promotion is denied when the pending device does not match the pairing context. Pairing contexts also reject empty token/account/device identifiers at construction.
+The Security Core now binds a pairing context to the intended device identity in addition to account and trust epoch. Promotion is denied when the pending device does not match the pairing context. Pairing contexts also reject empty token/account/device identifiers at construction. Trust promotion additionally requires an explicit pairing-approval verifier; an unconditional caller path is no longer available.
 
 The scenario corpus was restored on the execution branch and extended with pairing-device-mismatch and malformed-pairing-context cases. These controls remain protocol-boundary hardening and do not assert that transcript authentication or cryptographic proof is complete.
 
@@ -158,10 +158,14 @@ The scenario corpus was restored on the execution branch and extended with pairi
 
 ## Additional hardening record
 
-The latest Security Core delta addresses three fail-closed boundary cases:
+The latest Security Core delta addresses four fail-closed boundary cases:
 - pairing context is bound to the exact intended device identity;
 - malformed pairing identifiers are rejected before activation;
 - membership statements whose issuance time is after their expiry are rejected;
 - expiry timestamp overflow fails closed instead of saturating.
 
 These controls improve local policy robustness without selecting any concrete cryptographic primitive or protocol profile.
+
+## Latest approval-verifier hardening
+
+The PENDING → TRUSTED transition now requires a `PairingApprovalVerifier`. A rejecting verifier is covered by a dedicated negative test, ensuring the caller cannot promote trust using only matching account/device identifiers. This closes the accidental unconditional-approval path at the Security Core API boundary.
