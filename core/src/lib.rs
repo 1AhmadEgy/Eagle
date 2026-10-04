@@ -186,7 +186,10 @@ mod tests {
     #[test]
     fn authentication_requires_pending_state() {
         let mut ctx = SecurityContext::new(1);
-        assert_eq!(ctx.authenticate(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.authenticate(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
     }
 
     #[test]
@@ -242,7 +245,10 @@ mod tests {
     #[test]
     fn below_minimum_protocol_is_rejected_without_mutation() {
         let mut ctx = SecurityContext::new(2);
-        assert_eq!(ctx.negotiate_protocol(1), Err(SecurityError::ProtocolDowngrade));
+        assert_eq!(
+            ctx.negotiate_protocol(1),
+            Err(SecurityError::ProtocolDowngrade)
+        );
         assert_eq!(ctx.negotiated_protocol, 2);
     }
 
@@ -250,9 +256,15 @@ mod tests {
     fn renegotiation_cannot_downgrade_after_upgrade() {
         let mut ctx = SecurityContext::new(1);
         assert_eq!(ctx.negotiate_protocol(3), Ok(3));
-        assert_eq!(ctx.negotiate_protocol(2), Err(SecurityError::ProtocolDowngrade));
+        assert_eq!(
+            ctx.negotiate_protocol(2),
+            Err(SecurityError::ProtocolDowngrade)
+        );
         assert_eq!(ctx.negotiated_protocol, 3);
-        assert_eq!(ctx.negotiate_protocol(1), Err(SecurityError::ProtocolDowngrade));
+        assert_eq!(
+            ctx.negotiate_protocol(1),
+            Err(SecurityError::ProtocolDowngrade)
+        );
         assert_eq!(ctx.negotiated_protocol, 3);
     }
 }
