@@ -2,10 +2,14 @@
 
 pub mod identity;
 pub mod policy;
+pub mod self_model;
 pub mod session;
 
 pub use identity::{Identity, PrincipalId};
 pub use policy::{authorize, Capability};
+pub use self_model::{
+    CognitiveState, Goal, GoalStatus, IntrospectionSnapshot, MemoryEvent, MemoryKind, SelfModel,
+};
 pub use session::Session;
 
 /// Deterministic security-kernel primitives.
