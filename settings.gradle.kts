@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Eagle"
 include(":app")
+include(":shared")
