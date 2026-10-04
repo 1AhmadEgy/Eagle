@@ -110,7 +110,7 @@ The Rust crate includes negative, membership, identity-change, and state-transit
 - suspended authorization denial;
 - trust epoch overflow.
 
-**Result:** IMPLEMENTED baseline; the hardening update adds device-bound pairing and malformed-pairing-context negative coverage. The latest 27-test count requires fresh CI evidence before being marked verified.
+**Result:** IMPLEMENTED baseline; the hardening update adds device-bound pairing and malformed-pairing-context negative coverage. The latest 28-test count requires fresh CI evidence before being marked verified.
 
 ## Stage 10 — Security audit
 Static review confirms:
@@ -131,7 +131,7 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Current prior evidence includes successful repository verification, 26 passing Rust identity/trust unit tests before the approval-verifier hardening, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. The latest hardening adds four additional negative tests (26→27 total). Fresh independent verification is required before those new tests are marked PASS.
+Current prior evidence includes successful repository verification, 26 passing Rust identity/trust unit tests before the approval/reverification proof-boundary hardening, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. The latest hardening adds four additional negative tests (27→28 total). Fresh independent verification is required before those new tests are marked PASS.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
@@ -158,7 +158,7 @@ The scenario corpus was restored on the execution branch and extended with pairi
 
 ## Additional hardening record
 
-The latest Security Core delta addresses four fail-closed boundary cases:
+The latest Security Core delta addresses six fail-closed boundary cases:
 - pairing context is bound to the exact intended device identity;
 - malformed pairing identifiers are rejected before activation;
 - membership statements whose issuance time is after their expiry are rejected;
@@ -168,4 +168,8 @@ These controls improve local policy robustness without selecting any concrete cr
 
 ## Latest approval-verifier hardening
 
-The PENDING → TRUSTED transition now requires a `PairingApprovalVerifier`. A rejecting verifier is covered by a dedicated negative test, ensuring the caller cannot promote trust using only matching account/device identifiers. This closes the accidental unconditional-approval path at the Security Core API boundary.
+The PENDING → TRUSTED transition now requires a `PairingApprovalVerifier`. A rejecting pairing verifier is covered by a dedicated negative test, ensuring the caller cannot promote trust using only matching account/device identifiers. Membership identity binding and contact reverification also require explicit verifier boundaries, with rejection coverage keeping quarantined identities quarantined. This closes the accidental unconditional-approval path at the Security Core API boundary.
+
+## Current proof-boundary hardening
+
+The Security Core now requires explicit verifier boundaries for membership identity binding, pairing approval, and contact reverification. The intended security property is that matching identifiers or replacement objects alone cannot create or restore trust.
