@@ -1,0 +1,13 @@
+[package]
+name = "eagle-core-ffi"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "eagle_core_ffi"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+eagle-core = { path = ".." }
+uniffi = "0.32.1"
