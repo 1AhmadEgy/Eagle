@@ -82,5 +82,24 @@
     "cryptography_implemented": false,
     "identity_verification_implemented": false,
     "production_security_core": false
+  },
+  "verification_evidence": {
+    "commit": "561a005afe106ec3c8f73bca767a26383b73acc1",
+    "verified_at": "2026-10-04",
+    "runs": {
+      "CI": {
+        "run_id": 37211005813,
+        "conclusion": "success"
+      },
+      "Eagle Test Lab": {
+        "run_id": 37211005822,
+        "conclusion": "success"
+      },
+      "Rust Core": {
+        "run_id": 37211005776,
+        "conclusion": "success"
+      }
+    },
+    "note": "These runs verify the current foundation and CI controls; they do not constitute cryptographic protocol or production-security approval."
   }
 }
