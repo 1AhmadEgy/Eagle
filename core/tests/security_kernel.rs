@@ -1,7 +1,14 @@
 use eagle_core::{
-    authorize, Capability, Device, DeviceTrustState, Platform, SecurityContext, SecurityError,
-    Session, SessionState,
+    authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope, FrameHeader,
+    MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session, SessionState,
+    CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
+
+fn trusted_context() -> SecurityContext {
+    let mut ctx = SecurityContext::new(1, CURRENT_PROTOCOL_VERSION).unwrap();
+    ctx.begin_authentication().unwrap();
+    ctx
+}
 
 #[test]
 fn untrusted_kernel_is_not_usable() {
@@ -10,11 +17,22 @@ fn untrusted_kernel_is_not_usable() {
         authorize(&ctx, Capability::Read),
         Err(SecurityError::Unauthorized)
     );
+    assert_eq!(
+        authorize(&ctx, Capability::Write),
+        Err(SecurityError::Unauthorized)
+    );
+    assert_eq!(
+        authorize(&ctx, Capability::Administrative),
+        Err(SecurityError::Unauthorized)
+    );
 }
 
 #[test]
 fn device_is_not_authorized_before_trust() {
     let device = Device::new(10, 20, Platform::Android);
+    assert_eq!(device.account(), 10);
+    assert_eq!(device.device(), 20);
+    assert_eq!(device.platform(), Platform::Android);
     assert_eq!(device.trust_state(), DeviceTrustState::Unknown);
     assert!(device.can_authorize().is_err());
 }
@@ -30,6 +48,22 @@ fn session_cannot_self_elevate_unverified_context() {
 }
 
 #[test]
+fn authenticated_context_establishes_and_rekeys() {
+    let mut ctx = trusted_context();
+    assert_eq!(ctx.trust_state(), eagle_core::TrustState::Pending);
+
+    // The actual verifier remains an internal test seam until the approved
+    // authentication/cryptographic protocol is integrated.
+    assert!(ctx.establish().is_err());
+
+    #[allow(unused_must_use)]
+    {
+        // No public trust-elevation path exists by design.
+        let _ = Session::state(&ctx);
+    }
+}
+
+#[test]
 fn invalid_configuration_fails_closed() {
     assert_eq!(
         SecurityContext::new(0, 1),
@@ -38,5 +72,95 @@ fn invalid_configuration_fails_closed() {
     assert_eq!(
         SecurityContext::new(2, 1),
         Err(SecurityError::UnsupportedProtocol)
+    );
+    assert_eq!(
+        SecurityContext::new(1, 2),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+}
+
+#[test]
+fn version_validation_is_monotonic_and_bounded() {
+    assert_eq!(validate_version(1, 1), Ok(1));
+    assert_eq!(
+        validate_version(0, 1),
+        Err(eagle_core::ProtocolError::DowngradeRejected)
+    );
+    assert_eq!(
+        validate_version(2, 1),
+        Err(eagle_core::ProtocolError::UnsupportedVersion)
+    );
+}
+
+#[test]
+fn identifiers_are_constructor_bounded() {
+    assert_eq!(
+        OpaqueId::new(Vec::new()),
+        Err(eagle_core::ProtocolError::EmptyIdentifier)
+    );
+    assert_eq!(
+        OpaqueId::new(vec![0; MAX_ID_BYTES + 1]),
+        Err(eagle_core::ProtocolError::IdentifierTooLarge)
+    );
+    assert_eq!(OpaqueId::new(vec![7; 8]).unwrap().as_bytes(), &[7; 8]);
+    assert_eq!(MessageId::new([9; 16]).as_bytes(), &[9; 16]);
+}
+
+#[test]
+fn envelope_is_structurally_validated() {
+    let envelope = EncryptedEnvelope::new(
+        MessageId::new([1; 16]),
+        OpaqueId::new(vec![2; 8]).unwrap(),
+        OpaqueId::new(vec![3; 8]).unwrap(),
+        None,
+        vec![0xAA; 32],
+        CURRENT_PROTOCOL_VERSION,
+        42,
+    )
+    .unwrap();
+
+    let header = envelope.frame_header().unwrap();
+    assert_eq!(header.protocol_version(), CURRENT_PROTOCOL_VERSION);
+    assert_eq!(header.payload_len(), 32);
+    assert_eq!(header.validate_payload_len(32), Ok(()));
+}
+
+#[test]
+fn frame_header_rejects_length_and_version_mismatch() {
+    let header = FrameHeader {
+        protocol_version: CURRENT_PROTOCOL_VERSION,
+        payload_len: 9,
+        flags: 0,
+    };
+    assert_eq!(
+        header.validate_payload_len(8),
+        Err(eagle_core::ProtocolError::PayloadLengthMismatch)
+    );
+    assert_eq!(
+        (FrameHeader {
+            protocol_version: 0,
+            payload_len: 8,
+            flags: 0,
+        })
+        .validate_version(1),
+        Err(eagle_core::ProtocolError::DowngradeRejected)
+    );
+    assert!(MAX_PAYLOAD_BYTES > 0);
+}
+
+#[test]
+fn device_revocation_and_replacement_are_terminal() {
+    let mut revoked = Device::new(10, 20, Platform::Desktop);
+    let mut replaced = Device::new(10, 21, Platform::Ios);
+
+    // Pairing/approval are internal until the real authentication verifier exists.
+    // The public API exposes only terminal fail-closed transitions.
+    assert_eq!(
+        revoked.revoke(),
+        Err(eagle_core::DeviceError::InvalidTransition)
+    );
+    assert_eq!(
+        replaced.replace(),
+        Err(eagle_core::DeviceError::InvalidTransition)
     );
 }
