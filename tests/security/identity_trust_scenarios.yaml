@@ -148,6 +148,16 @@ scenarios:
     expected: DENY
     invariant: I-04
 
+  - id: IT-SC-017
+    name: rejected-pairing-approval
+    preconditions:
+      device_state: PENDING
+      pairing: ACTIVE
+      approval_verifier: REJECTS
+    action: approve-device
+    expected: DENY
+    invariant: I-16
+
 deferred_protocol_cases:
   - transcript-tampering
   - identity-signature-forgery
