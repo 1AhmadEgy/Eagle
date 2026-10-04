@@ -152,12 +152,12 @@ pub struct AiContext {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ConfidenceAssessment {
-    pub model_score: u8,
-    pub evidence_score: u8,
-    pub consistency_score: u8,
-    pub rule_validation_score: u8,
-    pub source_trust_score: u8,
-    pub final_score: u8,
+    model_score: u8,
+    evidence_score: u8,
+    consistency_score: u8,
+    rule_validation_score: u8,
+    source_trust_score: u8,
+    final_score: u8,
 }
 
 impl ConfidenceAssessment {
@@ -340,7 +340,6 @@ pub enum PolicyRejection {
     DuplicateRequest,
     DuplicatePlan,
     InvalidArguments,
-    UntrustedConfidence,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -484,31 +483,34 @@ impl ToolSandbox {
         Self { registry }
     }
 
-    pub fn execute(&self, approved: &ApprovedPlan) -> Result<ToolResult, SandboxError> {
-        let step = approved
-            .plan()
-            .steps
-            .first()
-            .ok_or(SandboxError::ExecutionDenied)?;
+    pub fn execute(&self, approved: &ApprovedPlan) -> Result<Vec<ToolResult>, SandboxError> {
+        if approved.plan().steps.is_empty() {
+            return Err(SandboxError::ExecutionDenied);
+        }
 
-        let tool = self
-            .registry
-            .resolve(step.capability)
-            .ok_or(SandboxError::UnknownCapability)?;
+        let mut results = Vec::with_capacity(approved.plan().steps.len());
+        for step in &approved.plan().steps {
+            let tool = self
+                .registry
+                .resolve(step.capability)
+                .ok_or(SandboxError::UnknownCapability)?;
 
-        let summary = RedactedText::from_untrusted(&UntrustedText::new(
-            "tool executed; result intentionally sanitized",
-        ))
-        .map_err(|_| SandboxError::ExecutionDenied)?;
+            let summary = RedactedText::from_untrusted(&UntrustedText::new(
+                "tool executed; result intentionally sanitized",
+            ))
+            .map_err(|_| SandboxError::ExecutionDenied)?;
 
-        Ok(ToolResult {
-            sanitized: SanitizedToolResult {
-                tool_id: tool.tool_id,
-                success: true,
-                summary,
-                evidence_id: Some(EvidenceId(approved.plan().plan_id.0)),
-            },
-        })
+            results.push(ToolResult {
+                sanitized: SanitizedToolResult {
+                    tool_id: tool.tool_id,
+                    success: true,
+                    summary,
+                    evidence_id: Some(EvidenceId(approved.plan().plan_id.0)),
+                },
+            });
+        }
+
+        Ok(results)
     }
 }
 
@@ -547,10 +549,10 @@ mod tests {
     #[test]
     fn confidence_is_derived_and_bounded() {
         let assessment = ConfidenceAssessment::calculate(255, 200, 101, 99, 80);
-        assert_eq!(assessment.model_score, 100);
-        assert_eq!(assessment.evidence_score, 100);
-        assert_eq!(assessment.consistency_score, 100);
-        assert_eq!(assessment.final_score, 95);
+        assert_eq!(assessment.model_score(), 100);
+        assert_eq!(assessment.evidence_score(), 100);
+        assert_eq!(assessment.consistency_score(), 100);
+        assert_eq!(assessment.final_score(), 95);
     }
 
     #[test]
@@ -626,7 +628,7 @@ mod tests {
     }
 
     #[test]
-    fn policy_rejects_untrusted_confidence() {
+    fn model_confidence_cannot_self_validate_system_confidence() {
         let mut guard =
             AiPolicyGuard::new(PolicyVersion(1), [CapabilityRequest::SearchLocalIndex], 4);
         let request_id = RequestId(5);
@@ -639,9 +641,9 @@ mod tests {
             other => panic!("unexpected decision: {other:?}"),
         };
 
-        assert_eq!(approved.confidence().consistency_score, 100);
-        assert_eq!(approved.confidence().rule_validation_score, 100);
-        assert_eq!(approved.confidence().evidence_score, 0);
+        assert_eq!(approved.confidence().consistency_score(), 100);
+        assert_eq!(approved.confidence().rule_validation_score(), 100);
+        assert_eq!(approved.confidence().evidence_score(), 0);
     }
 
     #[test]
@@ -689,11 +691,12 @@ mod tests {
             other => panic!("unexpected decision: {other:?}"),
         };
 
-        let result = sandbox.execute(&approved).expect("approved plan should execute");
-        assert!(result.sanitized.success);
-        assert_eq!(result.sanitized.tool_id, ToolId(1));
+        let results = sandbox.execute(&approved).expect("approved plan should execute");
+        assert_eq!(results.len(), 1);
+        assert!(results[0].sanitized.success);
+        assert_eq!(results[0].sanitized.tool_id, ToolId(1));
         assert_eq!(
-            result.sanitized.summary.as_str(),
+            results[0].sanitized.summary.as_str(),
             "tool executed; result intentionally sanitized"
         );
     }
