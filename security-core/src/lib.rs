@@ -48,6 +48,8 @@ pub enum TrustError {
     DeviceAlreadyBound,
     MembershipEpochStale,
     MembershipAccountMismatch,
+    PairingDeviceMismatch,
+    MalformedPairingContext,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -271,7 +273,10 @@ impl TrustRecord {
         if self.account_id != account_id {
             return Err(TrustError::AccountMismatch);
         }
-        if pairing.account_id != self.account_id || pairing.device_id != self.device_id {\n            return Err(TrustError::PairingDeviceMismatch);\n        }\n        pairing.consume(current_epoch)?;
+        if pairing.account_id != self.account_id || pairing.device_id != self.device_id {
+            return Err(TrustError::PairingDeviceMismatch);
+        }
+        pairing.consume(current_epoch)?;
         self.state = TrustState::Trusted;
         self.trust_epoch = current_epoch;
         Ok(SecurityEvent::TrustPromoted {
@@ -353,6 +358,7 @@ impl TrustRecord {
 pub struct PairingContext {
     token_id: String,
     account_id: String,
+    device_id: String,
     expires_at_unix: u64,
     expected_epoch: u64,
     state: PairingState,
@@ -369,25 +375,36 @@ impl PairingContext {
     pub fn new(
         token_id: impl Into<String>,
         account_id: impl Into<String>,
+        device_id: impl Into<String>,
         ttl: Duration,
         expected_epoch: u64,
     ) -> Result<Self, TrustError> {
+        let token_id = token_id.into();
+        let account_id = account_id.into();
+        let device_id = device_id.into();
+        if token_id.trim().is_empty() || account_id.trim().is_empty() || device_id.trim().is_empty() {
+            return Err(TrustError::MalformedPairingContext);
+        }
         let now = now_unix().ok_or(TrustError::PairingExpired)?;
         let expires_at_unix = now.saturating_add(ttl.as_secs());
         Ok(Self {
-            token_id: token_id.into(),
-            account_id: account_id.into(),
+            token_id,
+            account_id,
+            device_id,
             expires_at_unix,
             expected_epoch,
             state: PairingState::Active,
         })
     }
 
-    pub fn verify(&self, account_id: &str, current_epoch: u64) -> Result<(), TrustError> {
+    pub fn verify(&self, account_id: &str, device_id: &str, current_epoch: u64) -> Result<(), TrustError> {
         if self.account_id != account_id {
             return Err(TrustError::AccountMismatch);
         }
-        if self.device_id != device_id {\n            return Err(TrustError::PairingDeviceMismatch);\n        }\n        if self.state == PairingState::Cancelled {
+        if self.device_id != device_id {
+            return Err(TrustError::PairingDeviceMismatch);
+        }
+        if self.state == PairingState::Cancelled {
             return Err(TrustError::PairingCancelled);
         }
         if self.state == PairingState::Consumed {
@@ -404,7 +421,8 @@ impl PairingContext {
 
     fn consume(&mut self, current_epoch: u64) -> Result<(), TrustError> {
         let account_id = self.account_id.clone();
-        self.verify(&account_id, current_epoch)?;
+        let device_id = self.device_id.clone();
+        self.verify(&account_id, &device_id, current_epoch)?;
         self.state = PairingState::Consumed;
         Ok(())
     }
@@ -719,6 +737,19 @@ mod tests {
     }
 
     #[test]
+    fn pairing_is_bound_to_the_expected_device() {
+        let mut record = pending_record();
+        let mut pairing =
+            PairingContext::new("pair-1", "acct-a", "dev-other", Duration::from_secs(60), 3).unwrap();
+
+        assert_eq!(
+            record.approve_trust("acct-a", &mut pairing, 3),
+            Err(TrustError::PairingDeviceMismatch)
+        );
+        assert_eq!(record.state, TrustState::Pending);
+    }
+
+    #[test]
     fn pairing_is_single_use() {
         let mut record = pending_record();
         let mut pairing =
@@ -790,7 +821,7 @@ mod tests {
     fn revoked_or_replaced_state_cannot_authorize() {
         let mut revoked = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 1).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
         revoked.approve_trust("acct-a", &mut pairing, 1).unwrap();
         revoked.revoke(2).unwrap();
         assert_eq!(
@@ -875,7 +906,7 @@ mod tests {
     #[test]
     fn cancelled_pairing_cannot_resume() {
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 1).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
         pairing.cancel().unwrap();
 
