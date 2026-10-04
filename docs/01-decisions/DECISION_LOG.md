@@ -12,3 +12,5 @@
 
 ## قاعدة كتابة القرار
 كل قرار جديد يجب أن يوضح: السياق، المشكلة، الخيارات، القرار، الآثار، المخاطر، وطريقة التراجع/التغيير.
+
+| ADR-0007 | Technology & Research Radar: reuse mature external components behind Eagle-owned contracts | معتمد مبدئيًا | docs/research/technology-radar.md + evidence register |
