@@ -54,9 +54,14 @@ pub struct SecurityContext {
 
 impl SecurityContext {
     pub fn new(minimum_protocol: u16, maximum_protocol: u16) -> Result<Self, SecurityError> {
-        if minimum_protocol == 0 || maximum_protocol == 0 || minimum_protocol > maximum_protocol {
+        if minimum_protocol == 0
+            || maximum_protocol == 0
+            || minimum_protocol > maximum_protocol
+            || maximum_protocol > CURRENT_PROTOCOL_VERSION
+        {
             return Err(SecurityError::UnsupportedProtocol);
         }
+
         Ok(Self {
             trust: TrustState::Untrusted,
             session: SessionState::Idle,
@@ -82,6 +87,7 @@ impl SecurityContext {
         if self.trust != TrustState::Untrusted || self.session != SessionState::Idle {
             return Err(SecurityError::InvalidTrustTransition);
         }
+
         self.trust = TrustState::Pending;
         self.session = SessionState::Authenticating;
         Ok(())
@@ -91,6 +97,7 @@ impl SecurityContext {
         if self.trust != TrustState::Pending || self.session != SessionState::Authenticating {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.trust = TrustState::Trusted;
         self.session = SessionState::Authenticated;
         Ok(())
@@ -100,6 +107,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Authenticated {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.session = SessionState::Established;
         Ok(())
     }
@@ -108,6 +116,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.session = SessionState::Rekeying;
         Ok(())
     }
@@ -116,6 +125,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Rekeying {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.session = SessionState::Established;
         Ok(())
     }
@@ -133,6 +143,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::Unauthorized);
         }
+
         Ok(())
     }
 
@@ -140,12 +151,15 @@ impl SecurityContext {
         if self.session != SessionState::Authenticated {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         if offered < self.minimum_protocol || offered < self.negotiated_protocol {
             return Err(SecurityError::ProtocolDowngrade);
         }
+
         if offered > self.maximum_protocol {
             return Err(SecurityError::UnsupportedProtocol);
         }
+
         self.negotiated_protocol = offered;
         Ok(offered)
     }
@@ -189,15 +203,31 @@ mod tests {
 
     #[test]
     fn invalid_protocol_configuration_is_rejected() {
-        assert_eq!(SecurityContext::new(0, 1), Err(SecurityError::UnsupportedProtocol));
-        assert_eq!(SecurityContext::new(2, 1), Err(SecurityError::UnsupportedProtocol));
+        assert_eq!(
+            SecurityContext::new(0, 1),
+            Err(SecurityError::UnsupportedProtocol)
+        );
+        assert_eq!(
+            SecurityContext::new(2, 1),
+            Err(SecurityError::UnsupportedProtocol)
+        );
+        assert_eq!(
+            SecurityContext::new(1, 2),
+            Err(SecurityError::UnsupportedProtocol)
+        );
     }
 
     #[test]
     fn rejected_protocol_does_not_mutate() {
         let mut ctx = authenticated();
-        assert_eq!(ctx.validate_and_negotiate(0), Err(SecurityError::ProtocolDowngrade));
-        assert_eq!(ctx.validate_and_negotiate(2), Err(SecurityError::UnsupportedProtocol));
+        assert_eq!(
+            ctx.validate_and_negotiate(0),
+            Err(SecurityError::ProtocolDowngrade)
+        );
+        assert_eq!(
+            ctx.validate_and_negotiate(2),
+            Err(SecurityError::UnsupportedProtocol)
+        );
         assert_eq!(ctx.negotiated_protocol(), 1);
     }
 }
