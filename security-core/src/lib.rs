@@ -446,6 +446,20 @@ mod tests {
     }
 
     #[test]
+    fn suspended_device_cannot_start_session() {
+        let mut record = pending_record();
+        let mut pairing =
+            PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 5).unwrap();
+        record.approve_trust("acct-a", &mut pairing, 5).unwrap();
+        record.suspend().unwrap();
+
+        assert_eq!(
+            record.authorize(AuthorizationAction::StartProtectedSession, 5),
+            Err(TrustError::InvalidStateTransition)
+        );
+    }
+
+    #[test]
     fn account_recovery_does_not_imply_data_recovery() {
         let record = TrustRecord::new("acct-a", "dev-a", PlatformAssurance::Software);
 
