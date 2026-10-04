@@ -43,11 +43,11 @@ jobs:
         run: |
           set -euo pipefail
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" --channel=3 --list | grep -E "platforms;android-37|build-tools;37\\." || true\n          "$SDKMANAGER" --channel=3 "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" --channel=3 --list | grep -E "platforms;android-37|build-tools;37\\." || true\n          "$SDKMANAGER" --channel=3 "platforms;android-37.0" "build-tools;37.0.0"
 
       - name: Verify Android SDK
         run: |
-          test -d "$ANDROID_HOME/platforms/android-37"
+          test -d "$ANDROID_HOME/platforms/android-37.0"
           test -d "$ANDROID_HOME/build-tools/37.0.0"
 
       - name: Unit tests
