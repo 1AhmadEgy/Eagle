@@ -1,0 +1,3 @@
+[workspace]
+members = ["security-core"]
+resolver = "2"
