@@ -2,13 +2,15 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+UNIFFI_VERSION="0.32.1"
 OUT_DIR="${ROOT}/shared/build/generated/uniffi/kotlin"
-
-command -v cargo >/dev/null 2>&1
-command -v uniffi-bindgen >/dev/null 2>&1
 
 cd "${ROOT}"
 cargo build -p eagle-core-ffi --release
+
+if ! command -v uniffi-bindgen >/dev/null 2>&1; then
+    cargo install "uniffi-bindgen@=${UNIFFI_VERSION}" --locked
+fi
 
 rm -rf "${OUT_DIR}"
 mkdir -p "${OUT_DIR}"
