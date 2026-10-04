@@ -53,10 +53,16 @@ pub trait SecureTransport {
 ///
 /// No sockets, discovery, retries, background scheduling, serialization, or
 /// plaintext interpretation are implemented here.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct MemoryTransport {
     state: TransportState,
     inbox: Vec<TransportFrame>,
+}
+
+impl Default for MemoryTransport {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MemoryTransport {
