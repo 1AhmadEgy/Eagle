@@ -132,3 +132,80 @@ members = ["core", "core/ffi"]
 ```
 
 Therefore Step 2 must port the existing Rust workspace foundation from the historical execution branch onto the clean `main` baseline before adding `eagle-core-reference`. This is an execution dependency, not a justification to modify the Step 1 commit.
+
+## 8. CI diagnostic results
+
+### Run inventory for implementation/v1-foundation
+
+For Step 1 commit 3561d7b6259a4f2727a7c7c6cde7212559883ce1, GitHub recorded five workflow runs:
+
+| Workflow | Run ID | Event | Result |
+|----------|--------|-------|--------|
+| Rust Core | 37200662991 | push | failure |
+| CI | 37200662977 | push | failure |
+| Eagle Test Lab | 37200662985 | push | failure |
+| Eagle Continuous Documentation | 37200663055 | push | failure |
+| Automatic Dependency Submission (Gradle) | 37200662716 | dynamic | success |
+
+The Rust Core and CI failures both occurred at the repository Rust toolchain installer because the action received an empty toolchain input.
+
+### Root-cause classification
+
+The workflow DID trigger, so this was not:
+
+- A: workflow started and immediately failed because Cargo.toml was absent;
+- B: path filter mismatch;
+- C: approval-required fork workflow;
+- D: workflow YAML syntax preventing startup;
+- E: verify.sh reaching a Cargo failure.
+
+It was F: incorrect GitHub Actions output propagation. The Python heredoc used a quoted delimiter and wrote to the literal string GITHUB_OUTPUT placeholder rather than the path held by the environment variable.
+
+### Corrective verification
+
+Commit 33858674ad51cadee81a4b9b1c8a34013eb68262 corrected the output handling.
+
+For that commit:
+
+| Workflow | Run ID | Result |
+|----------|--------|--------|
+| Rust Core | 37200925434 | success |
+| CI | 37200925448 | failure |
+| Eagle Test Lab | 37200925500 | failure |
+| Eagle Continuous Documentation | 37200925447 | failure |
+| Automatic Dependency Submission (Gradle) | 37200926693 | success |
+
+Rust Core step evidence on 33858674:
+
+- Read repository Rust toolchain policy: success
+- Install repository Rust toolchain: success
+- Assert rust-toolchain.toml was actually applied: success
+- Check Rust workspace presence: success
+- Cache/build/test/UniFFI/clippy: skipped because root Cargo.toml is intentionally absent at this phase
+
+The runner log reports Rust 1.99.0 successfully installed and active.
+
+### Independent CI blocker discovered
+
+After the toolchain issue was corrected, the main CI workflow advanced through toolchain setup, repository hygiene, and secret scanning, then failed in scripts/ci/verify-security-policy.py.
+
+The verifier reported:
+
+- .github/workflows/rust-core.yml:30 for a line using a valid 40-character checkout SHA;
+- .github/workflows/testlab.yml:21 using actions/checkout@v5;
+- .github/workflows/testlab.yml:24 using actions/setup-java@v5;
+- .github/workflows/testlab.yml:30 using gradle/actions/setup-gradle@v5.
+
+Inspection of the verifier shows its action-pinning regex expects a line beginning with uses:, while normal list syntax begins with - uses:. Therefore the verifier itself is currently producing a false-positive for list-form action entries.
+
+The Test Lab moving-tag entries remain a genuine separate supply-chain finding and are not being silently reclassified as resolved.
+
+This finding is separate from ADR-0000 toolchain policy and is not being fixed as part of the Rust toolchain correction.
+
+### Gate interpretation
+
+The Rust toolchain path is now proven in CI.
+
+Overall repository CI is NOT green yet. ADR-0000 therefore remains Proposed.
+
+Step 2a may proceed as the explicitly recorded foundational snapshot import, but no consolidation gate may be marked green until the independent CI/security-policy issue and the actual Rust workspace verification are resolved.
