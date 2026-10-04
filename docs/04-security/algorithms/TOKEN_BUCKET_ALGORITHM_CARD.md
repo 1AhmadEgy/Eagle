@@ -1,6 +1,6 @@
 # Eagle — Token Bucket Rate Limiting Algorithm Card
 
-Status: Candidate specification — implementation not yet bound to a runtime
+Status: Implemented in Kotlin; build verification pending
 Date: 2026-10-04
 Security role: Deterministic abuse-control primitive
 
@@ -24,7 +24,7 @@ Optional partitioning dimensions are identity, peer, session, or operation. Buck
 ## 4. Time
 Use a monotonic clock, never wall-clock time, for refill calculations.
 
-If the clock moves backward or produces an invalid delta, treat elapsed time as zero. Never create tokens from a negative delta.
+If the clock moves backward or produces an invalid delta, treat elapsed time as zero and preserve the last-refill high-water mark. A backward reading must not move the anchor backward and later create extra refill. Never create tokens from a negative delta.
 
 ## 5. Deterministic algorithm
 For request cost:
@@ -35,7 +35,7 @@ For request cost:
 5. Clamp tokens to capacity.
 6. If tokens >= cost, subtract cost and allow.
 7. Otherwise reject/throttle without increasing the balance.
-8. Update lastRefill according to the implementation's documented accounting rule.
+8. Advance lastRefill only when now is later than the stored high-water mark.
 9. Emit only privacy-minimized telemetry.
 
 Continuous reference equation:
@@ -101,6 +101,6 @@ Required vectors are in docs/04-security/algorithms/TOKEN_BUCKET_TEST_VECTORS.js
 Minimum coverage: empty bucket; exact-cost request; insufficient tokens; burst up to capacity; refill; capacity clamp; fractional refill; negative clock delta; overflow boundary; invalid policy; oversized cost; bucket isolation; bounded eviction.
 
 ## 13. Implementation gate
-This card does not authorize a production dependency or language implementation.
+The Kotlin implementation exists, but production adoption remains gated on passing build/test/lint verification and integration review.
 
 Promotion to Implemented requires an authoritative requirement, threat-model mapping, actual runtime/module boundary, passing vectors, concurrency tests where applicable, performance evidence, memory/cardinality evidence, code review, and ADR approval.
