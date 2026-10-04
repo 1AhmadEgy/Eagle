@@ -67,4 +67,12 @@ class TokenBucketTest {
         )
         assertEquals(1_000_000, bucket.availableTokensMicrotokens(1_000_000))
     }
+
+    @Test
+    fun backwardClockDoesNotMoveRefillAnchorBackward() {
+        val bucket = TokenBucket(10_000_000, 1_000_000, 0)
+        assertEquals(0L, bucket.availableTokensMicrotokens(1_000))
+        assertEquals(0L, bucket.availableTokensMicrotokens(900))
+        assertEquals(500_000L, bucket.availableTokensMicrotokens(1_500))
+    }
 }
