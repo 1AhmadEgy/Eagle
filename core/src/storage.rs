@@ -278,6 +278,6 @@ mod tests {
     #[test]
     fn protocol_error_mapping_remains_separate_from_storage_contract() {
         let id = OpaqueId::new(Vec::new());
-        assert_eq!(id, Err(ProtocolError::EmptyIdentifier));
+        assert_eq!(id, Err(crate::protocol::ProtocolError::EmptyIdentifier));
     }
 }
