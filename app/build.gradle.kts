@@ -37,6 +37,9 @@ android {
     lint {
         abortOnError = true
         warningsAsErrors = true
+        // Android 17 (API 37) is currently preview-only in the CI SDK repository;
+        // keep stable Android 16 targeting while retaining the upgrade signal.
+        warning("OldTargetApi")
     }
 }
 
