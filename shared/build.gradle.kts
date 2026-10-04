@@ -6,7 +6,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.eagle.shared"
-        compileSdk = 37
+        compileSdk = 36
         minSdk = 29
     }
 

@@ -34,9 +34,13 @@ jobs:
         run: |
           set -euo pipefail
           cargo build -p eagle-core-ffi --release
-          cargo install uniffi-bindgen@=0.32.1 --locked
           rm -rf shared/build/generated/uniffi/ci
           mkdir -p shared/build/generated/uniffi/ci
-          uniffi-bindgen generate             --config core/ffi/uniffi.toml             --library target/release/libeagle_core_ffi.so             --language kotlin             --out-dir shared/build/generated/uniffi/ci
+          cargo run -p eagle-core-ffi --features uniffi/cli --bin uniffi-bindgen -- \
+            generate \
+            --config core/ffi/uniffi.toml \
+            --library target/release/libeagle_core_ffi.so \
+            --language kotlin \
+            --out-dir shared/build/generated/uniffi/ci
           test -n "$(find shared/build/generated/uniffi/ci -type f -name '*.kt' -print -quit)"
       - run: cargo clippy --workspace --all-targets -- -D warnings
