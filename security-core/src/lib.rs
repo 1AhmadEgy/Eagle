@@ -23,7 +23,6 @@ pub enum PlatformAssurance {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AuthorizationAction {
     StartProtectedSession,
-    GrantDeviceTrust,
     UseRevokedDevice,
     RecoverHistoricalData,
 }
@@ -101,15 +100,6 @@ impl TrustRecord {
             return Err(TrustError::InvalidStateTransition);
         }
         self.state = TrustState::Suspended;
-        Ok(())
-    }
-
-    pub fn reinstate(&mut self, current_epoch: u64) -> Result<(), TrustError> {
-        if self.state != TrustState::Suspended {
-            return Err(TrustError::InvalidStateTransition);
-        }
-        self.state = TrustState::Trusted;
-        self.trust_epoch = current_epoch;
         Ok(())
     }
 
@@ -426,11 +416,6 @@ mod tests {
             PairingContext::new("pair-1", "acct-a", Duration::from_secs(60), 1).unwrap();
         revoked.approve_trust("acct-a", &mut pairing, 1).unwrap();
         revoked.revoke(2).unwrap();
-        assert_eq!(
-            revoked.reinstate(3),
-            Err(TrustError::InvalidStateTransition)
-        );
-
         let mut replaced = pending_record();
         let mut replacement_pairing =
             PairingContext::new("pair-2", "acct-a", Duration::from_secs(60), 3).unwrap();
@@ -438,10 +423,6 @@ mod tests {
             .approve_trust("acct-a", &mut replacement_pairing, 3)
             .unwrap();
         replaced.replace(4).unwrap();
-        assert_eq!(
-            replaced.reinstate(5),
-            Err(TrustError::InvalidStateTransition)
-        );
     }
 
     #[test]
