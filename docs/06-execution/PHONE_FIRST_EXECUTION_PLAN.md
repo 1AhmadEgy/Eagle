@@ -46,8 +46,8 @@
 
 ## Current implementation note
 
-The Phase 1 Rust core remains intentionally cryptography-free. It implements deterministic trust/session state transitions and downgrade rejection.
+The Phase 1 Rust core remains intentionally cryptography-free. It implements deterministic trust/session state transitions, protocol validation, and the platform-neutral storage record/deletion/recovery contract.
 
-The new KMP layer is currently a domain/port scaffold. The Rust FFI exposes the future contract but deliberately fails closed for operations that require the still-pending cryptographic, key-management, and serialization ADRs.
+The new KMP layer is currently a domain/port scaffold. The Rust FFI exposes the future contract but deliberately fails closed for operations that require the still-pending cryptographic, key-management, and serialization ADRs. Storage likewise remains a contract/test layer until ADR-0011 is accepted.
 
 Generated bindings are not committed yet because the native library packaging targets have not been defined. The generator script is provided for reproducible binding generation once the Rust artifact is available.
