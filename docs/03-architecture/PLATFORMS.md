@@ -5,6 +5,22 @@
 > **Related architecture:** ADR-0015 + A→E architecture split (working baseline)  
 > **Last updated:** 2026-10-04
 
+## 0. Evidence correction — 2026-10-04
+
+This document is a **target platform strategy**, not proof that the listed Rust Security Core, KMP Shared Layer, UniFFI, or Compose Multiplatform implementation already exists.
+
+Current source verification on `ai/reverse-engineering-foundation` found an Android/JVM Kotlin runtime and a deterministic security foundation under `app/src/main/java/com/eagle/app/security/`. It did **not** verify Rust, KMP, UniFFI, iOS, or desktop implementations.
+
+Accordingly:
+
+- Rust Security Core = **Target / candidate**, not verified implementation.
+- KMP Shared Layer = **Target / candidate**, not verified implementation.
+- Compose Multiplatform = **Target / candidate**, not verified implementation.
+- iOS/Desktop/Web directories = **Target**, not verified implementation.
+- Android security foundation = **Verified source**, subject to build/CI execution evidence.
+
+Technology selection is governed by ADR-0015 and must follow evidence before adoption.
+
 ## 1. Purpose
 
 This document is the canonical platform reference for Eagle.
