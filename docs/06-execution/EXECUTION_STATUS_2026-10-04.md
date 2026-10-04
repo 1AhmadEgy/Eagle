@@ -64,3 +64,12 @@ Required next evidence:
 ADR-0008, ADR-0009, ADR-0010, ADR-0011, ADR-0012, and ADR-0015 remain Proposed unless an explicit review/approval record closes their gates.
 
 No cryptographic algorithm, key-management implementation, concrete storage engine, or concrete transport technology is accepted by this status record.
+
+## Latest correction
+
+Commit `b895bbea43c4e644a1d8aec7099e5217c8e7c070` sets the Android application `targetSdk` to API 37 (Android 17) while keeping `compileSdk` at API 36 for the current CI environment. Android documentation explicitly states that `compileSdk` and `targetSdk` are independent; API 37 is the current Android 17 level. The Test Lab runner successfully installed and verified API 36 previously, while API 37 package installation was unavailable on that runner.
+
+The prior verification target `105ab03889b3caa835928f11c1866cd88d822137` had Rust Core fully green, including workspace tests, UniFFI generation, and clippy. Its remaining Test Lab failure was Lint `OldTargetApi`; this is the issue addressed by the latest targetSdk correction.
+
+The new CI/Test Lab executions for `b895bbea43c4e644a1d8aec7099e5217c8e7c070` are currently running and are not yet accepted as green evidence.
+
