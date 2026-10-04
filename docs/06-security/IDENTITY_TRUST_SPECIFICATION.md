@@ -312,7 +312,15 @@ At minimum:
 - a pairing token is single-use;
 - cancelled/expired pairing contexts cannot later be resumed.
 
-### 6.5 Anti-replay requirement
+### 6.5 Approval verification boundary
+
+The Security Core MUST require an explicit approval-verifier interface before promoting a PENDING device to TRUSTED.
+
+That verifier is the integration seam for the final pairing protocol and must validate the authenticated approval evidence, including endpoint binding and user authorization according to the approved protocol.
+
+A permissive test double may exist only inside tests. Production integration MUST NOT substitute an unconditional verifier.
+
+### 6.6 Anti-replay requirement
 
 A completed pairing transcript must not be reusable.
 
