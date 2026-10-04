@@ -99,7 +99,7 @@ The Rust crate includes negative and state-transition tests for:
 - monotonic revocation epoch tracking;
 - cancelled pairing.
 
-**Result:** IMPLEMENTED; CI verification pending final workflow completion.
+**Result:** IMPLEMENTED; latest Rust verification is passing in GitHub CI.
 
 ## Stage 10 — Security audit
 Static review confirms:
@@ -109,9 +109,9 @@ Static review confirms:
 - platform assurance does not automatically elevate trust;
 - AI is not placed in the authorization path.
 
-Known concern remains external to this workstream: the repository's CI security-policy verifier currently detects unpinned actions in `.github/workflows/testlab.yml` on the base branch.
+GitHub CI evidence shows the secret scan and security-policy boundary checks passing on the current workstream baseline.
 
-**Result:** CONDITIONAL PASS for workstream; repository-wide security gate remains open.
+**Result:** PASS for implemented workstream controls; protocol/key-management review remains separate.
 
 ## Stage 11 — Verification
 Verification is delegated to independent GitHub Actions because the local runtime available for this agent does not include Cargo and cannot reach GitHub over the network.
@@ -120,17 +120,15 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Their final results are the authoritative execution evidence.
-
-**Result:** IN PROGRESS / PENDING FINAL CI STATE.
+Current evidence includes successful repository verification and 14 passing Rust identity/trust unit tests on the verified CI baseline. The platform Build + Unit + Lint workflow is rerun after the Android 17/API 37 alignment and remains an independent gate.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
 1. ADR-005/006/007 are not approved.
 2. Final Key Management and Protocol profiles are unresolved.
-3. Independent CI verification is not yet complete.
-4. Repository-wide security-policy baseline currently reports workflow action pinning failures in `testlab.yml`.
-5. Android CI currently has an independent SDK provisioning failure for `platforms;android-37`.
+3. Independent platform Build + Unit + Lint verification must complete on the latest Android 17/API 37 alignment.
+4. Final protocol/key-management integration and cross-platform evidence are missing.
+5. ADR-005/006/007 remain unapproved.
 
 **Final gate:** BLOCKED.
 
