@@ -11,40 +11,40 @@ class TokenBucketTest {
     fun exactCostIsAllowed() {
         val bucket = TokenBucket(10_000_000, 1_000_000)
         assertTrue(bucket.tryConsume(10_000_000, 0))
-        assertEquals(0, bucket.availableTokensMicrotokens(0))
+        assertEquals(0L, bucket.availableTokensMicrotokens(0))
     }
 
     @Test
     fun insufficientTokensAreLimitedWithoutBalanceChange() {
         val bucket = TokenBucket(10_000_000, 1_000_000, 3_000_000)
         assertFalse(bucket.tryConsume(4_000_000, 0))
-        assertEquals(3_000_000, bucket.availableTokensMicrotokens(0))
+        assertEquals(3_000_000L, bucket.availableTokensMicrotokens(0))
     }
 
     @Test
     fun refillAllowsAfterElapsedTime() {
         val bucket = TokenBucket(10_000_000, 2_000_000, 3_000_000)
         assertTrue(bucket.tryConsume(4_000_000, 1_000))
-        assertEquals(1_000_000, bucket.availableTokensMicrotokens(1_000))
+        assertEquals(1_000_000L, bucket.availableTokensMicrotokens(1_000))
     }
 
     @Test
     fun refillClampsAtCapacity() {
         val bucket = TokenBucket(10_000_000, 100_000_000)
-        assertEquals(10_000_000, bucket.availableTokensMicrotokens(1_000))
+        assertEquals(10_000_000L, bucket.availableTokensMicrotokens(1_000))
     }
 
     @Test
     fun backwardClockCannotCreateTokens() {
         val bucket = TokenBucket(10_000_000, 10_000_000, 3_000_000)
         assertTrue(bucket.tryConsume(3_000_000, 1_000))
-        assertEquals(0, bucket.availableTokensMicrotokens(900))
+        assertEquals(0L, bucket.availableTokensMicrotokens(900))
     }
 
     @Test
     fun fractionalSecondRefillIsRepresentable() {
         val bucket = TokenBucket(10_000_000, 2_000_000, 0)
-        assertEquals(500_000, bucket.availableTokensMicrotokens(250))
+        assertEquals(500_000L, bucket.availableTokensMicrotokens(250))
     }
 
     @Test
@@ -65,7 +65,7 @@ class TokenBucketTest {
             refillMicrotokensPerSecond = Long.MAX_VALUE,
             initialTokensMicrotokens = 0
         )
-        assertEquals(1_000_000, bucket.availableTokensMicrotokens(1_000_000))
+        assertEquals(1_000_000L, bucket.availableTokensMicrotokens(1_000_000))
     }
 
     @Test
