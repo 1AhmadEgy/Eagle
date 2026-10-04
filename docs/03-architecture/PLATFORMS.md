@@ -24,7 +24,7 @@ This document describes platform scope. It does **not** replace ADRs that define
 
 | Phase | Platform | Priority | Status |
 |---|---|---:|---|
-| Phase 1 | Android | 1 | In progress — `androidApp/` |
+| Phase 1 | Android | 1 | Target architecture — source tree not currently verified |
 | Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned — `desktopApp/` |
 | Phase 2 | iOS | 3 | Planned — `iosApp/` |
 | Deferred | Web | — | Deferred — `webApp/` later |
@@ -217,7 +217,9 @@ No platform should be added merely by creating a new application directory.
 
 ## 10. Current baseline
 
-**Current implementation focus:** Android.
+**Current implementation target:** Android.
+
+**Current source evidence:** Android application source is not currently verified in the branch baseline; see `docs/08-status/SOURCE_TRUTH_RECONCILIATION.md`.
 
 **Parallel architectural focus:** KMP Shared Layer + Desktop readiness.
 
