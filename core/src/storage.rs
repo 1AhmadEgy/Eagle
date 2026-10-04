@@ -1,4 +1,4 @@
-use crate::protocol::{OpaqueId, ProtocolError, MAX_PAYLOAD_BYTES};
+use crate::protocol::{OpaqueId, MAX_PAYLOAD_BYTES};
 
 /// Stable upper bound for persisted application records.
 ///
