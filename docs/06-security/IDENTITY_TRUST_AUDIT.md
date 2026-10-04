@@ -3,7 +3,7 @@
 **Audit scope:** Identity & Trust workstream  
 **Audit baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
 **Verified execution head before latest hardening:** `6de670a947c06b8bd00a1944b4f8743f5b13d5da`
-**Latest unverified hardening head:** `07933eb53b2f8497e833b1af85f0dd75fdc270b9`  
+**Latest unverified hardening head:** `07cec209ced2d747cdbad398db92995ff9762c34`  
 **Execution branch:** `execution/identity-trust-foundation-v1`  
 **Audit posture:** evidence-first / fail-closed
 
@@ -42,7 +42,7 @@ Current main application is a minimal Android shell; it does not contain an iden
 **Result:** COMPLETE.
 
 ## Stage 5 — Version comparison / canonicalization
-The current canonical platform strategy was compared against the historical blueprint. The security-core boundary was preserved. Historical alternatives that conflict with the project-level P2P-only requirement are not silently promoted to current architecture.
+The current canonical platform strategy was compared against the historical blueprint. The security-core boundary was preserved. Historical alternatives that conflict with the project-level P2P-only requirement are not silently promoted to current architecture. The execution branch remains based on the recorded 6c46bf baseline while current `main` has advanced independently; no direct-to-main synchronization is performed automatically because it would change branch provenance and may introduce unrelated cross-specialty changes.
 
 **Result:** COMPLETE.
 
@@ -131,7 +131,7 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Current prior evidence includes successful repository verification, 22 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. Fresh independent verification is required for the latest pairing-hardening commits.
+Current prior evidence includes successful repository verification, 22 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission. The latest hardening adds four additional negative tests (24→26 total). Fresh independent verification is required before those new tests are marked PASS.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
@@ -154,3 +154,14 @@ The Security Core now binds a pairing context to the intended device identity in
 The scenario corpus was restored on the execution branch and extended with pairing-device-mismatch and malformed-pairing-context cases. These controls remain protocol-boundary hardening and do not assert that transcript authentication or cryptographic proof is complete.
 
 **Gate impact:** no weakening of the release gate. Identity & Trust remains BLOCKED until approved ADRs, final cryptographic/key-management and protocol profiles, cross-platform parity, end-to-end adversarial tests, revocation reconciliation, and independent security review are evidenced.
+
+
+## Additional hardening record
+
+The latest Security Core delta addresses three fail-closed boundary cases:
+- pairing context is bound to the exact intended device identity;
+- malformed pairing identifiers are rejected before activation;
+- membership statements whose issuance time is after their expiry are rejected;
+- expiry timestamp overflow fails closed instead of saturating.
+
+These controls improve local policy robustness without selecting any concrete cryptographic primitive or protocol profile.
