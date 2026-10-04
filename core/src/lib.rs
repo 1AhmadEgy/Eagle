@@ -94,7 +94,10 @@ impl SecurityContext {
     }
 
     #[cfg(test)]
-    #[expect(dead_code, reason = "test scaffold until approved verifier is integrated")]
+    #[expect(
+        dead_code,
+        reason = "test scaffold until approved verifier is integrated"
+    )]
     pub(crate) fn accept_verified_authentication(&mut self) -> Result<(), SecurityError> {
         if self.trust != TrustState::Pending || self.session != SessionState::Authenticating {
             return Err(SecurityError::InvalidSessionTransition);
