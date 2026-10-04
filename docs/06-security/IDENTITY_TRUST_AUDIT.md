@@ -2,7 +2,7 @@
 
 **Audit scope:** Identity & Trust workstream  
 **Audit baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
-**Verified execution head:** `cdab10de4f3c2e374f12976230fb71c59ea7b0e2`  
+**Verified execution head:** `6de670a947c06b8bd00a1944b4f8743f5b13d5da`  
 **Execution branch:** `execution/identity-trust-foundation-v1`  
 **Audit posture:** evidence-first / fail-closed
 
@@ -87,7 +87,7 @@ No custom cryptographic primitive or secret material was introduced.
 **Result:** IMPLEMENTED BASELINE.
 
 ## Stage 9 — Tests
-The Rust crate includes negative and state-transition tests for:
+The Rust crate includes negative, membership, identity-change, and state-transition tests for:
 - pending self-promotion;
 - explicit trust approval;
 - account mismatch;
@@ -98,9 +98,18 @@ The Rust crate includes negative and state-transition tests for:
 - replacement;
 - account/data recovery separation;
 - monotonic revocation epoch tracking;
-- cancelled pairing.
+- cancelled pairing;
+- malformed public identity keys;
+- malformed membership time windows;
+- membership/device reuse across accounts;
+- duplicate device membership;
+- stale membership epochs;
+- identity-change quarantine and explicit reverification;
+- unchanged identity-change rejection;
+- suspended authorization denial;
+- trust epoch overflow.
 
-**Result:** IMPLEMENTED; GitHub CI verified 14/14 Rust identity/trust unit tests passing.
+**Result:** IMPLEMENTED; GitHub CI verified 22/22 Rust identity/trust unit tests passing.
 
 ## Stage 10 — Security audit
 Static review confirms:
@@ -121,7 +130,7 @@ The branch has triggered:
 - CI;
 - Eagle Test Lab.
 
-Current evidence includes successful repository verification, 14 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission.
+Current evidence includes successful repository verification, 22 passing Rust identity/trust unit tests, successful Android Unit + Lint + Debug build verification on API 36, successful CodeQL analysis, and successful dependency submission.
 
 ## Stage 12 — Release Gate
 Identity & Trust is not release-ready because:
@@ -129,7 +138,8 @@ Identity & Trust is not release-ready because:
 2. Final Key Management and Protocol profiles are unresolved.
 3. Final protocol/key-management integration and cross-platform evidence are missing.
 4. Adversarial end-to-end identity/protocol tests remain pending until those boundaries are frozen.
-5. ADR-005/006/007 remain unapproved.
+5. Cross-platform adapter parity remains pending.
+6. ADR-005/006/007 remain unapproved.
 
 **Final gate:** BLOCKED.
 
