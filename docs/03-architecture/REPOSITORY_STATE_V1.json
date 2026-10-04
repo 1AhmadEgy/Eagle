@@ -48,7 +48,8 @@
     "rust_security_core": false,
     "kmp_shared_layer": false,
     "mesh_engine": false,
-    "persistent_messaging_storage": false
+    "persistent_messaging_storage": false,
+    "rust_security_state_machine_foundation": true
   },
   "android_build": {
     "module": "app",
@@ -63,12 +64,23 @@
     "actions/setup-java": "de7274f081f381c8f8158605e0321c36c376e2e6",
     "gradle/actions/setup-gradle": "f29f5a9d7b09a7c6b29859002d29d24e1674c884",
     "actions/upload-artifact": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
-    "gitleaks/gitleaks-action": "e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e"
+    "gitleaks/gitleaks-action": "e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e",
+    "dtolnay/rust-toolchain": "7e38f4b43b4db5c8dd498af069a4f6196df1d067",
+    "Swatinem/rust-cache": "66b1e9526150e74ddd7e4190356facd783fb3b44"
   },
   "repository_metadata": {
     "visibility_observed": "public",
     "ownership_intent": "PRIVATE / ALL RIGHTS RESERVED",
     "legal_holder": "UNCONFIRMED",
     "visibility_change_requires_owner_action": true
+  },
+  "rust_foundation": {
+    "status": "implemented-foundation-only",
+    "crate": "core",
+    "package": "eagle-core",
+    "toolchain": "1.99.0",
+    "cryptography_implemented": false,
+    "identity_verification_implemented": false,
+    "production_security_core": false
   }
 }
