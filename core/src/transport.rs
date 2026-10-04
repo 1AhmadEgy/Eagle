@@ -164,10 +164,7 @@ mod tests {
     #[test]
     fn transport_requires_connection_before_send() {
         let mut transport = MemoryTransport::new();
-        assert_eq!(
-            transport.send(frame()),
-            Err(TransportError::NotConnected)
-        );
+        assert_eq!(transport.send(frame()), Err(TransportError::NotConnected));
     }
 
     #[test]
@@ -220,16 +217,14 @@ mod tests {
             flags: 0,
         };
 
-        let result = TransportFrame::new(
-            header,
-            vec![0xA5; MAX_PAYLOAD_BYTES + 1],
+        assert_eq!(
+            result,
+            Err(TransportError::Protocol(ProtocolError::PayloadTooLarge))
         );
 
         assert_eq!(
             result,
-            Err(TransportError::Protocol(
-                ProtocolError::PayloadTooLarge
-            ))
+            Err(TransportError::Protocol(ProtocolError::PayloadTooLarge))
         );
     }
 }
