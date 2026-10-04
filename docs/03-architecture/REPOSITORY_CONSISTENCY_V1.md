@@ -55,3 +55,5 @@ This status is intentionally machine-checked.
 - CI artifact upload behavior was changed from an error on missing evidence files to a warning so a secondary artifact failure cannot obscure a primary verification failure.\n- Test Lab actions were upgraded/pinned to current immutable releases observed on 2026-10-04: checkout v7.0.1, setup-java v6.0.1, setup-gradle v5.0.1. Current releases were verified against their upstream GitHub release histories.
 
 - 2026-10-04 second CI validation isolated the AGP matcher as still failing despite the correct source file; the gate was simplified to exact-text matching for the root plugin declaration. The workflow parser was also corrected so YAML whitespace escaping is interpreted by Python rather than as literal backslashes.
+
+- Android API 37 is currently documented upstream as Android 17, with the SDK setup using the preview/canary channel and the platform package coordinate platforms;android-37.0. The previous CI coordinate platforms;android-37 was therefore invalid on the current SDK repository. CI now requests the documented 37.0 package and verifies that installed directory.
