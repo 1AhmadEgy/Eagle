@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "document": "Eagle Repository State",
+  "last_verified_utc": "2026-10-04",
+  "verification_scope": "Current implementation baseline on main, excluding archive/chatgpt-historical/",
+  "actual_android_module": "app",
+  "planned_platform_paths": {
+    "desktop": "desktopApp",
+    "ios": "iosApp",
+    "web": "webApp"
+  },
+  "planned_platform_paths_are_not_required_to_exist": true,
+  "adr_state": {
+    "ADR-0008": {"status": "proposed", "representation": "docs/03-architecture/adr/ADR-0008.md"},
+    "ADR-0009": {"status": "proposed", "representation": "docs/03-architecture/adr/ADR-0009.md"},
+    "ADR-0010": {"status": "proposed", "representation": "docs/03-architecture/adr/ADR-0010.md"},
+    "ADR-0011": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"},
+    "ADR-0012": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"},
+    "ADR-0013": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"},
+    "ADR-0014": {"status": "proposed-scope", "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"}
+  },
+  "implementation_baseline": {
+    "android_app": true,
+    "real_cryptography": false,
+    "device_identity": false,
+    "approved_e2e_protocol": false,
+    "rust_security_core": false,
+    "kmp_shared_layer": false,
+    "mesh_engine": false,
+    "persistent_messaging_storage": false
+  },
+  "android_build": {
+    "module": "app",
+    "agp": "9.4.0",
+    "compile_sdk": 37,
+    "target_sdk": 37,
+    "min_sdk": 29,
+    "unit_test_framework": "junit:junit:4.13.2"
+  }
+}
