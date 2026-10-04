@@ -2,6 +2,8 @@
 set -euo pipefail
 
 echo "== Eagle CI verification =="
+
+python3 scripts/ci/verify-repository-consistency.py
 echo "OS: $(uname -s)"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
