@@ -42,7 +42,6 @@ class AiContractsTest {
             ),
             policy = policy
         )
-
         assertTrue(provider.capabilities.onPremise)
         assertTrue(provider.policy.allowsTask(TaskType.CODE_REVIEW))
         assertFalse(provider.policy.allowsTask(TaskType.CRYPTO_REVIEW))
@@ -54,19 +53,39 @@ class AiContractsTest {
             maxAutoPatchSeverity = FindingSeverity.CRITICAL,
             requiresHumanForCrypto = true
         )
+        assertFalse(policy.allowsAutomaticPatch(FindingSeverity.CRITICAL, true))
+        assertTrue(policy.allowsAutomaticPatch(FindingSeverity.LOW, false))
+    }
 
-        assertFalse(
-            policy.allowsAutomaticPatch(
-                severity = FindingSeverity.CRITICAL,
-                cryptoSensitive = true
+    @Test
+    fun cryptoSensitivePatchProposalCannotSkipHumanApproval() {
+        try {
+            PatchProposal(
+                id = "p1",
+                findingId = "f1",
+                patch = "safe-looking patch",
+                touchedPaths = setOf("app/src/main/Security.kt"),
+                cryptoSensitive = true,
+                requiresHumanApproval = false
             )
-        )
-        assertTrue(
-            policy.allowsAutomaticPatch(
-                severity = FindingSeverity.LOW,
-                cryptoSensitive = false
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        throw AssertionError("Expected crypto-sensitive patch to require human approval")
+    }
+
+    @Test
+    fun requestAndResultPayloadsAreBounded() {
+        try {
+            AnalyzeRequest(
+                taskType = TaskType.CODE_REVIEW,
+                targetCommit = "sha",
+                context = "x".repeat(32_769)
             )
-        )
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        throw AssertionError("Expected oversized analysis context to be rejected")
     }
 
     @Test
