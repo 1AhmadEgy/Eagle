@@ -10,6 +10,7 @@
 - docs/03-architecture/ADR_INDEX.md
 - docs/03-architecture/CONVERSATION_HANDOFF_2026-10-02.md
 - docs/03-architecture/adr/ADR-0011.md
+- docs/03-architecture/adr/ADR-0012.md
 - docs/03-architecture/adr/ADR-0015-RUST-FFI-KMP.md
 
 ## Issue records
@@ -23,6 +24,7 @@
 - ADR-0009: https://github.com/1AhmadEgy/Eagle/issues/31
 - ADR-0010: https://github.com/1AhmadEgy/Eagle/issues/32
 - ADR-0011: https://github.com/1AhmadEgy/Eagle/issues/43
+- ADR-0012: https://github.com/1AhmadEgy/Eagle/issues/44
 - ADR-0015: repository ADR; review evidence belongs on PR #41 / later review issue.
 
 ## Technical ADR worklist
