@@ -35,6 +35,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import tomllib
+          import os
           from pathlib import Path
 
           data = tomllib.loads(Path("rust-toolchain.toml").read_text(encoding="utf-8"))
@@ -50,7 +51,7 @@ jobs:
           if set(components) != {"rustfmt", "clippy"}:
               raise SystemExit(f"unexpected Rust components: {components!r}")
 
-          with open("${GITHUB_OUTPUT}", "a", encoding="utf-8") as output:
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               output.write(f"channel={channel}\n")
               output.write(f"components={','.join(components)}\n")
           PY
