@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Eagle Token Bucket Reference Vectors",
+  "version": "1.0.0",
+  "time_unit": "milliseconds",
+  "token_unit": "microtokens",
+  "cases": [
+    {"id":"initial-exact-cost","capacity":10,"initial_tokens":10,"refill_per_second":1,"elapsed_ms":0,"cost":10,"expected":"allow","expected_tokens":0},
+    {"id":"insufficient-no-refill","capacity":10,"initial_tokens":3,"refill_per_second":1,"elapsed_ms":0,"cost":4,"expected":"limit","expected_tokens":3},
+    {"id":"refill-and-allow","capacity":10,"initial_tokens":3,"refill_per_second":2,"elapsed_ms":1000,"cost":4,"expected":"allow","expected_tokens":1},
+    {"id":"capacity-clamp","capacity":10,"initial_tokens":9,"refill_per_second":100,"elapsed_ms":1000,"cost":10,"expected":"allow","expected_tokens":0},
+    {"id":"burst-at-capacity","capacity":5,"initial_tokens":5,"refill_per_second":1,"elapsed_ms":0,"cost":5,"expected":"allow","expected_tokens":0},
+    {"id":"negative-clock-delta","capacity":10,"initial_tokens":3,"refill_per_second":10,"elapsed_ms":-100,"cost":3,"expected":"allow","expected_tokens":0},
+    {"id":"oversized-cost-invalid","capacity":5,"initial_tokens":5,"refill_per_second":1,"elapsed_ms":0,"cost":6,"expected":"invalid"},
+    {"id":"zero-cost-invalid","capacity":5,"initial_tokens":5,"refill_per_second":1,"elapsed_ms":0,"cost":0,"expected":"invalid"},
+    {"id":"fractional-refill","capacity":10,"initial_tokens":0,"refill_per_second":2,"elapsed_ms":250,"cost":0.5,"expected":"allow","expected_tokens":0},
+    {"id":"large-product-overflow-guard","capacity":1000000,"initial_tokens":0,"refill_per_second":9223372036854,"elapsed_ms":9223372036854,"cost":1,"expected":"allow_or_safe_saturation","constraint":"implementation must not wrap arithmetic"}
+  ]
+}
