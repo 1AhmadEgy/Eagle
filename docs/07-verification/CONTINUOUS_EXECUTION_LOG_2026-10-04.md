@@ -170,16 +170,16 @@ The repository also does not contain a Gradle Wrapper, so there is no self-conta
 
 ## 6. Next gated slice
 
-Implement deterministic FeatureVector extraction from bounded SecurityEvent windows.
+The deterministic SecurityEvent -> FeatureVector baseline is now implemented.
 
-Required before implementation is promoted:
-- feature definitions;
-- units and scaling;
-- missing-value semantics;
-- bounded input window;
-- privacy classification;
-- deterministic test vectors;
-- performance evidence;
+Next gate: evaluate Z-score, EWMA, and Median/MAD against representative real telemetry. No production anomaly detector or ML runtime is authorized yet.
+
+Required evidence before promotion:
+- representative dataset identity/hash;
+- feature distribution and drift analysis;
+- false-positive/false-negative impact analysis where labels exist;
+- deterministic threshold policy;
+- performance/resource measurements;
 - ADR update.
 
-Only after this baseline is measured should Z-score/EWMA be compared, followed by any heavier ML candidate.
+Heavier ML remains deferred until simpler baselines demonstrate material limitations.
