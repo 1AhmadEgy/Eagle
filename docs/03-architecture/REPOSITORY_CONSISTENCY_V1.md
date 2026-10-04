@@ -12,7 +12,7 @@ This gate turns the evidence-first rule into executable repository policy. It is
 - ADR-0011..0014 remain explicitly pending and are represented by the shared worklist;
 - Android build/tooling facts match the current implementation baseline;
 - the current app does not silently gain libsignal, OpenMLS, libp2p, SQLCipher, or Room before the component gate is passed;
-- product-security maturity claims remain false until actual implementation evidence exists.
+- product-security maturity claims remain false until actual implementation evidence exists.\n- external GitHub Actions and reusable workflows use full 40-character commit SHAs; local reusable workflows may use relative paths.
 
 ## Why this exists
 
@@ -52,4 +52,4 @@ This status is intentionally machine-checked.
 
 - 2026-10-04 CI run 37210145630 exposed two gate defects: AGP was read from the app module instead of the root build file, and the stale-token detector matched the gate's own documentation/example text.
 - The gate was corrected to read the root AGP declaration and to exclude the self-documenting gate files from that specific stale-token assertion.
-- CI artifact upload behavior was changed from an error on missing evidence files to a warning so a secondary artifact failure cannot obscure a primary verification failure.
+- CI artifact upload behavior was changed from an error on missing evidence files to a warning so a secondary artifact failure cannot obscure a primary verification failure.\n- Test Lab actions were upgraded/pinned to current immutable releases observed on 2026-10-04: checkout v7.0.1, setup-java v6.0.1, setup-gradle v5.0.1. Current releases were verified against their upstream GitHub release histories.
