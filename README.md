@@ -4,7 +4,7 @@ Eagle is a private-communication project focused on a security-first architectur
 
 ## Current status
 
-**Foundation / Evidence Collection / Stack Discovery**
+Foundation / Evidence Collection / Stack Discovery
 
 The repository currently contains:
 
@@ -12,9 +12,11 @@ The repository currently contains:
 - security and provenance policies;
 - requirements/readiness/gap tracking;
 - Android application bootstrap;
-- test/bootstrap infrastructure;
+- CI/Test Lab workflows;
+- unit-test bootstrap;
 - AI-agent development controls;
-- historical-source integration records.
+- historical-source integration records;
+- evidence-based external component due diligence.
 
 The executable application is **not yet a production-ready private messenger or completed PrivateMesh network**.
 
@@ -25,8 +27,20 @@ The executable application is **not yet a production-ready private messenger or 
 3. Reuse mature components before writing replacements.
 4. Do not implement novel cryptographic primitives when established reviewed primitives are suitable.
 5. Security-sensitive changes require explicit verification.
-6. Missing evidence remains **Pending**, not Pass.
+6. Missing evidence remains Pending, not Pass.
 7. Historical material is preserved with provenance and is not trusted automatically.
+
+## Current verified stack baseline
+
+- Android namespace: com.eagle.app
+- minSdk: 29
+- compileSdk/targetSdk: 37
+- Android Gradle Plugin: 9.4.0
+- CI Gradle: 9.6.0
+- CI JDK: 17
+- application version: 0.1.0
+
+This is a repository baseline, not a claim of production readiness.
 
 ## Canonical documentation
 
@@ -36,8 +50,10 @@ The executable application is **not yet a production-ready private messenger or 
 - [Execution Continuation Plan](docs/13-execution/EXECUTION_CONTINUATION_PLAN.md)
 - [Gap Register](docs/11-gaps/GAP_REGISTER.md)
 - [Documentation Status](docs/08-status/DOCUMENTATION_STATUS.md)
+- [Repository Fact Check — 2026-10-04](docs/14-audit/REPOSITORY_FACT_CHECK_2026-10-04.md)
 - [Evidence, Architecture & Reuse Audit](docs/14-audit/EVIDENCE_ARCHITECTURE_REUSE_AUDIT_2026-10-04.md)
 - [Reuse-First Technology Register](docs/14-audit/REUSE_FIRST_COMPONENT_REGISTER.md)
+- [Component Due Diligence — 2026-10-04](docs/14-audit/COMPONENT_DUE_DILIGENCE_2026-10-04.md)
 
 ## First executable product slice
 
