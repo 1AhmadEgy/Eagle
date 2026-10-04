@@ -53,3 +53,5 @@ This status is intentionally machine-checked.
 - 2026-10-04 CI run 37210145630 exposed two gate defects: AGP was read from the app module instead of the root build file, and the stale-token detector matched the gate's own documentation/example text.
 - The gate was corrected to read the root AGP declaration and to exclude the self-documenting gate files from that specific stale-token assertion.
 - CI artifact upload behavior was changed from an error on missing evidence files to a warning so a secondary artifact failure cannot obscure a primary verification failure.\n- Test Lab actions were upgraded/pinned to current immutable releases observed on 2026-10-04: checkout v7.0.1, setup-java v6.0.1, setup-gradle v5.0.1. Current releases were verified against their upstream GitHub release histories.
+
+- 2026-10-04 second CI validation isolated the AGP matcher as still failing despite the correct source file; the gate was simplified to exact-text matching for the root plugin declaration. The workflow parser was also corrected so YAML whitespace escaping is interpreted by Python rather than as literal backslashes.
