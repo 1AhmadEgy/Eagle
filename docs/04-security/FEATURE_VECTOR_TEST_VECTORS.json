@@ -1,0 +1,26 @@
+{
+  "document_type": "reference-test-vectors",
+  "version": "1.0.0",
+  "window_start_ms": 0,
+  "window_end_ms": 60000,
+  "cases": [
+    {
+      "id": "mixed-security-events",
+      "event_count": 4,
+      "events_per_minute_micros": 4000000,
+      "rejection_rate_bps": 7500,
+      "replay_failure_rate_bps": 2500,
+      "rate_limit_rate_bps": 2500,
+      "session_transition_reject_rate_bps": 2500
+    },
+    {
+      "id": "empty-window",
+      "event_count": 0,
+      "events_per_minute_micros": 0,
+      "rejection_rate_bps": 0,
+      "replay_failure_rate_bps": 0,
+      "rate_limit_rate_bps": 0,
+      "session_transition_reject_rate_bps": 0
+    }
+  ]
+}
