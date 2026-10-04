@@ -41,11 +41,7 @@ impl From<ProtocolError> for DeviceError {
 }
 
 impl Device {
-    pub fn new(
-        device_id: OpaqueId,
-        account_id: OpaqueId,
-        platform: Platform,
-    ) -> Self {
+    pub fn new(device_id: OpaqueId, account_id: OpaqueId, platform: Platform) -> Self {
         Self {
             device_id,
             account_id,
@@ -71,7 +67,10 @@ impl Device {
     }
 
     pub fn revoke(&mut self) -> Result<(), DeviceError> {
-        if matches!(self.trust, DeviceTrustState::Unknown | DeviceTrustState::Revoked) {
+        if matches!(
+            self.trust,
+            DeviceTrustState::Unknown | DeviceTrustState::Revoked
+        ) {
             return Err(DeviceError::InvalidTransition);
         }
         self.trust = DeviceTrustState::Revoked;
