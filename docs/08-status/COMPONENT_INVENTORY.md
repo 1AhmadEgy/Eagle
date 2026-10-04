@@ -13,8 +13,8 @@
 | TokenBucket | Security/Core candidate | Implemented Kotlin source | Present; execution unverified | Android/JVM | Keep → audit JVM dependencies → extract shared contract |
 | SecurityEvent | Security/Core candidate | Implemented Kotlin source | Present; execution unverified | Android/JVM | Keep → extract shared contract |
 | FeatureVector / SecurityFeatureExtractor | Security/Core candidate | Implemented Kotlin source | Present; execution unverified | Android/JVM | Keep → audit JVM dependencies → extract shared contract |
-| StatisticalBaseline | Security/Analytics candidate | Implemented Kotlin source | Present; execution unverified | Android/JVM | Keep → replace/audit JVM-only math dependency before shared extraction |
-| DeterministicSecurityEngine | Security/Core orchestration | Implemented Kotlin source | Present; execution unverified | Android/JVM; platform-neutral API | Keep → extract into first shared module |
+| StatisticalBaseline | Security/Analytics candidate | Implemented Kotlin source | Present; execution unverified | Android/JVM | Keep → benchmark → extract/adapt JVM math dependency |
+| DeterministicSecurityEngine | Security/Core orchestration | Implemented Kotlin source | Present; execution unverified | Android/JVM; platform-neutral API | Keep → integrate SecurityEvent emission and shared-core extraction |
 | Identity / Authentication contracts | Core boundary | Implemented Kotlin contracts | Present; execution unverified | Android/JVM; shared-compatible API | Keep → protocol adapter pending |
 | Crypto boundary | Security/Core boundary | Implemented interface only | Contract tests present; execution unverified | Android/JVM; shared-compatible API | Keep → bind after protocol decision |
 | Key Management boundary | Security/Core boundary | Implemented interface only | Contract tests present; execution unverified | Android/JVM; shared-compatible API | Keep → native adapter pending |
@@ -29,7 +29,7 @@
 | Desktop secure storage | Native | Not verified | Pending | Windows/macOS/Linux | Use OS-native adapters; exact implementation pending |
 | Messaging runtime | Application/Core | Not verified | Pending | None | Future |
 | Mesh transport | Networking | Not verified | Pending | None | Do not assume |
-| Product ML runtime | AI | Not verified | Pending | None | Deferred until real data/evaluation exists |
+| Product ML/LLM runtime | AI | Not verified | Pending | None | Deferred until real data/evaluation exists |
 
 ## Current code locations
 
@@ -87,6 +87,19 @@ Do not describe the current implementation as:
 - KMP Shared Layer.
 
 Those remain target/unverified states.
+
+## AI contract surface
+
+Current AI contracts are implemented under `app/src/main/java/com/eagle/app/ai/`:
+- `AIProvider`
+- `ProviderCapabilities`
+- `ProviderPolicy`
+- `TaskType`
+- `ReasoningDepth`
+- `SecurityFinding`
+- `EvidenceRecord`
+
+They are contract/evidence infrastructure only. No concrete LLM/model runtime, adapter, signer, or persistence backend is verified.
 
 ## Latest increment — 2026-10-04
 
