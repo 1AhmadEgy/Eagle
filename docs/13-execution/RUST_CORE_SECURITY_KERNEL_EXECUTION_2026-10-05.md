@@ -35,23 +35,26 @@ This branch intentionally does not promote an unapproved cryptographic protocol,
 - Trust, session, rekey, revocation, and replacement transitions fail closed.
 - Protocol negotiation is bounded and monotonic.
 - Integration and unit tests cover negative/failure paths.
+- Security contract, Rust-only threat model, test matrix and release-gate records are present.
 
 ## Verification
 
-GitHub Actions Rust Security Kernel run `37242479683` completed successfully for branch head `9e909fbe4aec3f5666efa524c301cd63b22169ed`.
+A previous Rust Security Kernel run `37242479683` passed Format, Tests, and Clippy for an earlier code revision.
 
-Passed:
+The current branch head after final test hardening is `07f62bdfa693b8b02223f63bdb691b044b6fe7a3`.
 
-- Format
-- Tests
-- Clippy
+Current-head GitHub Actions Rust Security Kernel run: `37244013996`, status **queued** at the time of this record. Current-head PASS is therefore intentionally **not claimed**.
 
 ## Security audit disposition
 
 No unsafe Rust, secrets, custom cryptographic primitive, public trust-elevation operation, storage bypass, or transport implementation was introduced in this specialization slice.
 
+The broader CI failure on the same PR is caused by a pre-existing Test Lab workflow-action pinning policy violation outside this specialization.
+
 ## Gate
 
-**Rust Core non-cryptographic specialization: VERIFIED.**
+**Rust Core implementation: COMPLETE.**
+
+**Rust Core current-head verification: PENDING.**
 
 **Product release: BLOCKED** by unresolved cryptographic protocol, key-management, serialization, transport, FFI, platform integration, and required independent security review.
