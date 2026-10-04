@@ -64,10 +64,16 @@ pub trait RecordStore {
 ///
 /// This is not a production persistence engine and intentionally has no key
 /// storage, backup, serialization, or platform-specific behavior.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct MemoryRecordStore {
     records: Vec<EncryptedRecord>,
     recovery: RecoveryState,
+}
+
+impl Default for MemoryRecordStore {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MemoryRecordStore {
@@ -88,6 +94,10 @@ impl MemoryRecordStore {
 
     pub fn mark_recovered(&mut self) {
         self.recovery = RecoveryState::Healthy;
+    }
+
+    pub fn mark_unavailable(&mut self) {
+        self.recovery = RecoveryState::Unavailable;
     }
 }
 
@@ -233,6 +243,22 @@ mod tests {
 
         store.mark_recovered();
         assert_eq!(store.put(record(1)), Ok(()));
+    }
+
+    #[test]
+    fn unavailable_storage_fails_closed() {
+        let mut store = MemoryRecordStore::new();
+        store.put(record(1)).unwrap();
+        store.mark_unavailable();
+
+        assert_eq!(
+            store.get(RecordId([1; 16])),
+            Err(StorageError::RecoveryUnavailable)
+        );
+        assert_eq!(
+            store.delete(RecordId([1; 16])),
+            Err(StorageError::RecoveryUnavailable)
+        );
     }
 
     #[test]
