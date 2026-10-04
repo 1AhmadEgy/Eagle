@@ -187,7 +187,7 @@ The Test Lab workflow invokes:
 - gradle :app:lint --no-daemon --console=plain
 - gradle :app:assembleDebug --no-daemon --console=plain
 
-The current CI failure occurs before these commands, while trying to install the unavailable Android SDK package platforms;android-37 on the GitHub runner.
+The Test Lab workflow now installs Android 17 (API 37) from the preview channel before running these commands. This is required because API 37 is currently documented as a preview SDK; stable-channel installation previously failed with `Failed to find package 'platforms;android-37'`.
 
 ## 12. Lifecycle
 
