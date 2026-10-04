@@ -12,6 +12,7 @@ ADR-0001 → ADR-0006 — existing project decisions referenced by the planning 
 - ADR-0012 — Transport Architecture
 - ADR-0013 — Architecture Enforcement
 - ADR-0014 — Observability
+- ADR-0015 — Cross-Platform Architecture Evidence-First Baseline
 
 ## Rule
 ADR = decision. Issue = implementation / verification / migration / follow-up.
