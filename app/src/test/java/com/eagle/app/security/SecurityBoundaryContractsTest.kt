@@ -23,6 +23,20 @@ class SecurityBoundaryContractsTest {
     }
 
     @Test
+    fun authenticationProofDefensivelyCopiesOpaqueBytes() {
+        val original = byteArrayOf(7, 8, 9)
+        val proof = AuthenticationProof(original)
+
+        original[0] = 1
+        assertArrayEquals(byteArrayOf(7, 8, 9), proof.encoded())
+
+        val returned = proof.encoded()
+        assertNotSame(returned, proof.encoded())
+        returned[1] = 2
+        assertArrayEquals(byteArrayOf(7, 8, 9), proof.encoded())
+    }
+
+    @Test
     fun authenticationResultEnforcesDecisionReasonConsistency() {
         assertEquals(
             AuthenticationFailureReason.NONE,
@@ -68,7 +82,13 @@ class SecurityBoundaryContractsTest {
 
         assertEquals("key-1", key.value)
         assertEquals("record-1", record.value)
-        assertEquals(KeyPurpose.IDENTITY_AUTHENTICATION, KeyPurpose.valueOf("IDENTITY_AUTHENTICATION"))
-        assertEquals(SecureRecordType.PROTOCOL_STATE, SecureRecordType.valueOf("PROTOCOL_STATE"))
+        assertEquals(
+            KeyPurpose.IDENTITY_AUTHENTICATION,
+            KeyPurpose.valueOf("IDENTITY_AUTHENTICATION")
+        )
+        assertEquals(
+            SecureRecordType.PROTOCOL_STATE,
+            SecureRecordType.valueOf("PROTOCOL_STATE")
+        )
     }
 }
