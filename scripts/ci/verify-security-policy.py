@@ -19,7 +19,7 @@ REQUIRED_WORKFLOWS = {
     "documentation-agent.yml",
 }
 SHA_ACTION_RE = re.compile(
-    r"^\s*-\s*uses:\s*[^@\s]+@(?P<ref>[0-9a-f]{40})(?:\s+#.*)?$"
+    r"^\s*(?:-\s*)?uses:\s*[^@\s]+@(?P<ref>[0-9a-f]{40})(?:\s+#.*)?$"
 )
 
 FORBIDDEN_REPAIR_PATHS = (
