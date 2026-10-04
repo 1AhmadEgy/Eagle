@@ -7,5 +7,5 @@ plugins {
 tasks.register("prePushGate") {
     group = "verification"
     description = "Runs the mandatory pre-GitHub verification gate."
-    dependsOn(":app:testDebugUnitTest", ":app:lint", ":app:assembleDebug", ":shared:allTests")
+    dependsOn(":app:testDebugUnitTest", ":app:lint", ":app:assembleDebug", ":shared:desktopTest", ":shared:testDebugUnitTest")
 }
