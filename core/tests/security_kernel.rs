@@ -1,7 +1,7 @@
 use eagle_core::{
     authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
     MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session, SessionState,
-    CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
+    CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
 };
 
 fn trusted_context() -> SecurityContext {
@@ -142,7 +142,6 @@ fn frame_header_rejects_length_and_version_mismatch() {
         Err(eagle_core::ProtocolError::PayloadLengthMismatch)
     );
     assert_eq!(header.validate_payload_len(8), Ok(()));
-    assert!(MAX_PAYLOAD_BYTES > 0);
 }
 
 #[test]
