@@ -62,12 +62,12 @@ Test matrix created covering positive, negative, replay, ordering, serialization
 Production evidence is not yet complete.
 
 ## 14. Security Review
-Signal Double Ratchet specification provides per-message key evolution and forward-security/break-in-recovery properties; PQXDH is designed for asynchronous key agreement. The current Signal specification also describes a hybrid Triple Ratchet construction. citeturn394205search0turn394205search5
-MLS RFC 9420 is an IETF Standards Track protocol providing asynchronous group key establishment with forward secrecy and post-compromise security. citeturn566913search0
-OpenMLS current security advisories include a high-severity improper tag validation advisory and additional 2026 moderate parser/DoS advisories. Its v0.9.0 release is dated 2026-08-03. Exact release adoption therefore remains security-gated. citeturn566913search2turn566913search3turn566913search9
-libsignal upstream explicitly states that use outside Signal is unsupported and APIs/implementations may change without notice. citeturn394205search1
-CBOR RFC 8949 defines deterministic encoding requirements suitable for a protocol-defined deterministic profile. citeturn566913search6
-QUIC RFC 9000 defines a secure multiplexed transport with confidentiality/integrity protections and TLS integration. citeturn566913search4
+Signal Double Ratchet specification provides per-message key evolution and forward-security/break-in-recovery properties; PQXDH is designed for asynchronous key agreement. The current Signal specification also describes a hybrid Triple Ratchet construction.. Sources: Signal Double Ratchet and PQXDH specifications (signal.org/docs/specifications/).
+MLS RFC 9420 is an IETF Standards Track protocol providing asynchronous group key establishment with forward secrecy and post-compromise security.. Source: RFC 9420, rfc-editor.org/rfc/rfc9420.html.
+OpenMLS current security advisories include a high-severity improper tag validation advisory and additional 2026 moderate parser/DoS advisories. Its v0.9.0 release is dated 2026-08-03. Exact release adoption therefore remains security-gated.. Sources: OpenMLS security advisories and v0.9.0 release notes (github.com/openmls/openmls).
+libsignal upstream explicitly states that use outside Signal is unsupported and APIs/implementations may change without notice.. Source: github.com/signalapp/libsignal.
+CBOR RFC 8949 defines deterministic encoding requirements suitable for a protocol-defined deterministic profile.. Source: RFC 8949, rfc-editor.org/rfc/rfc8949.html.
+QUIC RFC 9000 defines a secure multiplexed transport with confidentiality/integrity protections and TLS integration.. Source: RFC 9000, rfc-editor.org/rfc/rfc9000.html.
 
 ## 15. Verification
 Security profile, execution ledger, and conformance matrix were committed to execution/protocol-security-baseline-2026-10-05.
