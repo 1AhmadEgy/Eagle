@@ -65,7 +65,7 @@ The intended dependency direction is:
 
 ### 3.1 Rust Security Core
 
-The Rust Security Core is the platform-independent security boundary.
+The Rust Security Core is the platform-independent security boundary. The current repository contains only a smaller, non-cryptographic Rust state-machine foundation; it must not be confused with the production Security Core described here.
 
 Its implementation is shared through cross-compilation and UniFFI bindings. Platform-specific integration must not duplicate security-critical primitives in Kotlin, Swift, or other UI/application layers unless explicitly approved by an ADR.
 
