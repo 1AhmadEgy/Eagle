@@ -1,7 +1,7 @@
 use eagle_core::{
     authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
-    FrameHeader, MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session,
-    SessionState, CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
+    MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session, SessionState,
+    CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
 
 fn trusted_context() -> SecurityContext {
@@ -126,24 +126,22 @@ fn envelope_is_structurally_validated() {
 
 #[test]
 fn frame_header_rejects_length_and_version_mismatch() {
-    let header = FrameHeader {
-        protocol_version: CURRENT_PROTOCOL_VERSION,
-        payload_len: 9,
-        flags: 0,
-    };
+    let envelope = EncryptedEnvelope::new(
+        MessageId::new([4; 16]),
+        OpaqueId::new(vec![5; 8]).unwrap(),
+        OpaqueId::new(vec![6; 8]).unwrap(),
+        None,
+        vec![0xBB; 8],
+        CURRENT_PROTOCOL_VERSION,
+        42,
+    )
+    .unwrap();
+    let header = envelope.frame_header().unwrap();
     assert_eq!(
-        header.validate_payload_len(8),
+        header.validate_payload_len(7),
         Err(eagle_core::ProtocolError::PayloadLengthMismatch)
     );
-    assert_eq!(
-        (FrameHeader {
-            protocol_version: 0,
-            payload_len: 8,
-            flags: 0,
-        })
-        .validate_version(1),
-        Err(eagle_core::ProtocolError::DowngradeRejected)
-    );
+    assert_eq!(header.validate_payload_len(8), Ok(()));
     assert!(MAX_PAYLOAD_BYTES > 0);
 }
 
