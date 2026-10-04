@@ -1,0 +1,121 @@
+schema_version: "1.0"
+suite: identity-trust-v1
+purpose: >
+  Security scenario definitions for pairing, trust state transitions,
+  revocation, identity change and recovery boundaries. These scenarios
+  become executable integration tests when the protocol/key-management
+  adapters are frozen.
+
+scenarios:
+  - id: IT-SC-001
+    name: pending-device-self-promotion
+    preconditions:
+      device_state: PENDING
+    action: start-protected-session
+    expected: DENY
+    invariant: I-03
+
+  - id: IT-SC-002
+    name: explicit-pairing-approval
+    preconditions:
+      device_state: PENDING
+      pairing: ACTIVE
+      account_binding: MATCH
+    action: approve-device
+    expected: TRUSTED
+    invariant: I-03
+
+  - id: IT-SC-003
+    name: pairing-replay
+    preconditions:
+      pairing: CONSUMED
+    action: approve-device
+    expected: DENY
+    invariant: I-04
+
+  - id: IT-SC-004
+    name: pairing-expiry
+    preconditions:
+      pairing: EXPIRED
+    action: approve-device
+    expected: DENY
+    invariant: I-04
+
+  - id: IT-SC-005
+    name: pairing-account-mismatch
+    preconditions:
+      pairing_account: A
+      requested_account: B
+    action: approve-device
+    expected: DENY
+    invariant: I-05
+
+  - id: IT-SC-006
+    name: stale-trust-epoch
+    preconditions:
+      device_state: TRUSTED
+      observed_epoch: STALE
+    action: start-protected-session
+    expected: DENY
+    invariant: I-09
+
+  - id: IT-SC-007
+    name: revoked-device
+    preconditions:
+      device_state: REVOKED
+    action: start-protected-session
+    expected: DENY
+    invariant: I-08
+
+  - id: IT-SC-008
+    name: identity-key-change
+    preconditions:
+      contact_state: VERIFIED
+      identity_key: CHANGED
+    action: accept-new-key
+    expected: QUARANTINE_UNTIL_REVERIFIED
+    invariant: I-10
+
+  - id: IT-SC-009
+    name: account-recovery-without-data-recovery
+    preconditions:
+      account_recovery: VALID
+      data_recovery_material: ABSENT
+    action: recover-history
+    expected: DENY
+    invariant: I-11
+
+  - id: IT-SC-010
+    name: attestation-does-not-create-trust
+    preconditions:
+      platform_assurance: PLATFORM_ATTESTED
+      membership_state: UNKNOWN
+    action: start-protected-session
+    expected: DENY
+    invariant: I-12
+
+  - id: IT-SC-011
+    name: revoked-device-cannot-reactivate
+    preconditions:
+      device_state: REVOKED
+    action: reinstate
+    expected: DENY
+    invariant: I-08
+
+  - id: IT-SC-012
+    name: cancelled-pairing-cannot-resume
+    preconditions:
+      pairing: CANCELLED
+    action: approve-device
+    expected: DENY
+    invariant: I-04
+
+deferred_protocol_cases:
+  - transcript-tampering
+  - identity-signature-forgery
+  - cross-account-replay
+  - concurrent-device-approval-race
+  - offline-revocation-convergence
+  - serialization-downgrade
+  - persistent-state-rollback
+  - cross-platform-interoperability
