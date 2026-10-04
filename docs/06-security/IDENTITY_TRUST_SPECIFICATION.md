@@ -44,13 +44,13 @@ Those remain governed by the corresponding ADR/specification.
 
 ### 2.1 Existing project evidence
 
-The current repository baseline contains:
+Corpus reconciliation establishes three different evidence classes:
 
-- ADR-005: Identity and device-trust state machine — **Open**.
-- ADR-006: Device pairing and linking — **Open**.
-- ADR-007: Account recovery versus data recovery — **Open**.
-- The historical architecture separates account identity, device identity, and session state.
-- The current platform strategy makes the Rust Security Core the security authority and prevents security-critical logic from being duplicated in platform UI/application code.
+- **Historical project corpus:** the archived `ADR_Decision_Pack.md` contains OI-005/006/007 and labels the corresponding ADRs as **Proposed / Open**.
+- **Current canonical ADR set:** `docs/03-architecture/ADR_INDEX.md` currently exposes ADR-0007 through ADR-0014 as the active planning sequence; ADR-0008/0009/0010 are explicitly **Proposed — Decision Pending Review**.
+- **Current platform baseline:** `docs/03-architecture/PLATFORMS.md` makes the Rust Security Core the cross-platform security authority and prohibits duplicating security-critical primitives in platform/UI code.
+
+Therefore this document treats the historical ADR-005/006/007 material as **design input**, not as an already-approved current ADR state.
 
 ### 2.2 Project-level P2P constraint
 
@@ -739,9 +739,13 @@ Any missing item keeps the identity/trust area below the production gate.
 
 Project references:
 
-- `archive/chatgpt-historical/ADR_Decision_Pack.md`
-- `archive/chatgpt-historical/PRIVATE_MESH_MASTER_PROJECT_REFERENCE.md`
-- `docs/03-architecture/PLATFORMS.md`
+- `archive/chatgpt-historical/ADR_Decision_Pack.md` — historical design corpus for OI-005/006/007
+- `archive/chatgpt-historical/PRIVATE_MESH_MASTER_PROJECT_REFERENCE.md` — historical architecture/reference corpus
+- `docs/03-architecture/ADR_INDEX.md` — current canonical ADR sequence/status index
+- `docs/03-architecture/adr/ADR-0008.md` — current protocol decision gate
+- `docs/03-architecture/adr/ADR-0009.md` — current key-management decision gate
+- `docs/03-architecture/adr/ADR-0010.md` — current serialization decision gate
+- `docs/03-architecture/PLATFORMS.md` — current cross-platform security-boundary baseline
 
 External authoritative references:
 
