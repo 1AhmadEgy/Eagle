@@ -209,3 +209,96 @@ The Rust toolchain path is now proven in CI.
 Overall repository CI is NOT green yet. ADR-0000 therefore remains Proposed.
 
 Step 2a may proceed as the explicitly recorded foundational snapshot import, but no consolidation gate may be marked green until the independent CI/security-policy issue and the actual Rust workspace verification are resolved.
+
+
+## 9. Step 2a — foundational Rust snapshot import
+
+- source branch: execution/core-foundation-v1
+- source snapshot: cdd84a13dff684f66c23bffc9f3ceeedca669484
+- target snapshot commit: cb4b0897864989926382520bfe5d0c8917716c28
+- method: verbatim snapshot import; not a cherry-pick
+- excluded from snapshot: .github/workflows/rust-core.yml because the Step 1 corrected workflow remained authoritative
+- imported files: 17
+- source/target blob verification: 17/17 exact matches
+
+| path | source blob | target blob |
+|---|---|---|
+| Cargo.toml | 700e52a6f97b350e8ff1b7c1648643c2b83f4da8 | 700e52a6f97b350e8ff1b7c1648643c2b83f4da8 |
+| core/Cargo.toml | e601e4e533eb651e8613efcc08444e60982bef68 | e601e4e533eb651e8613efcc08444e60982bef68 |
+| core/README.md | be3b609fc4629db0b6642fa0291793f5e8c9561a | be3b609fc4629db0b6642fa0291793f5e8c9561a |
+| core/ffi/Cargo.toml | 5ce173bfc74aba6459c9e36e3179de0b5e21bed1 | 5ce173bfc74aba6459c9e36e3179de0b5e21bed1 |
+| core/ffi/src/bin/uniffi-bindgen.rs | f6cff6cf1d99f5cd651e48956141b0c99c504fa8 | f6cff6cf1d99f5cd651e48956141b0c99c504fa8 |
+| core/ffi/src/lib.rs | bb20b56a33206ecf4690347e78d6c0821a7f3ea0 | bb20b56a33206ecf4690347e78d6c0821a7f3ea0 |
+| core/ffi/tests/contract.rs | ec176c3d94a96a3f27726eb01aa8573eeb58eef2 | ec176c3d94a96a3f27726eb01aa8573eeb58eef2 |
+| core/ffi/uniffi.toml | 88488af748e6c88582b4b642ea9aa33cf9f4c2d0 | 88488af748e6c88582b4b642ea9aa33cf9f4c2d0 |
+| core/src/devices.rs | df08f785d791db7bfc02dfdad34aa3277d86a4a2 | df08f785d791db7bfc02dfdad34aa3277d86a4a2 |
+| core/src/identity.rs | d6037209e7749f6591a58f4803bd6e30a743faba | d6037209e7749f6591a58f4803bd6e30a743faba |
+| core/src/lib.rs | 323380ef97c11d5faf56d9cf34b53b03d2d6652b | 323380ef97c11d5faf56d9cf34b53b03d2d6652b |
+| core/src/policy.rs | ea9d30d3f5c05b4e34d122fac06641f61666b310 | ea9d30d3f5c05b4e34d122fac06641f61666b310 |
+| core/src/protocol.rs | 9d26b23b48101eb48eb63706a7c54a9db69d5ad8 | 9d26b23b48101eb48eb63706a7c54a9db69d5ad8 |
+| core/src/session.rs | c0436d038f315ec8c908d31a41a4f9aad27fef6c | c0436d038f315ec8c908d31a41a4f9aad27fef6c |
+| core/src/storage.rs | 443cdbc601fe2c760e71fd01998155bdf6a88d7d | 443cdbc601fe2c760e71fd01998155bdf6a88d7d |
+| core/src/transport.rs | ed48077405793abe5393245d66db1d03df2564c5 | ed48077405793abe5393245d66db1d03df2564c5 |
+| core/tests/security_integration.rs | be062ca2332d3de3a16f92b74ea9cf2afa69bac0 | be062ca2332d3de3a16f92b74ea9cf2afa69bac0 |
+
+CI evidence previously recorded for cb4b089: Rust Core run 37201056258 passed all workflow steps, including cargo test, UniFFI generation, and clippy. Historical source cdd84a13 produced the same 43 Rust tests; the snapshot produced the same 43 tests, zero failures.
+
+## 10. Step 2b — reference implementation boundary
+
+Implementation completed on implementation/v1-foundation.
+
+Production core now owns contracts only:
+- RecordStore and storage data/error contracts;
+- SecureTransport and transport data/error contracts;
+- validate_record remains a production contract validator;
+- MemoryRecordStore and MemoryTransport are no longer exported by eagle-core.
+
+Reference implementations now live in:
+- core-reference/src/record_store.rs
+- core-reference/src/transport.rs
+- core-reference/tests/record_store.rs
+- core-reference/tests/transport.rs
+
+Workspace package:
+- eagle-core-reference
+- depends on eagle-core
+- eagle-core has no dependency, including dev-dependency, back to eagle-core-reference.
+
+Gate 5.7 executable verifier added:
+- scripts/ci/verify-reference-boundary.py
+- Rust Core workflow invokes it after workspace detection.
+- The gate uses cargo metadata/resolve graph data, not source-text grep.
+- Any normal/build production edge to reference/test/mock packages fails the gate.
+
+Important: Step 2b is implementation-complete but its CI execution is still required before the slice is marked green.
+
+## 11. Technology/research reuse register
+
+Created:
+- docs/research/technology-radar.md
+
+The radar records reusable external projects, libraries, runtimes, research patterns and benchmarks, with dispositions ADOPT, ADAPTER, REFERENCE, PROTOTYPE, WATCH, REJECT.
+
+The governing rule is to keep Eagle-owned contracts stable and integrate mature external systems behind adapters. No third-party agent framework, memory system, vector database, model runtime or research implementation is authorized to become an Eagle production dependency merely because it appears on the radar.
+
+## 12. Supply-chain hardening backlog
+
+Still open and intentionally separate from Step 2b:
+
+- P0a: replace line-oriented action-pin parsing with YAML-aware workflow parsing plus regression tests.
+- P0b: replace moving GitHub Action tags in Test Lab with verified full commit SHAs.
+- dependency vulnerability/license enforcement;
+- SBOM generation for releasable artifacts;
+- build provenance/attestation;
+- verification of released artifacts.
+
+Current GitHub guidance supports dependency review for detecting vulnerable dependency changes before merge and artifact attestations for cryptographically signed build provenance/SBOM claims. These are recorded as future evidence gates, not as completed Eagle controls.
+
+## 13. Current state after this slice
+
+- Step 1 toolchain path: proven in CI.
+- Step 2a snapshot: implemented and historically verified.
+- Step 2b reference boundary: implemented; Gate 5.7 added.
+- ADR-0000: Proposed.
+- P0a/P0b security workflow issues: open.
+- No release or production security claim is made by this consolidation branch.
