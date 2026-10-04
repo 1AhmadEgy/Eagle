@@ -46,7 +46,10 @@ impl Device {
     }
 
     #[cfg(test)]
-    #[expect(dead_code, reason = "test scaffold until approved pairing verifier is integrated")]
+    #[expect(
+        dead_code,
+        reason = "test scaffold until approved pairing verifier is integrated"
+    )]
     pub(crate) fn begin_pairing(&mut self) -> Result<(), DeviceError> {
         if self.trust != DeviceTrustState::Unknown {
             return Err(DeviceError::InvalidTransition);
