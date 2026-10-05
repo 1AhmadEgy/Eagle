@@ -196,10 +196,7 @@ fn application_data_rejects_non_direct_transport() {
         Err(TransportError::ApplicationDataRequiresDirectPath)
     );
     assert_eq!(
-        policy.authorize_application_data(
-            TransportPath::ServerFallback,
-            PeerBinding::EagleDevice
-        ),
+        policy.authorize_application_data(TransportPath::ServerFallback, PeerBinding::EagleDevice),
         Err(TransportError::ApplicationDataRequiresDirectPath)
     );
     assert_eq!(
