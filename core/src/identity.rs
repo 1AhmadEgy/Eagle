@@ -47,6 +47,7 @@ pub enum TrustError {
     UnchangedIdentity,
     DeviceAlreadyBound,
     MembershipEpochStale,
+    MembershipEpochFuture,
     MembershipAccountMismatch,
     PairingDeviceMismatch,
     MalformedPairingContext,
@@ -188,8 +189,10 @@ impl MembershipRegistry {
         verifier: &impl MembershipProofVerifier,
     ) -> Result<(), TrustError> {
         validate_membership(statement, verifier)?;
-        if statement.trust_epoch < current_epoch {
-            return Err(TrustError::MembershipEpochStale);
+        match statement.trust_epoch.cmp(&current_epoch) {
+            std::cmp::Ordering::Less => return Err(TrustError::MembershipEpochStale),
+            std::cmp::Ordering::Greater => return Err(TrustError::MembershipEpochFuture),
+            std::cmp::Ordering::Equal => {}
         }
 
         if let Some(bound_account) = self.device_accounts.get(&statement.device.id) {
@@ -803,6 +806,32 @@ mod tests {
             validate_membership(&statement, &AcceptAllVerifier),
             Err(TrustError::MalformedMembershipStatement)
         );
+    }
+
+    #[test]
+    fn future_membership_epoch_is_rejected_fail_closed() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-a", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 10,
+            not_before_unix: 10,
+            not_after_unix: None,
+            trust_epoch: 5,
+            capabilities: 0,
+        };
+
+        let mut registry = MembershipRegistry::new();
+        assert_eq!(
+            registry.bind(&statement, 4, &AcceptAllVerifier),
+            Err(TrustError::MembershipEpochFuture)
+        );
+        assert!(registry.bound_account("dev-1").is_none());
     }
 
     #[test]
