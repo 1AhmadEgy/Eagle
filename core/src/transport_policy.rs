@@ -34,7 +34,10 @@ impl Default for TransportPolicy {
 
 impl TransportPolicy {
     pub const fn new() -> Self {
-        Self::default()
+        Self {
+            application_data_direct_only: true,
+            require_peer_identity_binding: true,
+        }
     }
 
     pub const fn application_data_direct_only(&self) -> bool {
