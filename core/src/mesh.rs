@@ -126,20 +126,33 @@ mod tests {
 
     #[test]
     fn forwarding_is_hop_limited() {
-        let mut frame =
-            OpaqueFrame::new(1, id(1), id(2), OpaquePayload::new(vec![0xAA; 4]).unwrap(), 2)
-                .unwrap();
+        let mut frame = OpaqueFrame::new(
+            1,
+            id(1),
+            id(2),
+            OpaquePayload::new(vec![0xAA; 4]).unwrap(),
+            2,
+        )
+        .unwrap();
         frame.decrement_hop_limit().unwrap();
         assert_eq!(frame.hop_limit(), 1);
-        assert_eq!(frame.decrement_hop_limit(), Err(TransportError::HopLimitExceeded));
+        assert_eq!(
+            frame.decrement_hop_limit(),
+            Err(TransportError::HopLimitExceeded)
+        );
     }
 
     #[test]
     fn in_memory_transport_does_not_transform_payload() {
         let mut transport = InMemoryOpaqueTransport::default();
-        let frame =
-            OpaqueFrame::new(1, id(1), id(2), OpaquePayload::new(vec![0xAA; 8]).unwrap(), 4)
-                .unwrap();
+        let frame = OpaqueFrame::new(
+            1,
+            id(1),
+            id(2),
+            OpaquePayload::new(vec![0xAA; 8]).unwrap(),
+            4,
+        )
+        .unwrap();
         transport.send(frame.clone()).unwrap();
         assert_eq!(transport.receive(), Some(frame));
     }
