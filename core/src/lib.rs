@@ -12,11 +12,11 @@ pub use key_management::{
     KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
 };
 pub use policy::{authorize, Capability};
-pub use replay::{FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
+pub use replay::{FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow};
 pub use session::Session;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
