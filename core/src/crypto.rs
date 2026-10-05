@@ -46,8 +46,12 @@ impl std::error::Error for KeyError {}
 pub struct KeyId([u8; 16]);
 
 impl KeyId {
-    pub const fn new(bytes: [u8; 16]) -> Self { Self(bytes) }
-    pub const fn as_bytes(&self) -> &[u8; 16] { &self.0 }
+    pub const fn new(bytes: [u8; 16]) -> Self {
+        Self(bytes)
+    }
+    pub const fn as_bytes(&self) -> &[u8; 16] {
+        &self.0
+    }
 }
 
 macro_rules! typed_key_handle {
@@ -56,9 +60,15 @@ macro_rules! typed_key_handle {
         pub struct $name(KeyId);
 
         impl $name {
-            pub const fn from_id(id: KeyId) -> Self { Self(id) }
-            pub const fn id(&self) -> KeyId { self.0 }
-            pub const fn purpose(&self) -> KeyPurpose { $purpose }
+            pub const fn from_id(id: KeyId) -> Self {
+                Self(id)
+            }
+            pub const fn id(&self) -> KeyId {
+                self.0
+            }
+            pub const fn purpose(&self) -> KeyPurpose {
+                $purpose
+            }
         }
     };
 }
@@ -80,8 +90,6 @@ pub struct ProviderCapabilities {
     pub message_ratchet: bool,
 }
 
-
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ProviderVersion {
     pub major: u16,
@@ -91,7 +99,11 @@ pub struct ProviderVersion {
 
 impl ProviderVersion {
     pub const fn new(major: u16, minor: u16, patch: u16) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 }
 
@@ -99,8 +111,12 @@ impl ProviderVersion {
 pub struct ProviderRevision([u8; 20]);
 
 impl ProviderRevision {
-    pub const fn new(bytes: [u8; 20]) -> Self { Self(bytes) }
-    pub const fn bytes(&self) -> &[u8; 20] { &self.0 }
+    pub const fn new(bytes: [u8; 20]) -> Self {
+        Self(bytes)
+    }
+    pub const fn bytes(&self) -> &[u8; 20] {
+        &self.0
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -137,8 +153,12 @@ impl ProviderApproval {
             && self.independent_reviewed
     }
 
-    pub const fn version(&self) -> ProviderVersion { self.version }
-    pub const fn revision(&self) -> ProviderRevision { self.revision }
+    pub const fn version(&self) -> ProviderVersion {
+        self.version
+    }
+    pub const fn revision(&self) -> ProviderRevision {
+        self.revision
+    }
 }
 
 pub trait KeyStore {
@@ -151,8 +171,10 @@ pub trait KeyStore {
     fn generate_storage_wrapping_key(&mut self) -> Result<StorageWrappingKeyHandle, Self::Error>;
     fn generate_recovery_key(&mut self) -> Result<RecoveryKeyHandle, Self::Error>;
     fn revoke_identity_key(&mut self, key: IdentityKeyHandle) -> Result<(), Self::Error>;
-    fn destroy_storage_wrapping_key(&mut self, key: StorageWrappingKeyHandle)
-        -> Result<(), Self::Error>;
+    fn destroy_storage_wrapping_key(
+        &mut self,
+        key: StorageWrappingKeyHandle,
+    ) -> Result<(), Self::Error>;
 }
 
 pub trait MessagingCrypto {
