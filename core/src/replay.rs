@@ -158,7 +158,7 @@ impl ReplayWindow {
         }
     }
 
-    pub fn advance_epoch(&mut self, new_epoch: u64) -> Result<(), ReplayError> {
+    pub(crate) fn advance_epoch(&mut self, new_epoch: u64) -> Result<(), ReplayError> {
         match self.epoch {
             None => {
                 self.epoch = Some(new_epoch);
