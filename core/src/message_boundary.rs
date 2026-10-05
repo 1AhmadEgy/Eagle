@@ -180,6 +180,43 @@ mod tests {
     }
 
     #[test]
+    fn inbound_bytes_are_parsed_only_inside_the_boundary() {
+        let boundary = MessageBoundary::new();
+        let context = established_context();
+        let envelope = envelope();
+        let bytes = crate::serialize_envelope(&envelope).unwrap();
+        let mut replay = ReplayTracker::new();
+
+        assert_eq!(
+            boundary
+                .accept_inbound_bytes(
+                    &context,
+                    TransportPath::Direct,
+                    PeerBinding::EagleDevice,
+                    &bytes,
+                    &mut replay,
+                )
+                .unwrap(),
+            envelope
+        );
+
+        let mut malformed = bytes.clone();
+        malformed.push(0x00);
+        assert!(matches!(
+            boundary.accept_inbound_bytes(
+                &context,
+                TransportPath::Direct,
+                PeerBinding::EagleDevice,
+                &malformed,
+                &mut replay,
+            ),
+            Err(MessageBoundaryError::Serialization(
+                SerializationError::TrailingData
+            ))
+        ));
+    }
+
+    #[test]
     fn inbound_envelope_rejects_duplicate_message_ids() {
         let boundary = MessageBoundary::new();
         let context = established_context();
