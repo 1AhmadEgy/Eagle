@@ -150,15 +150,29 @@ impl EncryptedEnvelope {
         self.validate(CURRENT_PROTOCOL_VERSION)?;
         let payload_len =
             u32::try_from(self.ciphertext.len()).map_err(|_| ProtocolError::PayloadTooLarge)?;
-        Ok(FrameHeader {
-            protocol_version: self.protocol_version,
-            payload_len,
-            flags: 0,
-        })
+        FrameHeader::new(self.protocol_version, payload_len, 0)
     }
 }
 
 impl FrameHeader {
+    pub fn new(
+        protocol_version: u16,
+        payload_len: u32,
+        flags: u16,
+    ) -> Result<Self, ProtocolError> {
+        validate_version(protocol_version, CURRENT_PROTOCOL_VERSION)?;
+        let payload_len = usize::try_from(payload_len).map_err(|_| ProtocolError::PayloadTooLarge)?;
+        if payload_len > MAX_PAYLOAD_BYTES {
+            return Err(ProtocolError::PayloadTooLarge);
+        }
+
+        Ok(Self {
+            protocol_version,
+            payload_len: u32::try_from(payload_len).map_err(|_| ProtocolError::PayloadTooLarge)?,
+            flags,
+        })
+    }
+
     pub fn protocol_version(&self) -> u16 {
         self.protocol_version
     }
@@ -214,26 +228,6 @@ mod tests {
         OpaqueId::new(vec![value; 8]).unwrap()
     }
 
-    fn envelope(version: u16, size: usize) -> EncryptedEnvelope {
-        EncryptedEnvelope::new(
-            MessageId::new([1; 16]),
-            id(2),
-            id(3),
-            Some(id(4)),
-            vec![0xAA; size],
-            version,
-            1,
-        )
-        .unwrap_or_else(|_| EncryptedEnvelope {
-            message_id: MessageId::new([1; 16]),
-            conversation_id: id(2),
-            sender_device_id: id(3),
-            recipient_device_id: Some(id(4)),
-            ciphertext: vec![0xAA; size],
-            protocol_version: version,
-            created_at_epoch_ms: 1,
-        })
-    }
 
     #[test]
     fn identifier_bounds_are_enforced_at_construction() {
