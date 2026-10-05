@@ -41,3 +41,28 @@ KEY-FOUNDATION-006: This contract does not claim secure hardware storage, key ge
 ## Evidence rule
 
 A design stage is not equivalent to executable PASS. Implementation, conformance, adversarial verification, and independent review remain separate gates.
+
+
+## 2026-10-05 lifecycle hardening
+
+KEY-LIFECYCLE-001: Key purposes are represented by distinct typed handles; cross-purpose use is rejected by policy.
+
+KEY-LIFECYCLE-002: Key generations must be non-zero and strictly increase during rotation.
+
+KEY-LIFECYCLE-003: Lifecycle epochs are strictly monotonic and epoch exhaustion fails closed.
+
+KEY-LIFECYCLE-004: Rotation reserves all metadata transitions before mutation so a failed rotation cannot leave a new active key without revoking the predecessor.
+
+KEY-LIFECYCLE-005: One-Time PreKeys transition to CONSUMED exactly once.
+
+KEY-LIFECYCLE-006: Consumed, revoked, and destroyed key states cannot satisfy active-key requirements.
+
+PROVIDER-POLICY-001: A production provider requires exact version, exact revision, license review, support review, platform review, protocol conformance and independent review.
+
+PROVIDER-POLICY-002: The default provider is unavailable and therefore cannot silently execute plaintext fallback.
+
+PROVIDER-POLICY-003: No candidate library is treated as production-approved solely from popularity, license, or protocol name.
+
+## Current executable boundary
+
+The current executable work is a **metadata/policy boundary only**. It is deliberately not a cryptographic implementation. This distinction is maintained until a full provider is approved.
