@@ -48,7 +48,7 @@ impl MessageBoundary {
         context: &SecurityContext,
         envelope: &EncryptedEnvelope,
         path: TransportPath,
-        peer: PeerBinding,
+        peer: Option<&PeerBinding>,
     ) -> Result<Vec<u8>, MessageBoundaryError> {
         context
             .authorize()
@@ -63,7 +63,7 @@ impl MessageBoundary {
         &self,
         context: &SecurityContext,
         path: TransportPath,
-        peer: PeerBinding,
+        peer: Option<&PeerBinding>,
     ) -> Result<(), MessageBoundaryError> {
         context
             .authorize()
@@ -78,7 +78,7 @@ impl MessageBoundary {
         &self,
         context: &SecurityContext,
         path: TransportPath,
-        peer: PeerBinding,
+        peer: Option<&PeerBinding>,
         bytes: &[u8],
         replay: &mut ReplayTracker,
     ) -> Result<EncryptedEnvelope, MessageBoundaryError> {
@@ -95,7 +95,7 @@ impl MessageBoundary {
         &self,
         context: &SecurityContext,
         path: TransportPath,
-        peer: PeerBinding,
+        peer: Option<&PeerBinding>,
         envelope: &EncryptedEnvelope,
         replay: &mut ReplayTracker,
     ) -> Result<(), MessageBoundaryError> {
@@ -154,7 +154,7 @@ mod tests {
                 &context,
                 &envelope(),
                 TransportPath::Direct,
-                PeerBinding::EagleDevice,
+                Some(&PeerBinding::for_test()),
             )
             .unwrap();
 
@@ -171,7 +171,7 @@ mod tests {
                 &context,
                 &envelope(),
                 TransportPath::Relay,
-                PeerBinding::EagleDevice,
+                Some(&PeerBinding::for_test()),
             ),
             Err(MessageBoundaryError::Transport(
                 TransportError::ApplicationDataRequiresDirectPath
@@ -192,7 +192,7 @@ mod tests {
                 .accept_inbound_bytes(
                     &context,
                     TransportPath::Direct,
-                    PeerBinding::EagleDevice,
+                    Some(&PeerBinding::for_test()),
                     &bytes,
                     &mut replay,
                 )
@@ -206,7 +206,7 @@ mod tests {
             boundary.accept_inbound_bytes(
                 &context,
                 TransportPath::Direct,
-                PeerBinding::EagleDevice,
+                Some(&PeerBinding::for_test()),
                 &malformed,
                 &mut replay,
             ),
@@ -227,7 +227,7 @@ mod tests {
             boundary.authorize_inbound_envelope(
                 &context,
                 TransportPath::Direct,
-                PeerBinding::EagleDevice,
+                Some(&PeerBinding::for_test()),
                 &envelope,
                 &mut replay,
             ),
@@ -237,7 +237,7 @@ mod tests {
             boundary.authorize_inbound_envelope(
                 &context,
                 TransportPath::Direct,
-                PeerBinding::EagleDevice,
+                Some(&PeerBinding::for_test()),
                 &envelope,
                 &mut replay,
             ),
@@ -251,7 +251,7 @@ mod tests {
         let context = SecurityContext::new(1, 1).unwrap();
 
         assert_eq!(
-            boundary.authorize_inbound(&context, TransportPath::Direct, PeerBinding::EagleDevice,),
+            boundary.authorize_inbound(&context, TransportPath::Direct, Some(&PeerBinding::for_test()),),
             Err(MessageBoundaryError::Unauthorized)
         );
 
@@ -260,7 +260,7 @@ mod tests {
             boundary.authorize_inbound(
                 &context,
                 TransportPath::Direct,
-                PeerBinding::Unauthenticated,
+                None,
             ),
             Err(MessageBoundaryError::Transport(
                 TransportError::PeerIdentityRequired
