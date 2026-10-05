@@ -33,6 +33,10 @@ This prevents a remote membership statement from advancing local trust state ahe
 - cross-platform parity;
 - independent review.
 
+## Deep research update
+
+The 2026-10-05 research pass added explicit requirements for session-bound pairing authentication, conservative key continuity, authenticator uniqueness, attestation freshness/revocation handling, and authoritative epoch transitions. No cryptographic algorithm or protocol was selected.
+
 ## Evidence discipline
 
 No production claim is derived from source inspection alone. CI/Test Lab and independent review remain mandatory.
