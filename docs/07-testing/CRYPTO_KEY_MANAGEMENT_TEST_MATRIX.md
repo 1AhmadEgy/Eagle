@@ -22,3 +22,15 @@
 | CKM-018 | Release | G0–G9 gate all PASS |
 
 **Rule:** a design document or passing unit test does not substitute for interoperability or independent cryptographic review.
+
+
+## Key-lifecycle extensions
+
+| ID | Area | Required evidence |
+|---|---|---|
+| CKM-019 | Generation monotonicity | replacement generations never decrease |
+| CKM-020 | Epoch monotonicity | lifecycle epochs never repeat or move backward |
+| CKM-021 | Atomic rotation | failed rotation leaves old key unchanged and no new active record |
+| CKM-022 | One-Time PreKey | successful consumption is single-use and permanently non-active |
+| CKM-023 | Provider approval | unapproved provider cannot reach production crypto path |
+| CKM-024 | Capacity exhaustion | metadata exhaustion fails closed without eviction |
