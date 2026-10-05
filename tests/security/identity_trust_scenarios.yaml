@@ -110,6 +110,71 @@ scenarios:
     expected: DENY
     invariant: I-04
 
+  - id: IT-SC-013
+    name: pairing-device-mismatch
+    preconditions:
+      pairing_device: OTHER_DEVICE
+      requested_device: TARGET_DEVICE
+    action: approve-device
+    expected: DENY
+    invariant: I-05
+
+  - id: IT-SC-014
+    name: rejected-pairing-approval
+    preconditions:
+      device_state: PENDING
+      pairing: ACTIVE
+      approval_evidence: REJECTED
+    action: approve-device
+    expected: DENY
+    invariant: I-03
+
+  - id: IT-SC-015
+    name: identity-reverification-rejected
+    preconditions:
+      contact_state: QUARANTINED
+      pending_identity: PRESENT
+      reverification: REJECTED
+    action: reverify
+    expected: DENY_AND_REMAIN_QUARANTINED
+    invariant: I-10
+
+  - id: IT-SC-016
+    name: identity-reverification-candidate-mismatch
+    preconditions:
+      contact_state: QUARANTINED
+      pending_identity: A
+      presented_identity: B
+    action: reverify
+    expected: DENY_AND_REMAIN_QUARANTINED
+    invariant: I-10
+
+  - id: IT-SC-017
+    name: cross-account-device-reuse
+    preconditions:
+      device_binding_account: A
+      requested_account: B
+    action: bind-device
+    expected: DENY
+    invariant: I-05
+
+  - id: IT-SC-018
+    name: duplicate-device-binding
+    preconditions:
+      device_binding: ALREADY_PRESENT
+    action: bind-device
+    expected: DENY
+    invariant: I-05
+
+  - id: IT-SC-019
+    name: recovery-history-separation
+    preconditions:
+      account_recovery: VALID
+      data_recovery_material: ABSENT
+    action: recover-history
+    expected: DENY
+    invariant: I-11
+
 deferred_protocol_cases:
   - transcript-tampering
   - identity-signature-forgery
