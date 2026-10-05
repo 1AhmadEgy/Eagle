@@ -28,7 +28,9 @@ Resolved within scope:
 - public trust elevation → rejected;
 - externally mutable sensitive representation → rejected;
 - unbounded protocol acceptance → rejected;
-- value-copyable authority state → rejected and remediated.
+- value-copyable authority state → rejected and remediated;
+- public rekey completion without cryptographic proof → restricted to test/internal seam;
+- interrupted authentication/rekey without explicit safe exit → fail-closed cancellation paths.
 
 Unresolved out-of-scope conflicts remain under the relevant ADRs.
 
@@ -57,6 +59,9 @@ Completed:
 - fail-closed constructors;
 - no public trust promotion;
 - no `Copy`/`Clone` on authority-bearing values;
+- public rekey completion removed until a real cryptographic proof exists;
+- authentication abort returns to Untrusted/Idle;
+- rekey abort closes the session.
 - validated `FrameHeader` constructor and integration-test repair.
 
 ## 12 Implementation
