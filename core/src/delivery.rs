@@ -154,9 +154,6 @@ mod tests {
             guard.accept(metadata(2, 1), MessageId::new([2; 16]), 10_050),
             Ok(())
         );
-        assert_eq!(
-            guard.advance_epoch(1),
-            Err(ReplayError::EpochRollback)
-        );
+        assert_eq!(guard.advance_epoch(1), Err(ReplayError::EpochRollback));
     }
 }
