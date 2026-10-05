@@ -27,3 +27,11 @@ The Security Core implements fail-closed state transitions, explicit verifier bo
 Repository-wide CI/security-policy failures and platform test-lab infrastructure failures remain release blockers and are not reclassified as Identity & Trust passes.
 
 **Terminal state: IDENTITY_TRUST = BLOCKED.**
+
+## Current verification evidence
+
+- Baseline: `main @ abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`
+- Head: `7f5f209095ce555bd41b14a2f5e92a96854a2522`
+- CI run `37247378452`: failed at repository security-policy verification because unpinned action references were detected; product verification was skipped.
+- Test Lab run `37247378307`: failed while resolving Android 37 / build-tools 37.0.0; unit tests, lint, and debug build were skipped.
+- These are external blockers; Identity & Trust does not downgrade them to PASS.
