@@ -24,16 +24,6 @@ pub struct KeyRecord {
 }
 
 impl KeyRecord {
-    pub const fn new(id: KeyId, purpose: KeyPurpose, generation: u64) -> Self {
-        Self {
-            id,
-            purpose,
-            generation,
-            epoch: 0,
-            state: LifecycleState::Active,
-        }
-    }
-
     pub const fn id(&self) -> KeyId { self.id }
     pub const fn purpose(&self) -> KeyPurpose { self.purpose }
     pub const fn generation(&self) -> u64 { self.generation }
@@ -175,8 +165,6 @@ impl KeyLifecycle {
         let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
         if record.state != LifecycleState::Active {
             return Err(match record.state {
-                LifecycleState::Revoked => LifecycleError::Revoked,
-                LifecycleState::Destroyed => LifecycleError::Destroyed,
                 LifecycleState::Consumed => LifecycleError::Consumed,
                 LifecycleState::Revoked => LifecycleError::Revoked,
                 LifecycleState::Destroyed => LifecycleError::Destroyed,
