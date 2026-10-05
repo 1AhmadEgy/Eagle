@@ -24,11 +24,21 @@ pub struct KeyRecord {
 }
 
 impl KeyRecord {
-    pub const fn id(&self) -> KeyId { self.id }
-    pub const fn purpose(&self) -> KeyPurpose { self.purpose }
-    pub const fn generation(&self) -> u64 { self.generation }
-    pub const fn epoch(&self) -> u64 { self.epoch }
-    pub const fn state(&self) -> LifecycleState { self.state }
+    pub const fn id(&self) -> KeyId {
+        self.id
+    }
+    pub const fn purpose(&self) -> KeyPurpose {
+        self.purpose
+    }
+    pub const fn generation(&self) -> u64 {
+        self.generation
+    }
+    pub const fn epoch(&self) -> u64 {
+        self.epoch
+    }
+    pub const fn state(&self) -> LifecycleState {
+        self.state
+    }
 
     pub const fn is_active(&self) -> bool {
         matches!(self.state, LifecycleState::Active)
@@ -167,10 +177,7 @@ impl KeyLifecycle {
         Ok(self.event(KeyMutation::Rotate, new_record))
     }
 
-    pub fn revoke(
-        &mut self,
-        id: KeyId,
-    ) -> Result<LifecycleEvent, LifecycleError> {
+    pub fn revoke(&mut self, id: KeyId) -> Result<LifecycleEvent, LifecycleError> {
         let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
         if record.state != LifecycleState::Active {
             return Err(match record.state {
@@ -208,10 +215,7 @@ impl KeyLifecycle {
         Ok(self.event(KeyMutation::Consume, record))
     }
 
-    pub fn destroy(
-        &mut self,
-        id: KeyId,
-    ) -> Result<LifecycleEvent, LifecycleError> {
+    pub fn destroy(&mut self, id: KeyId) -> Result<LifecycleEvent, LifecycleError> {
         let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
         if record.state == LifecycleState::Destroyed {
             return Err(LifecycleError::Destroyed);
@@ -315,9 +319,7 @@ mod tests {
     #[test]
     fn rotation_is_monotonic_and_revokes_old_key() {
         let mut lifecycle = KeyLifecycle::default();
-        lifecycle
-            .register(id(1), KeyPurpose::Session, 4)
-            .unwrap();
+        lifecycle.register(id(1), KeyPurpose::Session, 4).unwrap();
 
         let event = lifecycle.rotate(id(1), id(2), 5).unwrap();
         assert_eq!(event.mutation, KeyMutation::Rotate);
@@ -325,17 +327,13 @@ mod tests {
             lifecycle.get(id(1)).unwrap().state(),
             LifecycleState::Revoked
         );
-        assert!(lifecycle
-            .require_active(id(2), KeyPurpose::Session)
-            .is_ok());
+        assert!(lifecycle.require_active(id(2), KeyPurpose::Session).is_ok());
     }
 
     #[test]
     fn generation_rollback_is_rejected() {
         let mut lifecycle = KeyLifecycle::default();
-        lifecycle
-            .register(id(1), KeyPurpose::Session, 9)
-            .unwrap();
+        lifecycle.register(id(1), KeyPurpose::Session, 9).unwrap();
 
         assert_eq!(
             lifecycle.rotate(id(1), id(2), 9),
@@ -350,9 +348,7 @@ mod tests {
     #[test]
     fn revocation_and_destruction_are_fail_closed() {
         let mut lifecycle = KeyLifecycle::default();
-        lifecycle
-            .register(id(1), KeyPurpose::Recovery, 1)
-            .unwrap();
+        lifecycle.register(id(1), KeyPurpose::Recovery, 1).unwrap();
         lifecycle.revoke(id(1)).unwrap();
         assert_eq!(
             lifecycle.require_active(id(1), KeyPurpose::Recovery),
@@ -375,7 +371,10 @@ mod tests {
 
         let event = lifecycle.consume_one_time_pre_key(id(5)).unwrap();
         assert_eq!(event.mutation, KeyMutation::Consume);
-        assert_eq!(lifecycle.get(id(5)).unwrap().state(), LifecycleState::Consumed);
+        assert_eq!(
+            lifecycle.get(id(5)).unwrap().state(),
+            LifecycleState::Consumed
+        );
         assert_eq!(
             lifecycle.consume_one_time_pre_key(id(5)),
             Err(LifecycleError::Consumed)
@@ -398,9 +397,7 @@ mod tests {
     #[test]
     fn epochs_never_move_backwards() {
         let mut lifecycle = KeyLifecycle::default();
-        let a = lifecycle
-            .register(id(1), KeyPurpose::Message, 1)
-            .unwrap();
+        let a = lifecycle.register(id(1), KeyPurpose::Message, 1).unwrap();
         let b = lifecycle.revoke(id(1)).unwrap();
         let c = lifecycle.destroy(id(1)).unwrap();
         assert!(a.epoch < b.epoch);
