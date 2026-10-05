@@ -29,6 +29,8 @@
 | RK-22 | receive window rejects duplicates | test-only replay seam |
 | RK-23 | receive window rejects sequences outside window | test-only replay seam |
 | RK-24 | replay state is advanced only through authenticated seam | API boundary + test-only constructor |
+| RK-25 | effective trust reflects current device authority | unit |
+| RK-26 | revoked device cannot mutate negotiated protocol | unit |
 
 ## CI gate
 
