@@ -270,6 +270,7 @@ fn validate_id(id: &OpaqueId) -> Result<(), ProtocolError> {
     Ok(())
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SendSequence {
     next: u64,
@@ -296,6 +297,7 @@ impl Default for SendSequence {
     }
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ReceiveSequenceWindow {
     highest: Option<u64>,
