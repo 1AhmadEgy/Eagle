@@ -1,0 +1,85 @@
+version: 1
+suite: PrivateMesh Networking
+scope: P2P / Networking only
+status: executable-scenario-definition
+
+scenarios:
+  - id: NET-001
+    name: empty-candidate-set
+    expect: bounded-connect-failure
+
+  - id: NET-002
+    name: stale-discovery-record
+    expect: reject-and-expire
+
+  - id: NET-003
+    name: discovery-poisoning
+    expect: quarantine-untrusted-record
+
+  - id: NET-004
+    name: direct-path-establishment
+    expect: direct-preferred
+
+  - id: NET-005
+    name: direct-path-loss
+    expect: degrade-and-recover
+
+  - id: NET-006
+    name: relay-fallback
+    expect: opaque-frame-relay-only
+
+  - id: NET-007
+    name: relay-outage
+    expect: bounded-retry-no-plaintext-fallback
+
+  - id: NET-008
+    name: relay-recovery
+    expect: direct-path-preferred-after-check
+
+  - id: NET-009
+    name: nat-mapping-change
+    expect: recandidate-and-reconnect
+
+  - id: NET-010
+    name: duplicate-frame
+    expect: bounded-idempotent-handling
+
+  - id: NET-011
+    name: reordered-frames
+    expect: protocol-semantics-preserved
+
+  - id: NET-012
+    name: malformed-frame
+    expect: reject-before-state-mutation
+
+  - id: NET-013
+    name: oversized-frame
+    expect: reject-before-unbounded-allocation
+
+  - id: NET-014
+    name: unknown-protocol-version
+    expect: safe-rejection-no-downgrade
+
+  - id: NET-015
+    name: connection-timeout
+    expect: bounded-reconnect
+
+  - id: NET-016
+    name: simultaneous-connections
+    expect: deterministic-session-deduplication
+
+  - id: NET-017
+    name: route-loop
+    expect: bounded-hop-termination
+
+  - id: NET-018
+    name: interface-change
+    expect: recandidate-and-recover
+
+  - id: NET-019
+    name: sleep-wake
+    expect: lifecycle-policy-recovery
+
+  - id: NET-020
+    name: peer-authentication-failure
+    expect: connection-rejected-no-plaintext
