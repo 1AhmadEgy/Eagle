@@ -3,95 +3,97 @@
 **Date:** 2026-10-05  
 **Specialization:** Rust Core / Security Kernel  
 **Branch:** `execution/rust-core-security-kernel-complete-2026-10-05`  
-**Current branch head:** `af28d3201fcefd9e7669155c55c9112ed37f4194`
+**Current code head:** `c987bb283d8ca9ffac6cbf654c8fc0100711ab74`
 
 ## 01 Inventory
 Located Rust Core work across the active specialization branch and divergent historical execution branches. Current specialization source is isolated under `core/`.
 
 ## 02 Provenance
-Recorded Git branch, commit history, source paths, existing security/architecture documents, and prior CI evidence. Historical PrivateMesh material remains provenance evidence, not automatic authority.
+Recorded branch history, source paths, security/architecture documents, and CI evidence. Historical PrivateMesh material remains provenance evidence, not automatic authority.
 
 ## 03 Classification
 Separated accepted architecture, proposed ADRs, historical references, implementation files, tests, and verification evidence.
 
 ## 04 Triage
-Identified two classes of work:
-- safe deterministic kernel behavior that can be implemented now;
-- cryptographic/key/protocol work that remains gated.
+Split work into deterministic kernel behavior that can be safely implemented now and cryptographic/key/protocol work that remains gated.
 
 ## 05 Deep Analysis
-Reviewed trust/session state machines, API mutability, protocol bounds, envelope construction, device lifecycle, FFI rules, and CI workflow.
+Reviewed trust/session state machines, API mutability, protocol bounds, frame/envelope construction, device lifecycle, FFI rules, and CI workflow.
 
 ## 06 Reconciliation
-Compared the prior Rust baseline with the current specialization branch. Reusable safe concepts were retained; divergent trust-promotion behavior was not promoted.
+Compared prior Rust baselines with the current specialization. Smaller-TCB fail-closed behavior was retained; externally callable trust promotion was rejected.
 
 ## 07 Conflicts
 Resolved within scope:
 - public trust elevation → rejected;
 - externally mutable sensitive representation → rejected;
-- unbounded protocol acceptance → rejected.
+- unbounded protocol acceptance → rejected;
+- value-copyable authority state → rejected and remediated.
 
 Unresolved out-of-scope conflicts remain under the relevant ADRs.
 
 ## 08 Gaps
-Remaining specialization gaps are verification of the latest head and independent security review. Cryptographic/session semantics, key management, serialization, transport, and FFI ABI are explicit dependencies.
+Remaining specialization gaps are current-head verification and independent security review. Cryptographic/session semantics, key management, serialization, replay protection, transport, and FFI remain dependencies.
 
 ## 09 Canonical Authority
-Current authority order:
+Authority order:
 1. `PLATFORMS.md` accepted platform boundary;
 2. project security baseline;
 3. current Security Kernel specialization contract;
 4. accepted repository evidence;
-5. proposed ADRs only for pending decisions;
-6. historical PrivateMesh artifacts as evidence only.
+5. proposed ADRs for pending decisions;
+6. historical material as evidence only.
 
 ## 10 Remediation Plan
-Harden public representations, enforce constructor invariants, expand negative tests, formalize the Rust-only threat model, and maintain a release gate.
+Harden public representations, remove authority duplication, validate frame construction, expand negative-path tests, document the Rust-only threat model, and maintain release evidence.
 
 ## 11 Correction
-Completed hardening:
+Completed:
 - private Device/Envelope/Frame state;
 - read-only accessors;
 - guarded trust/session transitions;
 - bounded monotonic negotiation;
 - terminal revocation/replacement;
 - fail-closed constructors;
-- no public trust-promotion operation.
+- no public trust promotion;
+- no `Copy`/`Clone` on authority-bearing values;
+- validated `FrameHeader` constructor and integration-test repair.
 
 ## 12 Implementation
-The deterministic Security Kernel is implemented under `core/` as a dependency-free Rust library with pinned toolchain metadata.
+The deterministic Security Kernel is implemented as a dependency-free Rust library with pinned toolchain metadata.
 
 ## 13 Testing
-Unit and integration negative-path coverage is present. The test matrix explicitly identifies deferred crypto/fuzz/interop categories instead of marking them complete.
+Unit and integration negative-path coverage is present. Current-head CI is running for the latest hardening. Crypto/fuzz/interop/key-storage/FFI categories remain PENDING.
 
 ## 14 Security Review
-Static boundary review completed for this specialization. No unsafe code, secrets, custom cryptographic primitive, storage bypass, transport implementation, or public trust promotion introduced.
+Static specialization review completed. The principal newly identified design risk—authority duplication through `Copy`/`Clone`—has been remediated.
 
-Independent human security review remains required by project policy.
+Independent human security review remains required.
 
 ## 15 Verification
-Previous dedicated Rust CI passed on an earlier revision. The current code head that last changed Rust sources is `02e1a85cafdbd3c0331ca0745d43d0b07dfb93a4`; its dedicated Rust run `37246729956` remains queued in the observed GitHub state. Documentation-only commits after that code head do not alter the executable Rust sources. Current-head PASS is therefore not claimed.
+The immediately preceding Rust CI failed on the private-`FrameHeader` integration test mismatch. The fix is now on code head `c987bb283dca9ffac6cbf654c8fc0100711ab74`. Fresh checks are queued/in progress; current-head PASS is not claimed.
 
 ## 16 Evidence
 Evidence is persisted in:
 - Security Kernel specialization contract;
+- deep security research;
 - Rust-only threat model;
 - requirements/gap matrix;
 - test matrix;
 - execution record;
 - release gate;
-- PR #65.
+- draft PR #81.
 
 ## 17 Release Gate
-Specialization implementation gate: **COMPLETE**.  
-Current-head verification gate: **PENDING**.  
-Independent review gate: **PENDING**.
+Implementation hardening: **COMPLETE**.  
+Current-head verification: **PENDING**.  
+Independent review: **PENDING**.
 
 ## 18 Release
-No production merge/release is authorized by this specialization while the current-head verification and required human review are incomplete.
+No production merge/release is authorized by this specialization while verification and human review remain incomplete.
 
 ## 19 Post-Release
-Defined but not activated. On release, monitor crashes, parser failures, policy-denial anomalies, state-machine violations, dependency/toolchain changes, and security reports without logging secrets.
+Defined but not activated. On release, monitor parser failures, policy-denial anomalies, state-machine violations, dependency/toolchain changes, and security reports without logging secrets.
 
 ## 20 Re-entry
-Any protocol/key/FFI/security-boundary change automatically reopens the lifecycle from Inventory and repeats reconciliation, threat analysis, tests, and release gating.
+Any protocol/key/FFI/security-boundary change reopens the lifecycle from Inventory and repeats reconciliation, threat analysis, tests, evidence, and release gating.
