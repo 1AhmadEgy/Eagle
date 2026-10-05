@@ -90,7 +90,10 @@ mod tests {
             Err(TransportError::ApplicationDataRequiresDirectPath)
         );
         assert_eq!(
-            policy.authorize_application_data(TransportPath::ServerFallback, PeerBinding::EagleDevice,),
+            policy.authorize_application_data(
+                TransportPath::ServerFallback,
+                PeerBinding::EagleDevice,
+            ),
             Err(TransportError::ApplicationDataRequiresDirectPath)
         );
     }
