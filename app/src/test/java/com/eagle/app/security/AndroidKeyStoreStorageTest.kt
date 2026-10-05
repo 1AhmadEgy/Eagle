@@ -7,11 +7,15 @@ import org.junit.Test
 
 class AndroidKeyStoreStorageTest {
     @Test
-    fun aliasIsBoundToAccountDeviceAndEpoch() {
-        assertEquals(
-            "eagle.storage.10.20.3",
-            AndroidKeyStoreStorage.aliasFor(10, 20, 3),
-        )
+    fun aliasIsDeterministicAndDoesNotExposeRawScope() {
+        val first = AndroidKeyStoreStorage.aliasFor(10, 20, 3)
+        val second = AndroidKeyStoreStorage.aliasFor(10, 20, 3)
+
+        assertEquals(first, second)
+        assert(first.startsWith("eagle.storage."))
+        assert(!first.contains("10"))
+        assert(!first.contains("20"))
+        assert(!first.contains("3"))
     }
 
     @Test
