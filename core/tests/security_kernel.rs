@@ -1,7 +1,7 @@
 use eagle_core::{
     authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
     FrameHeader, MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session,
-    SessionState, CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
+    SessionState, CURRENT_PROTOCOL_VERSION, FRAME_HEADER_BYTES, MAX_ID_BYTES,
 };
 
 fn trusted_context() -> SecurityContext {
@@ -156,6 +156,37 @@ fn frame_header_rejects_length_and_version_mismatch() {
         FrameHeader::new(CURRENT_PROTOCOL_VERSION, 8, 1),
         Err(eagle_core::ProtocolError::UnsupportedFlags)
     );
+}
+
+#[test]
+fn bounded_frame_decoder_rejects_truncated_or_oversized_input() {
+    assert_eq!(
+        FrameHeader::decode(&[0; FRAME_HEADER_BYTES - 1]),
+        Err(eagle_core::ProtocolError::TruncatedFrame)
+    );
+
+    let mut frame = Vec::new();
+    frame.extend_from_slice(&CURRENT_PROTOCOL_VERSION.to_be_bytes());
+    frame.extend_from_slice(&((eagle_core::MAX_ID_BYTES as u32) << 16).to_be_bytes());
+    frame.extend_from_slice(&0u16.to_be_bytes());
+    assert!(matches!(
+        FrameHeader::decode(&frame),
+        Err(eagle_core::ProtocolError::PayloadTooLarge)
+    ));
+}
+
+#[test]
+fn bounded_frame_decoder_returns_borrowed_payload() {
+    let payload = [0xAA, 0xBB, 0xCC];
+    let mut frame = Vec::with_capacity(FRAME_HEADER_BYTES + payload.len());
+    frame.extend_from_slice(&CURRENT_PROTOCOL_VERSION.to_be_bytes());
+    frame.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+    frame.extend_from_slice(&0u16.to_be_bytes());
+    frame.extend_from_slice(&payload);
+
+    let (header, decoded) = FrameHeader::decode(&frame).unwrap();
+    assert_eq!(header.payload_len(), payload.len() as u32);
+    assert_eq!(decoded, payload);
 }
 
 #[test]
