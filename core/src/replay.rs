@@ -172,7 +172,8 @@ impl ReplayWindow {
                     }
                     Some(_) => Err(ReplayError::SequenceCollision),
                     None => {
-                        self.entries.insert(sequence, message_id);
+                        self.entries
+                            .insert(sequence, (message_id, content_binding));
                         Ok(())
                     }
                 }
@@ -243,10 +244,10 @@ mod tests {
         let mut window = ReplayWindow::new(4).unwrap();
         assert_eq!(window.observe(7, 1, message(1), binding(1)), Ok(()));
         assert_eq!(
-            window.observe(7, 1, message(1)),
+            window.observe(7, 1, message(1), binding(1)),
             Err(ReplayError::Duplicate)
         );
-        assert!(window.contains(1, &message(1)));
+        assert!(window.contains(1, &message(1), &binding(1)));
     }
 
     #[test]
