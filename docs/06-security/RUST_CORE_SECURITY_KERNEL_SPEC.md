@@ -33,14 +33,17 @@ Cryptographic verification, private-key custody, transport, persistence, UI, and
 6. An incomplete rekey fails closed by closing the session.
 7. Authentication cancellation returns only to untrusted/idle state and never grants trust.
 8. Revocation closes the session and is terminal for the context.
-6. Replaced devices cannot authorize.
-7. Protocol negotiation is bounded by configured minimum/maximum and current implementation version.
+9. Replaced devices cannot authorize.
+10. Protocol negotiation is bounded by configured minimum/maximum and current implementation version.
 11. A rejected protocol offer cannot mutate state.
 12. Identifier and payload bounds are enforced before acceptance.
-13. Raw private key material is not represented by the public kernel API.
-14. Unsafe Rust is forbidden.
-15. Platform bindings must not expose trust elevation or policy bypass.
-16. Authority-bearing state must not implement implicit value-copy semantics that can create stale independent security authority.
+13. Structural frame decoding rejects truncation and oversized declared payloads before accepting the payload slice.
+14. Structural frame decoding does not allocate payload memory.
+15. Replay/sequence state is not exposed as cryptographic protection until an accepted authenticated protocol supplies the proof boundary.
+16. Raw private key material is not represented by the public kernel API.
+17. Unsafe Rust is forbidden.
+18. Platform bindings must not expose trust elevation or policy bypass.
+19. Authority-bearing state must not implement implicit value-copy semantics that can create stale independent security authority.
 
 ## API boundary rules
 
@@ -57,6 +60,12 @@ The following are intentionally unavailable to external callers until a real ver
 - direct rekey completion;
 - direct mutation of negotiated protocol state;
 - direct mutation of device trust state.
+
+## Structural framing boundary
+
+`FrameHeader::decode(&[u8])` is a bounded parser for the current structural header contract only. It uses an 8-byte fixed header, validates version/flags/length before returning a borrowed payload slice, and performs no payload allocation. This does not define canonical message serialization; ADR-0010 remains the authority for the eventual wire serialization.
+
+The branch also contains test-only send/receive sequence seams. These validate monotonic counters, wrap rejection, duplicate rejection, and a bounded replay window. The seams are intentionally not public production APIs until an accepted cryptographic protocol binds sequence state to authenticated ciphertext/key epochs.
 
 ## Non-goals
 
