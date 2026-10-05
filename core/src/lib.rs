@@ -388,6 +388,36 @@ mod tests {
     }
 
     #[test]
+    fn revocation_race_before_establish_fails_closed_without_state_change() {
+        let (mut ctx, mut device) = authenticated();
+        assert_eq!(ctx.session_state(), SessionState::Authenticated);
+        device.revoke().unwrap();
+        assert_eq!(
+            ctx.establish(&device),
+            Err(SecurityError::Device(DeviceError::Revoked))
+        );
+        assert_eq!(ctx.session_state(), SessionState::Authenticated);
+        assert_eq!(ctx.trust_state(), TrustState::Trusted);
+    }
+
+    #[test]
+    fn revocation_race_before_rekey_fails_closed_without_state_change() {
+        let (mut ctx, mut device) = authenticated();
+        ctx.establish(&device).unwrap();
+        device.revoke().unwrap();
+        assert_eq!(
+            ctx.begin_rekey(&device),
+            Err(SecurityError::Device(DeviceError::Revoked))
+        );
+        assert_eq!(ctx.session_state(), SessionState::Established);
+        assert_eq!(ctx.trust_state(), TrustState::Trusted);
+        assert_eq!(
+            ctx.authorize(&device),
+            Err(SecurityError::Device(DeviceError::Revoked))
+        );
+    }
+
+    #[test]
     fn revocation_invalidates_bound_context() {
         let (mut ctx, mut device) = authenticated();
         ctx.establish(&device).unwrap();
