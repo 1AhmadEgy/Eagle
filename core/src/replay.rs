@@ -52,8 +52,11 @@ impl Default for ReplayTracker {
 mod tests {
     use super::*;
 
-    fn message_id(value: u8) -> MessageId {
-        MessageId::new([value; 16])
+    fn message_id(value: u16) -> MessageId {
+        let mut bytes = [0u8; 16];
+        bytes[0] = (value & 0xff) as u8;
+        bytes[1] = (value >> 8) as u8;
+        MessageId::new(bytes)
     }
 
     #[test]
@@ -70,7 +73,7 @@ mod tests {
     #[test]
     fn tracker_is_bounded() {
         let mut tracker = ReplayTracker::new();
-        for value in 0..=255u8 {
+        for value in 0..=255u16 {
             assert_eq!(tracker.accept(message_id(value)), Ok(()));
         }
         assert_eq!(tracker.len(), 256);
@@ -80,22 +83,22 @@ mod tests {
     fn oldest_entries_are_evicted_only_after_capacity_is_reached() {
         let mut tracker = ReplayTracker::new();
         for value in 0..MAX_TRACKED_MESSAGE_IDS as u16 {
-            let id = MessageId::new([value as u8; 16]);
-            assert_eq!(tracker.accept(id), Ok(()));
+            assert_eq!(tracker.accept(message_id(value)), Ok(()));
         }
 
         assert_eq!(
             tracker.accept(message_id(0)),
             Err(ReplayError::DuplicateMessage)
         );
-
-        assert_eq!(tracker.accept(message_id(250)), Err(ReplayError::DuplicateMessage));
-
-        assert_eq!(tracker.accept(message_id(255)), Err(ReplayError::DuplicateMessage));
-
         assert_eq!(
-            tracker.accept(MessageId::new([0xFF; 16])),
+            tracker.accept(message_id(250)),
+            Err(ReplayError::DuplicateMessage)
+        );
+        assert_eq!(
+            tracker.accept(message_id(MAX_TRACKED_MESSAGE_IDS as u16)),
             Ok(())
         );
+        assert_eq!(tracker.len(), MAX_TRACKED_MESSAGE_IDS);
+        assert_eq!(tracker.accept(message_id(0)), Ok(()));
     }
 }
