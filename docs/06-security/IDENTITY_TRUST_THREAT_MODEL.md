@@ -1,8 +1,8 @@
 # Eagle — Identity & Trust Threat Model
 
 **Scope:** account identity, device identity, pairing, trust, revocation, recovery, platform assurance  
-**Baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
-**Execution branch:** `execution/identity-trust-foundation-v1`  
+**Baseline:** `main` @ `abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`  
+**Execution candidate:** `implementation/security-first-v1-2026-10-05` / PR #77  
 **Posture:** security-first / fail-closed / P2P-only
 
 ## 1. Assets
@@ -63,19 +63,19 @@ The model assumes:
 | IDT-01 | Account impersonation | Full identity takeover | self-certifying identity + authenticated membership | Pending protocol proof |
 | IDT-02 | Device impersonation | Unauthorized device access | per-device identity + membership proof | Baseline implemented |
 | IDT-03 | Pairing MITM | Wrong device becomes trusted | mutual authentication + human-verifiable short code | Pending protocol proof |
-| IDT-04 | QR phishing | User approves attacker device | explicit approval + endpoint binding + UI warnings | Pending UX/security test |
-| IDT-05 | Pairing replay | Reuse old approval | single-use + expiry + epoch binding | Baseline implemented |
-| IDT-06 | Identity substitution | Contact silently replaced | quarantine + explicit reverification | Pending protocol integration |
+| IDT-04 | QR / short-code phishing | User approves attacker device | cryptographic session binding + explicit approval + human-verifiable comparison | Protocol implementation pending |
+| IDT-05 | Pairing replay | Reuse old approval | single-use + expiry + exact session/transcript binding + epoch binding | Baseline boundary implemented; protocol proof pending |
+| IDT-06 | Identity substitution | Contact silently replaced | quarantine + exact candidate match + explicit reverification | Baseline boundary implemented |
 | IDT-07 | Stale trust state | Revoked device regains authority | trust epoch + fail-closed guards | Baseline implemented |
 | IDT-08 | Offline revocation race | Continued temporary access | local revocation + reconciliation before privileged operation | Pending end-to-end evidence |
 | IDT-09 | Lost device | Unauthorized use of device | revocation + local lock/security policy | Partial |
 | IDT-10 | Compromised device | Key/session abuse | compartmentalized membership + revocation + protocol PCS | Pending protocol/security review |
 | IDT-11 | Recovery takeover | Attacker gains account authority | separate recovery protocol + explicit authorization | Pending ADR-007 |
 | IDT-12 | Recovery decrypts history unexpectedly | Historical disclosure | account/data recovery separation | Baseline implemented |
-| IDT-13 | Attestation over-trust | False security decision | assurance is evidence, not trust root | Baseline specified |
+| IDT-13 | Attestation over-trust / replay | False security decision or reused evidence | assurance is advisory; challenge/freshness and provenance validation at integration boundary | Baseline specified |
 | IDT-14 | Identifier correlation | Privacy loss | self-certifying IDs; no hardware IDs | Baseline specified |
 | IDT-15 | Audit secret leakage | Credential compromise | safe redaction and event schema | Baseline implemented |
-| IDT-16 | Rollback | Restoration of obsolete trust | monotonic epoch + storage rollback detection | Pending storage specification |
+| IDT-16 | Rollback / epoch rollback | Restoration of obsolete trust | monotonic epoch + authoritative state transition + persistent rollback detection | Persistent storage integration pending |
 | IDT-17 | Downgrade | weaker protocol or key policy | authenticated version negotiation | Pending protocol ADR |
 | IDT-18 | AI confused deputy | Unauthorized trust action | AI outside deterministic policy | Baseline specified |
 
@@ -163,7 +163,21 @@ A residual risk may remain only when:
 
 Security-critical unknowns are **PENDING**, not PASS.
 
-## 9. Ownership boundary
+## 9. Deep-research-derived controls
+
+The current research pass strengthens the model with the following requirements:
+
+1. A displayed or manually entered pairing code is not sufficient phishing resistance by itself. Final authorization must be cryptographically bound to the exact authenticated P2P session/transcript.
+2. Human comparison of a short value remains a user-facing anti-phishing control, but it cannot replace cryptographic endpoint binding.
+3. A key/identity change keeps the prior verified identity authoritative until exact-candidate reverification succeeds.
+4. Any hardware/app attestation must be checked for freshness/challenge binding and revocation where the platform supplies those signals; attestation remains separate from Eagle account trust.
+5. Device/authenticator uniqueness must be enforced per account context; a valid authenticator must not be reusable across unrelated accounts.
+6. Local trust epochs may advance only through an authoritative state transition. Arbitrary remote/future epoch observation must not mutate local authority.
+7. Optional key-transparency-style consistency evidence may detect key swaps, but cannot become an implicit centralized root of trust in the P2P-only architecture.
+
+These controls are documented in `docs/06-security/IDENTITY_TRUST_RESEARCH_2026-10-05.md`.
+
+## 10. Ownership boundary
 
 This threat model governs Identity & Trust. Protocol, cryptography, key management, storage, network, and platform-specific threat models remain authoritative for their own boundaries.
 

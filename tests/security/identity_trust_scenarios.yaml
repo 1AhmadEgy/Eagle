@@ -1,121 +1,97 @@
 schema_version: "1.0"
 suite: identity-trust-v1
-purpose: >
-  Security scenario definitions for pairing, trust state transitions,
-  revocation, identity change and recovery boundaries. These scenarios
-  become executable integration tests when the protocol/key-management
-  adapters are frozen.
+scope: Identity & Trust only
+status: planned-executable-corpus
 
 scenarios:
   - id: IT-SC-001
-    name: pending-device-self-promotion
-    preconditions:
-      device_state: PENDING
-    action: start-protected-session
+    name: pending-self-promotion
     expected: DENY
-    invariant: I-03
 
   - id: IT-SC-002
     name: explicit-pairing-approval
-    preconditions:
-      device_state: PENDING
-      pairing: ACTIVE
-      account_binding: MATCH
-    action: approve-device
     expected: TRUSTED
-    invariant: I-03
 
   - id: IT-SC-003
-    name: pairing-replay
-    preconditions:
-      pairing: CONSUMED
-    action: approve-device
-    expected: DENY
-    invariant: I-04
+    name: rejected-pairing-approval
+    expected: DENY_AND_REMAIN_PENDING
 
   - id: IT-SC-004
-    name: pairing-expiry
-    preconditions:
-      pairing: EXPIRED
-    action: approve-device
+    name: pairing-account-mismatch
     expected: DENY
-    invariant: I-04
 
   - id: IT-SC-005
-    name: pairing-account-mismatch
-    preconditions:
-      pairing_account: A
-      requested_account: B
-    action: approve-device
+    name: pairing-device-mismatch
     expected: DENY
-    invariant: I-05
 
   - id: IT-SC-006
-    name: stale-trust-epoch
-    preconditions:
-      device_state: TRUSTED
-      observed_epoch: STALE
-    action: start-protected-session
+    name: pairing-replay
     expected: DENY
-    invariant: I-09
 
   - id: IT-SC-007
-    name: revoked-device
-    preconditions:
-      device_state: REVOKED
-    action: start-protected-session
+    name: pairing-expiry-or-cancellation
     expected: DENY
-    invariant: I-08
 
   - id: IT-SC-008
-    name: identity-key-change
-    preconditions:
-      contact_state: VERIFIED
-      identity_key: CHANGED
-    action: accept-new-key
-    expected: QUARANTINE_UNTIL_REVERIFIED
-    invariant: I-10
+    name: stale-membership-epoch
+    expected: DENY
 
   - id: IT-SC-009
-    name: account-recovery-without-data-recovery
-    preconditions:
-      account_recovery: VALID
-      data_recovery_material: ABSENT
-    action: recover-history
+    name: future-membership-epoch
     expected: DENY
-    invariant: I-11
 
   - id: IT-SC-010
-    name: attestation-does-not-create-trust
-    preconditions:
-      platform_assurance: PLATFORM_ATTESTED
-      membership_state: UNKNOWN
-    action: start-protected-session
+    name: duplicate-device-binding
     expected: DENY
-    invariant: I-12
 
   - id: IT-SC-011
-    name: revoked-device-cannot-reactivate
-    preconditions:
-      device_state: REVOKED
-    action: reinstate
+    name: cross-account-device-reuse
     expected: DENY
-    invariant: I-08
 
   - id: IT-SC-012
-    name: cancelled-pairing-cannot-resume
-    preconditions:
-      pairing: CANCELLED
-    action: approve-device
+    name: identity-change
+    expected: QUARANTINE_AND_PRESERVE_VERIFIED_IDENTITY
+
+  - id: IT-SC-013
+    name: rejected-identity-reverification
+    expected: DENY_AND_REMAIN_QUARANTINED
+
+  - id: IT-SC-014
+    name: mismatched-reverification-candidate
+    expected: DENY_AND_REMAIN_QUARANTINED
+
+  - id: IT-SC-015
+    name: successful-exact-candidate-reverification
+    expected: VERIFIED
+
+  - id: IT-SC-016
+    name: revoked-device-authorization
     expected: DENY
-    invariant: I-04
+
+  - id: IT-SC-017
+    name: replaced-device-authorization
+    expected: DENY
+
+  - id: IT-SC-018
+    name: stale-trust-epoch-authorization
+    expected: DENY
+
+  - id: IT-SC-019
+    name: account-recovery-implies-history-recovery
+    expected: DENY
+
+  - id: IT-SC-020
+    name: trust-epoch-overflow
+    expected: DENY
 
 deferred_protocol_cases:
   - transcript-tampering
   - identity-signature-forgery
-  - cross-account-replay
-  - concurrent-device-approval-race
+  - identity-key-substitution
+  - concurrent-approval-race
   - offline-revocation-convergence
   - serialization-downgrade
   - persistent-state-rollback
   - cross-platform-interoperability
+  - platform-assurance-abuse
+  - recovery-interoperability

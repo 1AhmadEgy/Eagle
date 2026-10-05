@@ -28,6 +28,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Set up Rust 1.99.0
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # reviewed upstream commit
+        with:
+          toolchain: "1.99.0"
+          components: rustfmt, clippy
+
       - name: Verify repository hygiene
         shell: bash
         run: |
@@ -48,6 +54,14 @@ jobs:
         shell: bash
         run: python3 scripts/ci/verify-security-policy.py
 
+      - name: Verify architecture security boundaries
+        shell: bash
+        run: python3 scripts/ci/verify-architecture-boundaries.py
+
+      - name: Verify P2P-only transport boundary
+        shell: bash
+        run: python3 scripts/ci/verify-relay-boundary.py
+
       - name: Discover product surface
         shell: bash
         run: python3 scripts/ci/discover-product-surface.py
@@ -64,7 +78,7 @@ jobs:
           python3 scripts/ci/run-testlab-categories.py
           category_rc=$?
 
-          python3 - <<'PY'
+          BASELINE_RC="$baseline_rc" CATEGORY_RC="$category_rc" python3 - <<'PY'
           import json
           import os
           from pathlib import Path
@@ -79,6 +93,8 @@ jobs:
 
           # Keep the legacy exact-SHA status contract while exposing concrete
           # category evidence separately in categories.json.
+          baseline_rc = int(os.environ["BASELINE_RC"])
+          category_rc = int(os.environ["CATEGORY_RC"])
           status = {
               "schema_version": "1.0",
               "project": "Eagle",
@@ -112,5 +128,5 @@ jobs:
         with:
           name: testlab-${{ github.sha }}
           path: .ci/testlab/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30

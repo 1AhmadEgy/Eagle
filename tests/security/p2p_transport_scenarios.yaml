@@ -1,0 +1,78 @@
+# Eagle P2P Transport Security Scenario Corpus
+
+schema_version: "1.0"
+status: planned-executable-corpus
+
+scenarios:
+  - id: P2P-ATTACK-001
+    name: active-mitm
+    severity: critical
+    precondition: peer identities are configured
+    action: intercept-and-rewrite-handshake
+    expected: deny
+    invariant: network-reachability-never-grants-trust
+
+  - id: P2P-ATTACK-002
+    name: relay-fallback
+    severity: critical
+    precondition: direct path unavailable
+    action: force relay/content-forwarding path
+    expected: deny
+    invariant: application-content-never-uses-relay
+
+  - id: P2P-ATTACK-003
+    name: peer-identity-mismatch
+    severity: critical
+    precondition: transport peer identity differs from Eagle device identity
+    action: establish-transport
+    expected: deny
+    invariant: transport-identity-must-bind-to-device-identity
+
+  - id: P2P-ATTACK-004
+    name: replay-old-session
+    severity: high
+    action: replay-valid-old-session-frame
+    expected: deny
+    invariant: session-freshness
+
+  - id: P2P-ATTACK-005
+    name: downgrade
+    severity: high
+    action: offer-below-minimum-version
+    expected: deny
+    invariant: monotonic-protocol-negotiation
+
+  - id: P2P-ATTACK-006
+    name: oversized-input
+    severity: high
+    action: send-input-above-configured-bounds
+    expected: deny
+    invariant: bounded-resource-use
+
+  - id: P2P-ATTACK-007
+    name: connection-exhaustion
+    severity: high
+    action: open-connections-until-quota
+    expected: throttle-or-deny-without-service-crash
+    invariant: bounded-availability-cost
+
+  - id: P2P-ATTACK-008
+    name: revoked-device-reconnect
+    severity: critical
+    action: reconnect-using-stale-membership
+    expected: deny
+    invariant: revocation-monotonicity
+
+  - id: P2P-ATTACK-009
+    name: discovery-poisoning
+    severity: high
+    action: publish-false-peer-endpoint
+    expected: untrusted-candidate-only
+    invariant: discovery-is-not-trust
+
+  - id: P2P-ATTACK-010
+    name: background-reconnect-with-stale-auth
+    severity: high
+    action: restore-background-session-without-reauthentication
+    expected: deny
+    invariant: reconnect-must-revalidate-trust

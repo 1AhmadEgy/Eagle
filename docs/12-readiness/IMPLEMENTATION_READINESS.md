@@ -1,31 +1,41 @@
-# جاهزية التنفيذ البرمجي
+# Eagle — Implementation Readiness
 
-## النتيجة الحالية
-**الحالة: غير مكتمل — مرحلة تأسيس المرجع والتجهيز.**
+## Current disposition
 
-تم إنشاء أساس توثيقي وفتح PR مستقل، لكن لا توجد أدلة كافية من المصادر المتاحة حاليًا لاعتماد أن المتطلبات والمعمارية والـStack والاختبارات والأمن مكتملة.
+**Foundation hardened; production remains BLOCKED.**
 
-## بوابات البدء
-| البوابة | الشرط | الحالة |
+The repository now contains an executable Rust security foundation, Android secure-storage adapter work, opaque storage/transport contracts, security/architecture documentation, and CI policy gates. These do not constitute a production messenger.
+
+## Gate status
+
+| Gate | Status | Evidence basis |
 |---|---|---|
-| Requirements | متطلبات وظيفية وغير وظيفية معتمدة وقابلة للتتبع | Pending |
-| Architecture | معمارية ومخططات وحدود ثقة معتمدة | Pending |
-| Stack | تقنيات وإصدارات ومكونات أساسية مثبتة | Pending |
-| Security | Threat Model + baseline + secret policy | Partial |
-| Data | نموذج بيانات وسياسات احتفاظ/حماية | Pending |
-| QA | استراتيجية اختبار ومعايير قبول | Pending |
-| CI/CD | بناء واختبارات وفحوص أمنية قابلة للتكرار | Pending |
-| Operations | logging/monitoring/backup/recovery | Pending |
-| Documentation | مرجع موحد وسجل قرارات ومصادر | In Progress |
+| Corpus / provenance | PARTIAL | 44 historical Git artifacts proven; two session binaries remain pending durable binary promotion |
+| Requirements | BLOCKED | authoritative V1 requirements set not yet frozen |
+| Architecture | PARTIAL | technical baseline and release gate recorded; human approval evidence required |
+| Stack | PARTIAL | Android + Rust verified; full product stack not yet frozen |
+| Security | PARTIAL | fail-closed kernel, identity/storage/P2P threat artifacts and policy gates exist; independent review pending |
+| Crypto | BLOCKED | protocol/provider/interop evidence and independent review pending |
+| Key management | BLOCKED | lifecycle scaffolding exists; production provider and platform assurance evidence pending |
+| Serialization | BLOCKED | no production format approved |
+| Storage | PARTIAL | contract + Android Keystore adapter + negative tests; production backend/recovery proof pending |
+| P2P transport | PARTIAL | opaque-frame contract exists; real direct P2P implementation and adversarial network testing pending |
+| KMP shared layer | PENDING | target architecture only |
+| Desktop | PENDING | target architecture only |
+| iOS | PENDING | target architecture only |
+| AI | PARTIAL | advisory/non-authoritative boundary exists; outside release critical path |
+| CI/Test Lab | PARTIAL | security gates and Android/Rust workflows exist; exact current-head PASS not established in this execution session |
+| Independent review | BLOCKED | explicit architecture + security approvals not yet evidenced |
+| Release | BLOCKED | mandatory gates remain open |
 
-## قاعدة التنفيذ
-يمكن تنفيذ أعمال الاستكشاف والتوثيق والاختبارات الأولية، لكن لا ينبغي اعتبار المنتج جاهزًا للإطلاق أو الإنتاج قبل إغلاق البوابات ذات الصلة بالأدلة.
+## Verification rule
 
-## معيار الإطلاق
-- لا أسرار في المستودع.
-- مراجعة تغييرات حساسة من إنسان.
-- الاختبارات المطلوبة ناجحة.
-- الاعتماديات الحرجة مفحوصة.
-- الصلاحيات موثقة وفق أقل صلاحية.
-- rollback/recovery موثق ومجرب عند الحاجة.
-- كل متطلب إنتاجي مرتبط بكود واختبار ووثيقة.
+No PASS is inferred from documentation, source inspection, or an earlier commit. Verification status is always bound to an exact commit and actual test evidence.
+
+## Security release rule
+
+Any unresolved crypto, key-management, P2P transport-security, data-recovery, or independent-review blocker means **NO-GO**.
+
+## Current release decision
+
+**PRODUCTION BLOCKED.**
