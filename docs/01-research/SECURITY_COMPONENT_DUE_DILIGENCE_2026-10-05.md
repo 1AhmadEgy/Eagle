@@ -73,6 +73,7 @@ Use mature libraries for cryptographic primitives and protocols.
 Keep Eagle-owned logic limited to orchestration, identity binding, state machines, policy, bounded parsing, persistence boundaries, and verification.
 
 ## Current 2026-10-05 research refresh
+- `minicbor` v2.3.0 is the current serialization dependency used by the Rust foundation; its published license is Blue Oak Model License 1.0.0, so legal/license acceptance must be explicitly recorded before production dependency approval.
 - libsignal v0.104.0 remains the latest observed release; upstream continues to scope support to Signal's own clients and warns APIs/implementations may change.
 - OpenMLS v0.9.0 remains the latest observed release; its recent history includes security fixes and stricter storage expectations.
 - rust-libp2p v0.57.0 is the current upstream workspace version observed on 2026-10-05; QUIC and hole punching remain viable transport candidates, but Eagle still requires explicit identity binding, DoS controls, and relay exclusion evidence.

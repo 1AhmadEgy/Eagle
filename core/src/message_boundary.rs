@@ -154,7 +154,7 @@ mod tests {
                 &context,
                 &envelope(),
                 TransportPath::Direct,
-                Some(&PeerBinding::for_test()),
+                Some(&PeerBinding::test_binding()),
             )
             .unwrap();
 

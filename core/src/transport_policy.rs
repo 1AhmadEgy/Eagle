@@ -12,7 +12,7 @@ pub struct PeerBinding {
 
 impl PeerBinding {
     #[cfg(test)]
-    pub(crate) const fn for_test() -> Self {
+    pub(crate) const fn test_binding() -> Self {
         Self { _private: () }
     }
 }
