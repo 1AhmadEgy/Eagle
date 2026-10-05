@@ -48,6 +48,10 @@ jobs:
         shell: bash
         run: python3 scripts/ci/verify-security-policy.py
 
+      - name: Verify architecture security boundaries
+        shell: bash
+        run: python3 scripts/ci/verify-architecture-boundaries.py
+
       - name: Discover product surface
         shell: bash
         run: python3 scripts/ci/discover-product-surface.py
