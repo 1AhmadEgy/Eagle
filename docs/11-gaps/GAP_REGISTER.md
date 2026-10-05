@@ -11,8 +11,8 @@
 | GAP-005 | CI/Test Lab موجود ويكشف الفشل فعليًا، لكن current corrected head لم يحصل بعد على PASS شامل | لا يوجد دليل release-grade قابل للتكرار حتى الآن | إنهاء fresh CI وإغلاق root causes | Partial |
 | GAP-006 | صلاحيات أعضاء الفريق ليست جزءًا من مسار التحقق الحالي | لا يمكن إثبات least-privilege على مستوى GitHub team | مراجعة الصلاحيات عند دخول هذا النطاق | Open |
 | GAP-007 | protocol/key-management/serialization decisions ليست merged/approved technical authorities | يمنع cryptographic production implementation | مراجعة واعتماد ADRs مع evidence | Open |
-| GAP-008 | direct-only P2P transport implementation غير موجود في الكود الحالي | لا يمكن إثبات P2P-only runtime property | تنفيذ transport slice ثم adversarial tests | Open |
-| GAP-009 | storage encryption/recovery/deletion proof غير منفذ | local compromise/recovery risk غير مغلق | تنفيذ storage boundary + tests | Open |
+| GAP-008 | direct-only P2P transport runtime غير موجود في الكود الحالي؛ policy/boundary فقط | لا يمكن إثبات P2P-only runtime property أو NAT interoperability | تنفيذ transport slice ثم adversarial tests | Open |
+| GAP-009 | storage encryption/recovery/deletion proof ما زال جزئيًا؛ Android Keystore adapter موجود لكن دورة lifecycle الكاملة غير مثبتة | local compromise/recovery/deletion risk غير مغلق | تنفيذ storage lifecycle + recovery/deletion/adversarial tests | Partial |
 | GAP-010 | independent cryptographic/security review غير منجز | لا يمكن منح release authorization | مراجعة مستقلة قبل G6/G7 | Open |
 
 ## قاعدة الإغلاق
