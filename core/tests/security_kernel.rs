@@ -126,22 +126,13 @@ fn envelope_is_structurally_validated() {
 
 #[test]
 fn frame_header_rejects_length_and_version_mismatch() {
-    let header = FrameHeader {
-        protocol_version: CURRENT_PROTOCOL_VERSION,
-        payload_len: 9,
-        flags: 0,
-    };
+    let header = FrameHeader::new(CURRENT_PROTOCOL_VERSION, 9, 0).unwrap();
     assert_eq!(
         header.validate_payload_len(8),
         Err(eagle_core::ProtocolError::PayloadLengthMismatch)
     );
     assert_eq!(
-        (FrameHeader {
-            protocol_version: 0,
-            payload_len: 8,
-            flags: 0,
-        })
-        .validate_version(1),
+        FrameHeader::new(0, 8, 0),
         Err(eagle_core::ProtocolError::DowngradeRejected)
     );
     assert!(MAX_PAYLOAD_BYTES > 0);
