@@ -368,7 +368,7 @@ mod tests {
     #[test]
     fn revocation_is_terminal_for_context() {
         let (mut ctx, device) = authenticated();
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         ctx.revoke_trust();
         assert_eq!(ctx.trust_state(), TrustState::Revoked);
         assert_eq!(ctx.session_state(), SessionState::Closed);
