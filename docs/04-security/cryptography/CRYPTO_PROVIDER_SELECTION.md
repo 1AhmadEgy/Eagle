@@ -8,7 +8,7 @@ No provider is production-approved merely because it implements a relevant proto
 
 Status: REFERENCE / CONFORMANCE ONLY
 
-Current upstream workspace version: **0.104.0**. The upstream repository implements the Signal protocol family, including PQXDH and Double Ratchet, but explicitly states that use outside Signal is unsupported. The current repository is AGPL-3.0-only. citeturn271194search0turn271194search1
+Current upstream workspace version: **0.104.0**. The upstream repository implements the Signal protocol family, including PQXDH and Double Ratchet, but explicitly states that use outside Signal is unsupported. The current repository is AGPL-3.0-only.
 
 Decision:
 - retain as the primary protocol/reference corpus;
@@ -19,7 +19,7 @@ Decision:
 
 Status: RESEARCH / COMPONENT CANDIDATE ONLY
 
-Current release: **0.10.0**. It is a pure-Rust implementation of Olm and Megolm, Apache-2.0, and reports one Least Authority security audit with no significant findings. It is not a PQXDH implementation and cannot be composed with a separately written PQXDH handshake without a dedicated protocol-security review. The current changelog also shows active security/behavior changes, reinforcing exact-version pinning. citeturn798155search4turn798155search2turn798155search1
+Current release: **0.10.0**. It is a pure-Rust implementation of Olm and Megolm, Apache-2.0, and reports one Least Authority security audit with no significant findings. It is not a PQXDH implementation and cannot be composed with a separately written PQXDH handshake without a dedicated protocol-security review. The current changelog also shows active security/behavior changes, reinforcing exact-version pinning.
 
 Decision:
 - research/comparative-test use only;
@@ -30,7 +30,7 @@ Decision:
 
 Status: GROUP-CRYPTO REFERENCE / INTEGRATION CANDIDATE ONLY
 
-Current release: **0.9.0**. OpenMLS is a Rust implementation of RFC 9420 and currently documents classical MLS ciphersuites; it does not provide Eagle's 1:1 PQXDH/Double-Ratchet stack. OpenMLS also separates protocol implementation from cryptographic providers, which is useful for provider isolation but does not remove the need for independent integration review. citeturn798155search0turn798155search5turn798155search11
+Current release: **0.9.0**. OpenMLS is a Rust implementation of RFC 9420 and currently documents classical MLS ciphersuites; it does not provide Eagle's 1:1 PQXDH/Double-Ratchet stack. OpenMLS also separates protocol implementation from cryptographic providers, which is useful for provider isolation but does not remove the need for independent integration review.
 
 Decision:
 - group track only;
