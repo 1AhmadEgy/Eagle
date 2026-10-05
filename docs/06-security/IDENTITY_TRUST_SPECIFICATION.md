@@ -300,6 +300,19 @@ QR/code data must **not** contain:
 - recovery secrets;
 - exportable long-term secret material.
 
+### 5.3 Identity-change quarantine
+
+A newly observed identity or public-key replacement is **untrusted input** until the replacement has passed explicit reverification.
+
+The local trust object therefore maintains two distinct values:
+
+- **verified identity**: the last identity that has passed trust verification and remains the only identity eligible for trusted decisions;
+- **pending identity**: the replacement candidate held while the contact is quarantined.
+
+Entering quarantine must never overwrite the verified identity with the unverified candidate. Reverification must prove the exact pending candidate before the verified identity is replaced. A failed verifier or a mismatched candidate leaves the contact quarantined and preserves the previously verified identity.
+
+This prevents an identity-substitution path in which downstream consumers accidentally read an unverified replacement merely because it was observed.
+
 ### 6.4 Anti-phishing requirement
 
 A pairing ceremony must provide a human-verifiable binding between both endpoints.
