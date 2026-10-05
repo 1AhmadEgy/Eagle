@@ -70,10 +70,19 @@ impl EncryptedRecord {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DeleteReceipt {
-    pub record_id: OpaqueId,
-    pub schema_version: u16,
+    record_id: OpaqueId,
+    schema_version: u16,
 }
 
+impl DeleteReceipt {
+    pub fn record_id(&self) -> &OpaqueId {
+        &self.record_id
+    }
+
+    pub fn schema_version(&self) -> u16 {
+        self.schema_version
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StorageError {
@@ -81,7 +90,7 @@ pub enum StorageError {
     RecoveryRequired,
     Unavailable,
     NotFound,
-    ConflictingOwner,
+    AccessDenied,
 }
 
 pub trait SecureStorage {
@@ -138,7 +147,7 @@ impl SecureStorage for InMemorySecureStorage {
         let key = record.record_id().as_bytes().to_vec();
         if let Some(existing) = self.records.get(&key) {
             if existing.owner_id() != record.owner_id() {
-                return Err(StorageError::ConflictingOwner);
+                return Err(StorageError::AccessDenied);
             }
         }
 
@@ -159,7 +168,7 @@ impl SecureStorage for InMemorySecureStorage {
 
         let record = self.records.get(record_id.as_bytes()).ok_or(StorageError::NotFound)?;
         if record.owner_id() != owner_id {
-            return Err(StorageError::ConflictingOwner);
+            return Err(StorageError::NotFound);
         }
         Ok(record.clone())
     }
@@ -177,7 +186,7 @@ impl SecureStorage for InMemorySecureStorage {
 
         let record = self.records.get(record_id.as_bytes()).ok_or(StorageError::NotFound)?;
         if record.owner_id() != owner_id {
-            return Err(StorageError::ConflictingOwner);
+            return Err(StorageError::NotFound);
         }
         let schema_version = record.schema_version();
         self.records.remove(record_id.as_bytes());
@@ -224,15 +233,20 @@ mod tests {
     fn owner_binding_is_enforced() {
         let mut store = InMemorySecureStorage::new();
         store.put(record()).unwrap();
-        assert_eq!(
-            store.get(&id(1), &id(3)),
-            Err(StorageError::ConflictingOwner)
-        );
+        assert_eq!(store.get(&id(1), &id(3)), Err(StorageError::NotFound));
+
+        let duplicate = EncryptedRecord::new(id(1), id(3), 1, vec![0xBB; 16], 8).unwrap();
+        assert_eq!(store.put(duplicate), Err(StorageError::AccessDenied));
     }
 
     #[test]
     fn recovery_required_blocks_mutation_and_reads() {
         let mut store = InMemorySecureStorage::new();
+        store.put(record()).unwrap();
+        let receipt = store.delete(&id(1), &id(2)).unwrap();
+        assert_eq!(receipt.record_id(), &id(1));
+        assert_eq!(receipt.schema_version(), 1);
+
         store.put(record()).unwrap();
         store.set_recovery_required();
 
