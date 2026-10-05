@@ -227,10 +227,7 @@ mod tests {
 
     #[test]
     fn zero_reference_is_rejected() {
-        assert_eq!(
-            KeyReference::new([0; 16]),
-            Err(KeyError::InvalidReference)
-        );
+        assert_eq!(KeyReference::new([0; 16]), Err(KeyError::InvalidReference));
     }
 
     #[test]
@@ -257,7 +254,8 @@ mod tests {
 
     #[test]
     fn hardware_backing_can_strengthen_platform_secure_policy() {
-        let policy = KeyPolicy::for_purpose(KeyPurpose::IdentityAgreement).require_hardware_backing();
+        let policy =
+            KeyPolicy::for_purpose(KeyPurpose::IdentityAgreement).require_hardware_backing();
         let scope = KeyScope::new(10, 20, 1).unwrap();
         let record = KeyRecord::new(reference(), scope, policy);
 
@@ -284,8 +282,11 @@ mod tests {
     #[test]
     fn revoked_keys_are_terminal() {
         let scope = KeyScope::new(10, 20, 1).unwrap();
-        let mut record =
-            KeyRecord::new(reference(), scope, KeyPolicy::for_purpose(KeyPurpose::Storage));
+        let mut record = KeyRecord::new(
+            reference(),
+            scope,
+            KeyPolicy::for_purpose(KeyPurpose::Storage),
+        );
 
         record.revoke();
         assert_eq!(record.lifecycle(), KeyLifecycle::Revoked);
@@ -300,8 +301,11 @@ mod tests {
     #[test]
     fn suspended_keys_must_resume_before_use() {
         let scope = KeyScope::new(10, 20, 1).unwrap();
-        let mut record =
-            KeyRecord::new(reference(), scope, KeyPolicy::for_purpose(KeyPurpose::Session));
+        let mut record = KeyRecord::new(
+            reference(),
+            scope,
+            KeyPolicy::for_purpose(KeyPurpose::Session),
+        );
 
         record.suspend().unwrap();
         assert_eq!(
@@ -352,13 +356,7 @@ mod tests {
 
     #[test]
     fn invalid_scope_is_rejected() {
-        assert_eq!(
-            KeyScope::new(0, 20, 1),
-            Err(KeyError::InvalidReference)
-        );
-        assert_eq!(
-            KeyScope::new(10, 0, 1),
-            Err(KeyError::InvalidReference)
-        );
+        assert_eq!(KeyScope::new(0, 20, 1), Err(KeyError::InvalidReference));
+        assert_eq!(KeyScope::new(10, 0, 1), Err(KeyError::InvalidReference));
     }
 }
