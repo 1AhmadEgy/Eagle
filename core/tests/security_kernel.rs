@@ -161,10 +161,11 @@ fn device_revocation_and_replacement_are_terminal() {
     );
 }
 
-
 #[test]
 fn key_custody_contract_is_fail_closed() {
-    use eagle_core::{KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope};
+    use eagle_core::{
+        KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
+    };
 
     let reference = KeyReference::new([8; 16]).unwrap();
     let scope = KeyScope::new(10, 20, 1).unwrap();
@@ -172,14 +173,22 @@ fn key_custody_contract_is_fail_closed() {
     let mut record = KeyRecord::new(reference, scope, policy);
 
     assert_eq!(
-        record.authorize(scope, KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        record.authorize(
+            scope,
+            KeyPurpose::IdentitySigning,
+            KeyCustody::PlatformSecure
+        ),
         Ok(())
     );
     assert_eq!(record.export(), Err(KeyError::ExportForbidden));
 
     record.revoke();
     assert_eq!(
-        record.authorize(scope, KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        record.authorize(
+            scope,
+            KeyPurpose::IdentitySigning,
+            KeyCustody::PlatformSecure
+        ),
         Err(KeyError::Revoked)
     );
 }
