@@ -7,6 +7,8 @@ pub enum DeviceTrustState {
     Trusted,
     Revoked,
     Replaced,
+    IdentityMismatch,
+    AuthorityMismatch,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,6 +33,8 @@ impl fmt::Display for DeviceError {
             Self::InvalidTransition => "invalid device trust transition",
             Self::Revoked => "device is revoked",
             Self::Replaced => "device is replaced",
+            Self::IdentityMismatch => "device identity does not match",
+            Self::AuthorityMismatch => "device authority epoch does not match",
         })
     }
 }
@@ -43,6 +47,7 @@ pub struct Device {
     device: u64,
     platform: Platform,
     trust: DeviceTrustState,
+    authority_epoch: u64,
 }
 
 impl Device {
@@ -52,6 +57,7 @@ impl Device {
             device,
             platform,
             trust: DeviceTrustState::Unknown,
+            authority_epoch: 0,
         }
     }
 
@@ -69,6 +75,10 @@ impl Device {
 
     pub fn trust_state(&self) -> DeviceTrustState {
         self.trust
+    }
+
+    pub(crate) fn authority_epoch(&self) -> u64 {
+        self.authority_epoch
     }
 
     #[cfg(test)]
@@ -94,6 +104,7 @@ impl Device {
             return Err(DeviceError::InvalidTransition);
         }
         self.trust = DeviceTrustState::Revoked;
+        self.authority_epoch = self.authority_epoch.checked_add(1).ok_or(DeviceError::InvalidTransition)?;
         Ok(())
     }
 
@@ -102,6 +113,7 @@ impl Device {
             return Err(DeviceError::InvalidTransition);
         }
         self.trust = DeviceTrustState::Replaced;
+        self.authority_epoch = self.authority_epoch.checked_add(1).ok_or(DeviceError::InvalidTransition)?;
         Ok(())
     }
 
@@ -115,6 +127,21 @@ impl Device {
             }
         }
     }
+    pub(crate) fn validate_authority(
+        &self,
+        account: u64,
+        device: u64,
+        epoch: u64,
+    ) -> Result<(), DeviceError> {
+        if self.account != account || self.device != device {
+            return Err(DeviceError::IdentityMismatch);
+        }
+        if self.authority_epoch != epoch {
+            return Err(DeviceError::AuthorityMismatch);
+        }
+        self.can_authorize()
+    }
+
 }
 
 #[cfg(test)]
