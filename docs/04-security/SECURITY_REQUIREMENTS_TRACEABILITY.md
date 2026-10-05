@@ -17,7 +17,7 @@ BLOCKED = release cannot proceed until closed.
 | SEC-005 | Malformed/oversized identifiers and payloads are rejected before acceptance | parser boundary | constructor/length tests | VERIFIED |
 | SEC-006 | No custom cryptographic primitives/ratchet | security architecture + crypto baseline | no crypto primitives in current core | VERIFIED |
 | SEC-007 | Production E2E uses an approved standard protocol profile | crypto baseline | Signal/PQXDH target documented | PENDING |
-| SEC-008 | Private keys remain inside approved secure-storage boundary | key-management baseline | platform contract documented, no runtime custody yet | PENDING |
+| SEC-008 | Private keys remain inside approved secure-storage boundary | key-management baseline | non-exportable key references/custody contract implemented in Rust core; platform keystore implementation not yet present | IMPLEMENTED |
 | SEC-009 | Application content never uses relay fallback | P2P architecture | policy/ADR documented; runtime transport absent | PENDING |
 | SEC-010 | Direct P2P transport authenticates the peer and binds to Eagle identity | P2P threat model | implementation absent | PENDING |
 | SEC-011 | Recovery cannot silently restore revoked authority or decrypt history | identity/key recovery model | design baseline exists | PENDING |
