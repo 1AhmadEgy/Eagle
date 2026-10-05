@@ -36,7 +36,7 @@ Remediation:
 - removed an unused test helper;
 - removed `Copy`/`Clone` from authority-bearing values.
 
-New checks for current head `c987bb283dca9ffac6cbf654c8fc0100711ab74` are currently queued/in progress; no PASS is claimed until they complete.
+New checks for the current executable head `29d781e75cadb103e6ed764e8613559f46e22d04` are queued/in progress; no PASS is claimed until they complete.
 
 ## Non-specialization CI
 
