@@ -128,7 +128,7 @@ impl KeyLifecycle {
             id,
             purpose,
             generation,
-            epoch: self.next_epoch(),
+            epoch: self.next_epoch()?,
             state: LifecycleState::Active,
         };
         self.insert(record)?;
@@ -153,9 +153,19 @@ impl KeyLifecycle {
         if generation <= old_record.generation {
             return Err(LifecycleError::GenerationRollback);
         }
-        let event = self.register(new, old_record.purpose, generation)?;
-        self.transition(old, LifecycleState::Revoked)?;
-        Ok(event)
+        let mut new_record = KeyRecord {
+            id: new,
+            purpose: old_record.purpose,
+            generation,
+            epoch: self.next_epoch()?,
+            state: LifecycleState::Active,
+        };
+        self.insert(new_record)?;
+        let mut old_record = old_record;
+        old_record.state = LifecycleState::Revoked;
+        old_record.epoch = self.next_epoch()?;
+        self.replace(old_record)?;
+        Ok(self.event(KeyMutation::Rotate, new_record))
     }
 
     pub fn revoke(
@@ -165,6 +175,9 @@ impl KeyLifecycle {
         let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
         if record.state != LifecycleState::Active {
             return Err(match record.state {
+                LifecycleState::Revoked => LifecycleError::Revoked,
+                LifecycleState::Destroyed => LifecycleError::Destroyed,
+                LifecycleState::Consumed => LifecycleError::Consumed,
                 LifecycleState::Revoked => LifecycleError::Revoked,
                 LifecycleState::Destroyed => LifecycleError::Destroyed,
                 LifecycleState::Active => LifecycleError::InvalidTransition,
@@ -207,7 +220,7 @@ impl KeyLifecycle {
             return Err(LifecycleError::Destroyed);
         }
         record.state = LifecycleState::Destroyed;
-        record.epoch = self.next_epoch();
+        record.epoch = self.next_epoch()?;
         self.replace(record)?;
         Ok(self.event(KeyMutation::Destroy, record))
     }
