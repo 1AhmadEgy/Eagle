@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Specialization:** Rust Core / Security Kernel  
 **Branch:** `execution/rust-core-security-kernel-complete-2026-10-05`  
-**Current code head:** `c987bb283d8ca9ffac6cbf654c8fc0100711ab74`
+**Current code head:** `bc05c18420b2c0a29bb935466db6fa2ae0c9e766`
 
 ## 01 Inventory
 Located Rust Core work across the active specialization branch and divergent historical execution branches. Current specialization source is isolated under `core/`.
@@ -62,21 +62,24 @@ Completed:
 - public rekey completion removed until a real cryptographic proof exists;
 - authentication abort returns to Untrusted/Idle;
 - rekey abort closes the session.
-- validated `FrameHeader` constructor and integration-test repair.
+- validated `FrameHeader` constructor and integration-test repair;
+- bounded structural frame decoder with truncation/length checks;
+- test-only monotonic send sequence and receive replay-window seams;
+- device authority re-check at `establish` and `begin_rekey` to close revocation race windows.
 
 ## 12 Implementation
 The deterministic Security Kernel is implemented as a dependency-free Rust library with pinned toolchain metadata.
 
 ## 13 Testing
-Unit and integration negative-path coverage is present. Dedicated Rust Security Kernel CI run `37286323259` passed Format, Tests, and Clippy for code head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. Crypto/fuzz/interop/key-storage/FFI categories remain PENDING.
+Unit and integration negative-path coverage is present. Historical Rust Security Kernel CI run `37286323259` passed Format, Tests, and Clippy for code head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. Current head `bc05c18420b2c0a29bb935466db6fa2ae0c9e766` has a fresh queued Rust workflow; current-head verification is therefore PENDING. Crypto/fuzz/interop/key-storage/FFI categories remain PENDING.
 
 ## 14 Security Review
-Static specialization review completed. The principal newly identified design risk—authority duplication through `Copy`/`Clone`—has been remediated.
+Static specialization review is in progress. The main authority-duplication risk has been remediated, and a second revocation race was identified and closed at state transitions.
 
 Independent human security review remains required.
 
 ## 15 Verification
-The preceding Rust CI failures were resolved through fail-closed API/test corrections. Dedicated run `37286323259` passed Format, Tests, and Clippy for code head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. Current-head Rust verification is PASS.
+The preceding Rust CI failures were resolved through fail-closed API/test corrections. Historical run `37286323259` passed Format, Tests, and Clippy for an older executable head. Current-head verification for `bc05c18420b2c0a29bb935466db6fa2ae0c9e766` is PENDING.
 
 ## 16 Evidence
 Evidence is persisted in:
@@ -91,7 +94,7 @@ Evidence is persisted in:
 
 ## 17 Release Gate
 Implementation hardening: **COMPLETE**.  
-Current-head Rust verification: **PASS**.  
+Current-head Rust verification: **PENDING**.  
 Independent review: **PENDING**.
 
 ## 18 Release
