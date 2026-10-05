@@ -1,4 +1,4 @@
-use crate::{SecurityContext, SecurityError, SessionState};
+use crate::{Device, SecurityContext, SecurityError, SessionState};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Session {
@@ -8,10 +8,11 @@ pub struct Session {
 impl Session {
     pub fn establish(
         ctx: &mut SecurityContext,
+        device: &Device,
         offered_protocol: u16,
     ) -> Result<Self, SecurityError> {
         let protocol = ctx.validate_and_negotiate(offered_protocol)?;
-        ctx.establish()?;
+        ctx.establish(device)?;
         Ok(Self { protocol })
     }
 
@@ -19,13 +20,13 @@ impl Session {
         self.protocol
     }
 
-    pub fn begin_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
-        ctx.begin_rekey()
+    pub fn begin_rekey(ctx: &mut SecurityContext, device: &Device) -> Result<(), SecurityError> {
+        ctx.begin_rekey(device)
     }
 
     #[cfg(test)]
-    pub(crate) fn finish_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
-        ctx.finish_rekey()
+    pub(crate) fn finish_rekey(ctx: &mut SecurityContext, device: &Device) -> Result<(), SecurityError> {
+        ctx.finish_rekey(device)
     }
 
     pub fn abort_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
@@ -45,7 +46,7 @@ impl Session {
 mod tests {
     use super::*;
 
-    fn authenticated() -> SecurityContext {
+    fn authenticated() -> (SecurityContext, Device) {
         let mut device = crate::Device::new(1, 2, crate::Platform::Android);
         device.begin_pairing().unwrap();
         device.approve().unwrap();
@@ -53,14 +54,14 @@ mod tests {
         ctx.bind_device(&device).unwrap();
         ctx.begin_authentication().unwrap();
         ctx.accept_verified_authentication(&device).unwrap();
-        ctx
+        (ctx, device)
     }
 
     #[test]
     fn establish_does_not_mutate_invalid_context() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
         assert_eq!(
-            Session::establish(&mut ctx, 1),
+            Session::establish(&mut ctx, &device, 1),
             Err(SecurityError::InvalidSessionTransition)
         );
         assert_eq!(ctx.negotiated_protocol(), 1);
@@ -69,9 +70,9 @@ mod tests {
 
     #[test]
     fn aborted_rekey_closes_session() {
-        let mut ctx = authenticated();
+        let (mut ctx, device) = authenticated();
         Session::establish(&mut ctx, 1).unwrap();
-        Session::begin_rekey(&mut ctx).unwrap();
+        Session::begin_rekey(&mut ctx, &device).unwrap();
         assert_eq!(Session::abort_rekey(&mut ctx), Ok(()));
         assert_eq!(Session::state(&ctx), SessionState::Closed);
     }
@@ -94,7 +95,7 @@ mod tests {
         );
         Session::establish(&mut ctx, 1).unwrap();
         Session::begin_rekey(&mut ctx).unwrap();
-        Session::finish_rekey(&mut ctx).unwrap();
+        Session::finish_rekey(&mut ctx, &device).unwrap();
         assert_eq!(Session::state(&ctx), SessionState::Established);
         Session::close(&mut ctx);
         assert_eq!(Session::state(&ctx), SessionState::Closed);
