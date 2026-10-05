@@ -191,7 +191,10 @@ mod tests {
     fn duplicate_is_idempotently_rejected_without_new_entry() {
         let mut window = ReplayWindow::new(4).unwrap();
         assert_eq!(window.observe(7, 1, message(1)), Ok(()));
-        assert_eq!(window.observe(7, 1, message(1)), Err(ReplayError::Duplicate));
+        assert_eq!(
+            window.observe(7, 1, message(1)),
+            Err(ReplayError::Duplicate)
+        );
         assert!(window.contains(1, &message(1)));
     }
 
@@ -218,7 +221,10 @@ mod tests {
     fn epoch_changes_fail_closed() {
         let mut window = ReplayWindow::new(4).unwrap();
         assert_eq!(window.observe(1, 1, message(1)), Ok(()));
-        assert_eq!(window.observe(2, 1, message(1)), Err(ReplayError::EpochChanged));
+        assert_eq!(
+            window.observe(2, 1, message(1)),
+            Err(ReplayError::EpochChanged)
+        );
         assert_eq!(window.epoch(), Some(1));
         assert_eq!(window.highest_sequence(), Some(1));
     }
