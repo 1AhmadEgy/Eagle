@@ -46,9 +46,13 @@ mod tests {
     use super::*;
 
     fn authenticated() -> SecurityContext {
+        let mut device = crate::Device::new(1, 2, crate::Platform::Android);
+        device.begin_pairing().unwrap();
+        device.approve().unwrap();
         let mut ctx = SecurityContext::new(1, 1).unwrap();
+        ctx.bind_device(&device).unwrap();
         ctx.begin_authentication().unwrap();
-        ctx.accept_verified_authentication().unwrap();
+        ctx.accept_verified_authentication(&device).unwrap();
         ctx
     }
 
