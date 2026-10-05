@@ -76,3 +76,9 @@ The provider gate therefore fails closed when attestation, protocol binding, or 
 For example, Apple documents that Secure Enclave private-key protection is limited to supported P-256 operations and cannot import pre-existing keys. Android StrongBox similarly supports a constrained algorithm set. Therefore the implementation must never claim hardware custody for an unsupported PQXDH key merely because the device has Secure Enclave/StrongBox. Instead, the platform adapter must attest the supported hardware-bound anchor and explicitly record which protocol keys are hardware-backed, software-backed, or hybrid.
 
 A missing hardware capability must cause the applicable security profile to fail closed rather than silently downgrade its stated assurance level.
+
+## Provider approval hardening — 2026-10-05
+
+Approval is a compound proof, not a package name/version. The exact provider revision must satisfy non-exportable identity-key capability, hardware protection, applicable hardware-backed attestation of the platform/provider security anchor, PQ KEM, message-ratchet capability, explicit protocol-profile binding, license/support/platform review, conformance and independent cryptographic review.
+
+The hardware-attestation property does not mean every protocol key is physically stored in the same hardware boundary. Apple Secure Enclave and Android StrongBox have algorithm/operation constraints; unsupported PQXDH/MLS key types must not be mislabeled as hardware-protected. Missing capability fails closed.
