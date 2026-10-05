@@ -30,8 +30,10 @@ Repository-wide CI/security-policy failures and platform test-lab infrastructure
 
 ## Current verification evidence
 
+- Current head: `24dc0d488759420d1d772db8aa8956100fb102a8`.
+- No pull-request workflow run is currently associated with this latest documentation/test-corpus head; therefore no fresh CI PASS is claimed.
 - Baseline: `main @ abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`
-- Head: `7f5f209095ce555bd41b14a2f5e92a96854a2522`
+- Head: `24dc0d488759420d1d772db8aa8956100fb102a8`
 - CI run `37247378452`: failed at repository security-policy verification because unpinned action references were detected; product verification was skipped.
 - Test Lab run `37247378307`: failed while resolving Android 37 / build-tools 37.0.0; unit tests, lint, and debug build were skipped.
 - These are external blockers; Identity & Trust does not downgrade them to PASS.
