@@ -99,3 +99,19 @@ Executable crypto implementation: NOT EVIDENCED.
 Exact production library/version authorization: OPEN.
 Independent cryptographic review: REQUIRED.
 Production release: NOT GRANTED.
+
+
+## Current hardening baseline — 2026-10-05
+
+The production crypto provider gate is now defined as a compound proof, not a package selection:
+
+1. exact provider version and immutable revision;
+2. license/support/platform review;
+3. conformance and independent cryptographic review;
+4. required non-exportable identity-key capability;
+5. hardware protection and applicable hardware-backed attestation;
+6. explicit protocol profile binding;
+7. finalized PQC algorithm selection;
+8. strict-P2P deployment semantics proven separately from cryptographic correctness.
+
+No missing item may be converted into an implicit software fallback or a PASS by documentation alone.
