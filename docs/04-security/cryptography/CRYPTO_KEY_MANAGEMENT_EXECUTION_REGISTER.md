@@ -57,3 +57,6 @@ PROVIDER-POLICY-002: Unavailable providers fail closed; no plaintext/fake-key fa
 PROVIDER-POLICY-003: No candidate library is production-approved from popularity, license or protocol name alone.
 PROVIDER-POLICY-004: Production approval additionally requires non-exportable identity-key capability, PQ KEM and message-ratchet capability.
 SECURITY-BOUNDARY-001: Multi-epoch allocation near the u64 upper bound is rejected before mutation, preventing overflow.
+
+PROVIDER-POLICY-005: Provider approval now requires hardware-backed attestation capability where applicable.
+PROVIDER-POLICY-006: Provider approval is bound to an explicit Signal PQXDH+Double Ratchet v1 or MLS RFC 9420 v1 profile; unbound suites fail closed.
