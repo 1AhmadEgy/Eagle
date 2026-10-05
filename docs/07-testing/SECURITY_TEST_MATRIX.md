@@ -11,7 +11,7 @@
 | Pairing | MITM/replay/phishing/expiry | scenario corpus | PENDING |
 | Revocation | offline convergence/stale epoch/rollback | scenario corpus | PENDING |
 | Recovery | account-vs-history separation/abuse | recovery design | PENDING |
-| P2P | direct-only, NAT, relay denial, peer binding | P2P scenario corpus | PENDING |
+| P2P | direct-only, NAT, relay denial, peer binding | Rust core direct-only policy + unified outbound gate; concrete transport/NAT runtime absent | PARTIAL |
 | Crypto | PQXDH vectors/Double Ratchet vectors/interoperability | protocol gate; no production crypto integrated | PENDING |
 | Storage | encryption/deletion/rollback/power loss | Android Keystore AES-GCM adapter unit contract tests; device/instrumentation and full storage lifecycle evidence absent | PARTIAL |
 | Cross-platform | Android/Desktop/iOS policy parity | platform strategy | PENDING |
