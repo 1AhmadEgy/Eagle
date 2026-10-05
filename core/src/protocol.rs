@@ -230,7 +230,6 @@ mod tests {
         OpaqueId::new(vec![value; 8]).unwrap()
     }
 
-
     #[test]
     fn identifier_bounds_are_enforced_at_construction() {
         assert_eq!(
