@@ -63,6 +63,26 @@ fn pending_context_cannot_establish_or_rekey() {
 }
 
 #[test]
+fn authentication_cancellation_returns_to_untrusted_idle() {
+    let mut ctx = SecurityContext::new(1, 1).unwrap();
+    ctx.begin_authentication().unwrap();
+    assert_eq!(ctx.abort_authentication(), Ok(()));
+    assert_eq!(ctx.trust_state(), eagle_core::TrustState::Untrusted);
+    assert_eq!(ctx.session_state(), SessionState::Idle);
+    assert_eq!(
+        authorize(&ctx, Capability::Read),
+        Err(SecurityError::Unauthorized)
+    );
+}
+
+#[test]
+fn failed_rekey_closes_session() {
+    let mut ctx = SecurityContext::new(1, 1).unwrap();
+    ctx.begin_authentication().unwrap();
+    assert!(ctx.establish().is_err());
+}
+
+#[test]
 fn invalid_configuration_fails_closed() {
     assert_eq!(
         SecurityContext::new(0, 1),
