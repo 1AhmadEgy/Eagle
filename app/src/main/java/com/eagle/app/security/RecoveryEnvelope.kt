@@ -51,7 +51,8 @@ object RecoveryEnvelope {
             out.put(ciphertext)
             Base64.getEncoder().encodeToString(out.array())
         } finally {
-            key.encoded.fill(0)
+            salt.fill(0)
+            nonce.fill(0)
         }
     }
 
@@ -91,7 +92,6 @@ object RecoveryEnvelope {
                 throw SecurityException("Recovery authentication failed")
             }
         } finally {
-            key.encoded.fill(0)
             salt.fill(0)
             nonce.fill(0)
         }
