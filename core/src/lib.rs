@@ -237,10 +237,7 @@ mod tests {
     fn authentication_can_abort_without_granting_trust() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
         ctx.begin_authentication().unwrap();
-        assert_eq!(
-            ctx.abort_authentication(),
-            Ok(())
-        );
+        assert_eq!(ctx.abort_authentication(), Ok(()));
         assert_eq!(ctx.trust_state(), TrustState::Untrusted);
         assert_eq!(ctx.session_state(), SessionState::Idle);
         assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
