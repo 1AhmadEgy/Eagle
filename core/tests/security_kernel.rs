@@ -148,6 +148,10 @@ fn frame_header_rejects_length_and_version_mismatch() {
         FrameHeader::new(0, 8, 0),
         Err(eagle_core::ProtocolError::DowngradeRejected)
     );
+    assert_eq!(
+        FrameHeader::new(CURRENT_PROTOCOL_VERSION, 8, 1),
+        Err(eagle_core::ProtocolError::UnsupportedFlags)
+    );
     assert!(MAX_PAYLOAD_BYTES > 0);
 }
 
