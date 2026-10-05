@@ -2,18 +2,21 @@
 
 use std::fmt;
 
+mod delivery;
 mod device;
 mod policy;
 mod protocol;
+mod replay;
 mod session;
 
+pub use delivery::{DeliveryGuardError, DeliveryMetadata, InboundReplayGuard};
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use policy::{authorize, Capability};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
     CURRENT_PROTOCOL_VERSION, FRAME_HEADER_BYTES, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
-
 };
+pub use replay::{ContentBinding, FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow};
 pub use session::Session;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
