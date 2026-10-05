@@ -1,6 +1,6 @@
 use eagle_core::{
-    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle,
-    MessagingCrypto, RecoveryKeyHandle, UnavailableCryptoProvider,
+    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
+    RecoveryKeyHandle, UnavailableCryptoProvider,
 };
 
 #[test]
