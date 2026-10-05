@@ -607,6 +607,18 @@ mod tests {
         }
     }
 
+    struct AcceptReverificationVerifier;
+
+    impl ContactReverificationVerifier for AcceptReverificationVerifier {
+        fn verify_reverification(
+            &self,
+            _current: &ContactIdentity,
+            _replacement: &IdentityReference,
+        ) -> Result<(), TrustError> {
+            Ok(())
+        }
+    }
+
     struct RejectApprovalVerifier;
 
     impl MembershipProofVerifier for RejectApprovalVerifier {
@@ -828,7 +840,7 @@ mod tests {
         assert_eq!(contact.state, ContactIdentityState::Quarantined);
 
         contact
-            .reverify(new_identity, &AcceptApprovalVerifier)
+            .reverify(new_identity, &AcceptReverificationVerifier)
             .unwrap();
         assert_eq!(contact.state, ContactIdentityState::Verified);
     }
