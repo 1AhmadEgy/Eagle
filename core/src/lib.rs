@@ -4,6 +4,7 @@ mod device;
 mod key_management;
 mod policy;
 mod protocol;
+mod replay;
 mod session;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
@@ -11,6 +12,7 @@ pub use key_management::{
     KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
 };
 pub use policy::{authorize, Capability};
+pub use replay::{FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
