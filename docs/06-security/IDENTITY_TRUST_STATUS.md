@@ -53,7 +53,7 @@ The latest known completed CI on the integrated candidate reported:
 
 The Android failure is outside the Identity & Trust code path and is not silently reclassified as a specialty PASS.
 
-The current head has been changed after that run by Identity & Trust hardening and documentation updates; therefore a fresh exact-head workflow result is required before verification can be promoted.
+The candidate has changed after that run by Identity & Trust hardening; therefore fresh exact-head workflow evidence is required before verification can be promoted.
 
 ## Open security gates
 
