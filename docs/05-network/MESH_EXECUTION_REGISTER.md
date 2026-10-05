@@ -6,7 +6,7 @@ Status vocabulary:
 - VERIFIED: implementation + tests + evidence + review
 - BLOCKED: prerequisite not satisfied
 
-Current repository state: the planning/contract layer is specified; concrete transport implementation is blocked by ADR-0012 and verified stack evidence.
+Current repository state: the P2P planning, contract, failure, provenance, gap, resource, interoperability, and security-review layers are specified. Concrete transport implementation remains blocked by ADR-0012, verified Rust/core integration evidence, and numeric resource limits.
 
 | ID | Stage | Entry condition | Deliverable | Verification |
 |---|---|---|---|---|
@@ -26,11 +26,22 @@ Current repository state: the planning/contract layer is specified; concrete tra
 | MESH-014 | Failure Matrix | all critical paths | repeatable fault scenarios | loss/reorder/replay/NAT/relay suite |
 | MESH-015 | Observability/Release | verified test suite | sanitized telemetry + release evidence | evidence review |
 
+## Supporting evidence
+
+- Canonical authority: docs/05-network/PRIVATEMESH_CANONICAL_AUTHORITY.md
+- Gap matrix: docs/05-network/PRIVATEMESH_GAP_MATRIX.md
+- Interoperability: docs/05-network/PRIVATEMESH_INTEROPERABILITY_MATRIX.md
+- Resource limits: docs/05-network/PRIVATEMESH_RESOURCE_LIMITS.md
+- Security review: docs/05-network/PRIVATEMESH_SECURITY_REVIEW_CHECKLIST.md
+- Evidence index: docs/05-network/PRIVATEMESH_EVIDENCE_INDEX.md
+- Network scenarios: tests/network/privatemesh_network_scenarios.yaml
+
 ## Dependency chain
 
 MESH-001 → MESH-002 → MESH-003 → MESH-004 → MESH-005 → MESH-006 → MESH-007 → MESH-008 → MESH-009 → MESH-010 → MESH-011 → MESH-012 → MESH-013 → MESH-014 → MESH-015
 
 ## Non-negotiable mesh invariants
+
 - No application plaintext in Mesh.
 - No private-key access.
 - No Crypto↔Mesh circular dependency.
