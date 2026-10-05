@@ -1,43 +1,40 @@
-# جاهزية التنفيذ البرمجي
+# Eagle — Implementation Readiness
 
-## النتيجة الحالية
+## Current disposition
 
-**الحالة: Foundation hardened — production blocked.**
+**Foundation hardened; production remains BLOCKED.**
 
-تم الوصول إلى أساس فعلي في Android/Rust/CI/security documentation. توجد بوابات أمنية ومعمارية واضحة، لكن المنتج الكامل لم يصل بعد إلى release authorization.
+The repository now contains an executable Rust security foundation, Android secure-storage adapter work, opaque storage/transport contracts, security/architecture documentation, and CI policy gates. These do not constitute a production messenger.
 
-## بوابات البدء
+## Gate status
 
-| البوابة | الشرط | الحالة |
+| Gate | Status | Evidence basis |
 |---|---|---|
-| Corpus | المواد المتاحة مصنفة ومربوطة بالمصدر | Partial |
-| Requirements | متطلبات وظيفية وغير وظيفية authoritative | Pending |
-| Architecture | platform/trust/security boundaries موثقة | Partial |
-| Stack | Android/Gradle + Rust core مثبت؛ المنتج الكامل غير مثبت | Partial |
-| Security | security baseline + identity + P2P threat models | Partial |
-| Crypto | protocol/key/serialization production decisions + evidence | Blocked |
-| Data | encrypted storage + recovery/deletion policy | Pending |
-| QA | negative/integration/adversarial test matrix | Partial |
-| CI/CD | security policy + secret scan + verification pipeline | Partial |
-| Supply Chain | pinning + provenance/SBOM/security dependency policy | Partial |
-| Operations | secure diagnostics, recovery, incident handling | Pending |
-| Independent Review | external cryptographic/security review | Required |
+| Corpus / provenance | PARTIAL | 44 historical Git artifacts proven; two session binaries remain pending durable binary promotion |
+| Requirements | BLOCKED | authoritative V1 requirements set not yet frozen |
+| Architecture | PARTIAL | technical baseline and release gate recorded; human approval evidence required |
+| Stack | PARTIAL | Android + Rust verified; full product stack not yet frozen |
+| Security | PARTIAL | fail-closed kernel, identity/storage/P2P threat artifacts and policy gates exist; independent review pending |
+| Crypto | BLOCKED | protocol/provider/interop evidence and independent review pending |
+| Key management | BLOCKED | lifecycle scaffolding exists; production provider and platform assurance evidence pending |
+| Serialization | BLOCKED | no production format approved |
+| Storage | PARTIAL | contract + Android Keystore adapter + negative tests; production backend/recovery proof pending |
+| P2P transport | PARTIAL | opaque-frame contract exists; real direct P2P implementation and adversarial network testing pending |
+| KMP shared layer | PENDING | target architecture only |
+| Desktop | PENDING | target architecture only |
+| iOS | PENDING | target architecture only |
+| AI | PARTIAL | advisory/non-authoritative boundary exists; outside release critical path |
+| CI/Test Lab | PARTIAL | security gates and Android/Rust workflows exist; exact current-head PASS not established in this execution session |
+| Independent review | BLOCKED | explicit architecture + security approvals not yet evidenced |
+| Release | BLOCKED | mandatory gates remain open |
 
-## Release blockers
+## Verification rule
 
-1. No production cryptographic integration before protocol/key/serialization approval.
-2. No relay path for application content.
-3. No release with missing required security test categories.
-4. No release with unresolved P0/P1 findings.
-5. No production claim from the deterministic Rust kernel alone.
-6. Human review remains required before merge of security-sensitive changes.
+No PASS is inferred from documentation, source inspection, or an earlier commit. Verification status is always bound to an exact commit and actual test evidence.
 
-## Current evidence
+## Security release rule
 
-- Secret scanning has passed on the corrected branch.
-- CI security-policy verification has passed after action pinning correction.
-- Rust kernel tests and clippy passed on the corrected intermediate run after removing verified defects.
-- Android Test Lab had earlier environment/package failures around Android 37 availability; workflow channel handling was corrected and fresh verification is in progress.
+Any unresolved crypto, key-management, P2P transport-security, data-recovery, or independent-review blocker means **NO-GO**.
 
 ## Current release decision
 
