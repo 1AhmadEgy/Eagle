@@ -42,3 +42,6 @@ KEY-FOUNDATION-006: This contract does not claim secure hardware storage, key ge
 ## Evidence rule
 
 A design stage is not equivalent to executable PASS. Implementation, conformance, adversarial verification, and independent review remain separate gates.
+
+PROVIDER-POLICY-005: Provider approval requires hardware-backed attestation capability where applicable.
+PROVIDER-POLICY-006: Provider approval is bound to an explicit Signal PQXDH+Double Ratchet v1 or MLS RFC 9420 v1 profile; unbound suites fail closed.
