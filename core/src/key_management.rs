@@ -311,7 +311,7 @@ mod tests {
 
         record.resume().unwrap();
         assert_eq!(
-            record.authorize(KeyPurpose::Session, KeyCustody::Ephemeral),
+            record.authorize(scope, KeyPurpose::Session, KeyCustody::Ephemeral),
             Ok(())
         );
     }
