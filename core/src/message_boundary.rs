@@ -54,8 +54,7 @@ impl MessageBoundary {
             .authorize()
             .map_err(|_| MessageBoundaryError::Unauthorized)?;
 
-        self.transport
-            .authorize_application_data(path, peer)?;
+        self.transport.authorize_application_data(path, peer)?;
 
         serialize_envelope(envelope).map_err(Into::into)
     }
@@ -87,7 +86,9 @@ impl MessageBoundary {
 
         envelope
             .validate(context.negotiated_protocol())
-            .map_err(|_| MessageBoundaryError::Serialization(SerializationError::InvalidEnvelope))?;
+            .map_err(|_| {
+                MessageBoundaryError::Serialization(SerializationError::InvalidEnvelope)
+            })?;
 
         replay.accept(envelope.message_id().clone())?;
         Ok(())
@@ -195,11 +196,7 @@ mod tests {
         let context = SecurityContext::new(1, 1).unwrap();
 
         assert_eq!(
-            boundary.authorize_inbound(
-                &context,
-                TransportPath::Direct,
-                PeerBinding::EagleDevice,
-            ),
+            boundary.authorize_inbound(&context, TransportPath::Direct, PeerBinding::EagleDevice,),
             Err(MessageBoundaryError::Unauthorized)
         );
 
