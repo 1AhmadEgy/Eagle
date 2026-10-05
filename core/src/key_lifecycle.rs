@@ -167,10 +167,7 @@ impl KeyLifecycle {
         Ok(self.event(KeyMutation::Rotate, new_record))
     }
 
-    pub fn revoke(
-        &mut self,
-        id: KeyId,
-    ) -> Result<LifecycleEvent, LifecycleError> {
+    pub fn revoke(&mut self, id: KeyId) -> Result<LifecycleEvent, LifecycleError> {
         let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
         if record.state != LifecycleState::Active {
             return Err(match record.state {
@@ -208,10 +205,7 @@ impl KeyLifecycle {
         Ok(self.event(KeyMutation::Consume, record))
     }
 
-    pub fn destroy(
-        &mut self,
-        id: KeyId,
-    ) -> Result<LifecycleEvent, LifecycleError> {
+    pub fn destroy(&mut self, id: KeyId) -> Result<LifecycleEvent, LifecycleError> {
         let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
         if record.state == LifecycleState::Destroyed {
             return Err(LifecycleError::Destroyed);
@@ -375,7 +369,10 @@ mod tests {
 
         let event = lifecycle.consume_one_time_pre_key(id(5)).unwrap();
         assert_eq!(event.mutation, KeyMutation::Consume);
-        assert_eq!(lifecycle.get(id(5)).unwrap().state(), LifecycleState::Consumed);
+        assert_eq!(
+            lifecycle.get(id(5)).unwrap().state(),
+            LifecycleState::Consumed
+        );
         assert_eq!(
             lifecycle.consume_one_time_pre_key(id(5)),
             Err(LifecycleError::Consumed)
@@ -396,7 +393,7 @@ mod tests {
     }
 
     #[test]
-    fn epochs_never_move_backwards {
+    fn epochs_never_move_backwards() {
         let mut lifecycle = KeyLifecycle::default();
         let a = lifecycle
             .register(id(1), KeyPurpose::Message, 1)
