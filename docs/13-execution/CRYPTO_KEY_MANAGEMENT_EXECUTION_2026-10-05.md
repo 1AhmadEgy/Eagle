@@ -28,12 +28,11 @@ libsignal remains reference/conformance material pending license/support/provena
 
 ## Verification evidence
 
-- Current branch: `execution/crypto-key-lifecycle-canonical-2026-10-05`.
-- Pull request: #73.
-- Current PR head: `3316233eb09b3e4d5b390dfb51e56a2fc9841292`.
-- Base: `security/reconciled-foundation-2026-10-05` at `a5ed695466d61c59a7d7f27fc6035ff94dde6cac`.
+- Current branch: `execution/crypto-key-lifecycle-canonical-v4-2026-10-05`.
+- - Current reconciled head: `9a4c4cb4452b1eb961caa9489896bb2aa425b01a`.
+- Base: `security/reconciled-foundation-2026-10-05` at `b49bbbb1724f1dbcd2e498dfcf2d12c49f2c0a35`.
 - PR state is open and GitHub currently reports it as mergeable; human review is still required.
-- The prior CI cycle reached execution and exposed two verified issues: Rust 1.99 rejected the array comparison inside `const fn`, and rustfmt reported workspace formatting drift. Both causes were corrected without changing cryptographic behavior. An additional security review then closed a `u64::MAX` epoch-allocation overflow edge case with a regression test. A new CI cycle has been triggered for the corrected head; no PASS is claimed until its result is observed.
+- The prior CI cycle reached execution and exposed two verified issues: Rust 1.99 rejected the array comparison inside `const fn`, and rustfmt reported workspace formatting drift. Both causes were corrected without changing cryptographic behavior. An additional security review then closed a `u64::MAX` epoch-allocation overflow edge case with a regression test. The specialty was then rebuilt on the current canonical foundation; no PASS is claimed until CI for this reconciled head is observed.
 - A local execution attempt was blocked because the execution environment has no `cargo`, `rustc`, or `rustfmt` toolchain installed. No local test PASS is claimed.
 
 ## Release disposition
