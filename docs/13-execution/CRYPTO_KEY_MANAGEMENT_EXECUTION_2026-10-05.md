@@ -29,10 +29,10 @@ libsignal remains reference/conformance material pending license/support/provena
 ## Verification evidence
 
 - Current branch: `execution/crypto-key-lifecycle-canonical-v4-2026-10-05`.
-- - Current reconciled head: `9a4c4cb4452b1eb961caa9489896bb2aa425b01a`.
+- - Current reconciled head: `5b9c91a7f74c412dedee95b8f8227bdd73bb94ac`.
 - Base: `security/reconciled-foundation-2026-10-05` at `b49bbbb1724f1dbcd2e498dfcf2d12c49f2c0a35`.
 - PR state is open and GitHub currently reports it as mergeable; human review is still required.
-- The prior CI cycle reached execution and exposed two verified issues: Rust 1.99 rejected the array comparison inside `const fn`, and rustfmt reported workspace formatting drift. Both causes were corrected without changing cryptographic behavior. An additional security review then closed a `u64::MAX` epoch-allocation overflow edge case with a regression test. The specialty was then rebuilt on the current canonical foundation; no PASS is claimed until CI for this reconciled head is observed.
+- The prior CI cycle reached execution and exposed two verified issues: Rust 1.99 rejected the array comparison inside `const fn`, and rustfmt reported workspace formatting drift. Both causes were corrected without changing cryptographic behavior. An additional security review then closed a `u64::MAX` epoch-allocation overflow edge case with a regression test. CI on the reconciled head then exposed two verified namespace/import defects in existing security tests: the serialization test module lacked its `MAX_ID_BYTES` import, and the key-custody test referenced the legacy `KeyPurpose` name after canonical aliasing. Both were corrected without changing behavior. Current CI runs for the corrected head are queued; no PASS is claimed until completion.
 - A local execution attempt was blocked because the execution environment has no `cargo`, `rustc`, or `rustfmt` toolchain installed. No local test PASS is claimed.
 
 ## Release disposition
@@ -41,7 +41,7 @@ Design and implementation boundary: COMPLETE.
 
 Executable production crypto: NOT VERIFIED.
 
-CI verification: PENDING.
+CI verification: PENDING — current Rust Security Kernel run #281 and CI run #716 are queued for head `5b9c91a7f74c412dedee95b8f8227bdd73bb94ac`.
 
 Independent cryptographic review: REQUIRED.
 
