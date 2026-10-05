@@ -11,7 +11,7 @@ Implemented in this specialization:
 - immutable identifier/session representations;
 - unsafe Rust forbidden;
 - zero external runtime dependencies;
-- non-exportable key-reference/custody contract with terminal revocation.
+- device-scoped, non-exportable key-reference/custody contract with terminal revocation.
 
 Deferred by security gate:
 - cryptographic primitives and primitive selection;
