@@ -1,6 +1,4 @@
-use eagle_core::{
-    KeyId, KeyLifecycle, KeyMutation, KeyPurpose, LifecycleError, LifecycleState,
-};
+use eagle_core::{KeyId, KeyLifecycle, KeyMutation, KeyPurpose, LifecycleError, LifecycleState};
 
 fn id(value: u8) -> KeyId {
     KeyId::new([value; 16])
@@ -29,7 +27,10 @@ fn rotation_is_forward_only() {
     let event = lifecycle.rotate(id(1), id(2), 11).unwrap();
     assert_eq!(event.mutation, KeyMutation::Rotate);
     assert_eq!(event.purpose, KeyPurpose::Session);
-    assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Revoked);
+    assert_eq!(
+        lifecycle.get(id(1)).unwrap().state(),
+        LifecycleState::Revoked
+    );
     assert_eq!(lifecycle.get(id(2)).unwrap().generation(), 11);
 }
 
@@ -44,7 +45,10 @@ fn failed_rotation_is_atomic() {
         lifecycle.rotate(id(1), id(2), 10),
         Err(LifecycleError::GenerationRollback)
     );
-    assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Active);
+    assert_eq!(
+        lifecycle.get(id(1)).unwrap().state(),
+        LifecycleState::Active
+    );
     assert!(lifecycle.get(id(2)).is_none());
 
     assert_eq!(
