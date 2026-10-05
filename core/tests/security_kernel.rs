@@ -2,6 +2,7 @@ use eagle_core::{
     authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
     FrameHeader, MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session,
     SessionState, CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
+    ContentBinding, DeliveryGuardError, FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow,
 };
 
 fn trusted_context() -> SecurityContext {
@@ -171,4 +172,100 @@ fn device_revocation_and_replacement_are_terminal() {
         replaced.replace(),
         Err(eagle_core::DeviceError::InvalidTransition)
     );
+}
+
+#[test]
+fn replay_window_rejects_duplicate_and_content_reuse() {
+    let mut window = ReplayWindow::new(4).unwrap();
+    let binding = ContentBinding::new([7; 32]);
+
+    assert_eq!(
+        window.observe(1, 10, MessageId::new([10; 16]), binding),
+        Ok(())
+    );
+    assert_eq!(
+        window.observe(1, 10, MessageId::new([10; 16]), binding),
+        Err(ReplayError::Duplicate)
+    );
+    assert_eq!(
+        window.observe(
+            1,
+            10,
+            MessageId::new([10; 16]),
+            ContentBinding::new([8; 32]),
+        ),
+        Err(ReplayError::ContentBindingMismatch)
+    );
+    assert_eq!(
+        window.observe(
+            1,
+            10,
+            MessageId::new([11; 16]),
+            ContentBinding::new([9; 32]),
+        ),
+        Err(ReplayError::SequenceCollision)
+    );
+}
+
+#[test]
+fn replay_window_is_epoch_bounded() {
+    let mut window = ReplayWindow::new(4).unwrap();
+    assert_eq!(
+        window.observe(
+            1,
+            1,
+            MessageId::new([1; 16]),
+            ContentBinding::new([1; 32]),
+        ),
+        Ok(())
+    );
+    assert_eq!(
+        window.observe(
+            2,
+            1,
+            MessageId::new([2; 16]),
+            ContentBinding::new([2; 32]),
+        ),
+        Err(ReplayError::EpochChanged)
+    );
+}
+
+#[test]
+fn freshness_policy_is_fail_closed() {
+    let policy = FreshnessPolicy::new(1_000, 100);
+
+    assert_eq!(
+        policy.validate(10_000, 10_050, Some(10_100)),
+        Ok(())
+    );
+    assert_eq!(
+        policy.validate(10_000, 10_101, None),
+        Err(FreshnessError::CreatedInFuture)
+    );
+    assert_eq!(
+        policy.validate(10_000, 8_999, None),
+        Err(FreshnessError::TooOld)
+    );
+    assert_eq!(
+        policy.validate(10_200, 10_050, Some(10_150)),
+        Err(FreshnessError::Expired)
+    );
+}
+
+#[test]
+fn inbound_delivery_guard_checks_freshness_before_replay_state() {
+    let mut guard =
+        InboundReplayGuard::new(4, FreshnessPolicy::new(1_000, 100)).unwrap();
+
+    let stale = DeliveryMetadata::new(1, 1, 8_999, Some(9_999));
+    assert_eq!(
+        guard.accept(
+            stale,
+            MessageId::new([1; 16]),
+            ContentBinding::new([1; 32]),
+            10_000,
+        ),
+        Err(DeliveryGuardError::Freshness(FreshnessError::TooOld))
+    );
+    assert_eq!(guard.replay().highest_sequence(), None);
 }
