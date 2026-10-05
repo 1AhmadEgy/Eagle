@@ -390,7 +390,7 @@ mod tests {
     #[test]
     fn revocation_invalidates_bound_context() {
         let (mut ctx, mut device) = authenticated();
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         assert_eq!(ctx.authorize(&device), Ok(()));
         device.revoke().unwrap();
         assert_eq!(
