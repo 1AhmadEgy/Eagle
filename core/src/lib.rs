@@ -2,6 +2,7 @@
 
 mod device;
 mod key_management;
+mod message_boundary;
 mod policy;
 mod protocol;
 mod session;
@@ -9,6 +10,7 @@ mod serialization;
 mod transport_policy;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
+pub use message_boundary::{MessageBoundary, MessageBoundaryError};
 pub use key_management::{
     KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
 };
