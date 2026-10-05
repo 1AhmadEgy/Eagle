@@ -248,8 +248,7 @@ impl KeyLifecycle {
 
     fn reserve_epochs(&mut self, count: u64) -> Result<[u64; 2], LifecycleError> {
         debug_assert!((1..=2).contains(&count));
-        let max_next_epoch = u64::MAX - count + 1;
-        if self.next_epoch > max_next_epoch {
+        if self.next_epoch > u64::MAX - count {
             return Err(LifecycleError::EpochExhausted);
         }
 
@@ -424,6 +423,21 @@ mod tests {
         let c = lifecycle.destroy(id(1)).unwrap();
         assert!(a.epoch < b.epoch);
         assert!(b.epoch < c.epoch);
+    }
+
+    #[test]
+    fn multi_epoch_reservation_rejects_boundary_without_overflow() {
+        let mut lifecycle = KeyLifecycle {
+            records: [None; KeyLifecycle::MAX_KEYS],
+            count: 0,
+            next_epoch: u64::MAX - 1,
+        };
+        assert_eq!(
+            lifecycle.register(id(10), KeyPurpose::Session, 1),
+            Err(LifecycleError::EpochExhausted)
+        );
+        assert_eq!(lifecycle.next_epoch, u64::MAX - 1);
+        assert!(lifecycle.get(id(10)).is_none());
     }
 
     #[test]
