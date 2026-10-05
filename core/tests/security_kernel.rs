@@ -160,3 +160,25 @@ fn device_revocation_and_replacement_are_terminal() {
         Err(eagle_core::DeviceError::InvalidTransition)
     );
 }
+
+
+#[test]
+fn key_custody_contract_is_fail_closed() {
+    use eagle_core::{KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference};
+
+    let reference = KeyReference::new([8; 16]).unwrap();
+    let policy = KeyPolicy::for_purpose(KeyPurpose::IdentitySigning);
+    let mut record = KeyRecord::new(reference, policy);
+
+    assert_eq!(
+        record.authorize(KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        Ok(())
+    );
+    assert_eq!(record.export(), Err(KeyError::ExportForbidden));
+
+    record.revoke();
+    assert_eq!(
+        record.authorize(KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        Err(KeyError::Revoked)
+    );
+}
