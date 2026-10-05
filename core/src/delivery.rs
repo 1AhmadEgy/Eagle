@@ -1,4 +1,4 @@
-use crate::{FreshnessError, FreshnessPolicy, MessageId, ReplayError, ReplayWindow};
+use crate::{ContentBinding, FreshnessError, FreshnessPolicy, MessageId, ReplayError, ReplayWindow};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DeliveryMetadata {
@@ -85,6 +85,7 @@ impl InboundReplayGuard {
         &mut self,
         metadata: DeliveryMetadata,
         message_id: MessageId,
+        content_binding: ContentBinding,
         now_epoch_ms: u64,
     ) -> Result<(), DeliveryGuardError> {
         self.freshness.validate(
@@ -92,8 +93,12 @@ impl InboundReplayGuard {
             metadata.created_at_epoch_ms,
             metadata.expires_at_epoch_ms,
         )?;
-        self.replay
-            .observe(metadata.epoch, metadata.sequence, message_id)?;
+        self.replay.observe(
+            metadata.epoch,
+            metadata.sequence,
+            message_id,
+            content_binding,
+        )?;
         Ok(())
     }
 
@@ -122,11 +127,21 @@ mod tests {
     fn acceptance_is_freshness_and_replay_gated() {
         let mut guard = guard();
         assert_eq!(
-            guard.accept(metadata(1, 1), MessageId::new([1; 16]), 10_050),
+            guard.accept(
+                metadata(1, 1),
+                MessageId::new([1; 16]),
+                ContentBinding::new([1; 32]),
+                10_050,
+            ),
             Ok(())
         );
         assert_eq!(
-            guard.accept(metadata(1, 1), MessageId::new([1; 16]), 10_050),
+            guard.accept(
+                metadata(1, 1),
+                MessageId::new([1; 16]),
+                ContentBinding::new([1; 32]),
+                10_050,
+            ),
             Err(DeliveryGuardError::Replay(ReplayError::Duplicate))
         );
     }
@@ -136,7 +151,12 @@ mod tests {
         let mut guard = guard();
         let stale = DeliveryMetadata::new(1, 1, 8_999, Some(9_999));
         assert_eq!(
-            guard.accept(stale, MessageId::new([2; 16]), 10_000),
+            guard.accept(
+                stale,
+                MessageId::new([2; 16]),
+                ContentBinding::new([2; 32]),
+                10_000,
+            ),
             Err(DeliveryGuardError::Freshness(FreshnessError::TooOld))
         );
         assert_eq!(guard.replay().highest_sequence(), None);
@@ -151,7 +171,12 @@ mod tests {
         );
         assert_eq!(guard.advance_epoch(2), Ok(()));
         assert_eq!(
-            guard.accept(metadata(2, 1), MessageId::new([2; 16]), 10_050),
+            guard.accept(
+            metadata(2, 1),
+            MessageId::new([2; 16]),
+            ContentBinding::new([2; 32]),
+            10_050,
+        ),
             Ok(())
         );
         assert_eq!(
