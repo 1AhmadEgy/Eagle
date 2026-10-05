@@ -68,7 +68,7 @@ impl EncryptedRecord {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DeleteReceipt {
     record_id: OpaqueId,
     schema_version: u16,
