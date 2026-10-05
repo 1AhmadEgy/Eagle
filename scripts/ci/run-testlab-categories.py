@@ -114,6 +114,56 @@ def main() -> int:
         ),
     )
 
+    relay_rc, relay_output = run(
+        [sys.executable, "scripts/ci/verify-relay-boundary.py"]
+    )
+    (OUT / "p2p-boundary.log").write_text(relay_output, encoding="utf-8")
+    record(
+        evidence,
+        "P2P boundary",
+        "PASS" if relay_rc == 0 else "FAIL",
+        command="python3 scripts/ci/verify-relay-boundary.py",
+        evidence=".ci/testlab/p2p-boundary.log",
+    )
+    if relay_rc != 0:
+        evidence["verification"] = "FAIL"
+        (OUT / "categories.json").write_text(
+            json.dumps(evidence, indent=2) + "\n", encoding="utf-8"
+        )
+        return 1
+
+    security_tests = sorted((ROOT / "tests" / "security").glob("test_*.py")) if (ROOT / "tests" / "security").is_dir() else []
+    if security_tests:
+        rc, output = run(
+            [sys.executable, "-m", "unittest", "discover", "-s", "tests/security", "-p", "test_*.py"]
+        )
+        (OUT / "security-tests.log").write_text(output, encoding="utf-8")
+        if rc == 0:
+            # Security PASS now requires executable repository security tests
+            # in addition to the static policy gate.
+            record(
+                evidence,
+                "Security",
+                "PASS",
+                command="python3 -m unittest discover -s tests/security -p test_*.py",
+                evidence=".ci/testlab/security-tests.log",
+                tests=len(security_tests),
+            )
+        else:
+            record(
+                evidence,
+                "Security",
+                "FAIL",
+                command="python3 -m unittest discover -s tests/security -p test_*.py",
+                evidence=".ci/testlab/security-tests.log",
+                tests=len(security_tests),
+            )
+            evidence["verification"] = "FAIL"
+            (OUT / "categories.json").write_text(
+                json.dumps(evidence, indent=2) + "\n", encoding="utf-8"
+            )
+            return 1
+
     rust_test_passed = False
     if (ROOT / "Cargo.toml").is_file() and shutil.which("cargo"):
         rc, output = run(["cargo", "test", "--workspace", "--locked"])
