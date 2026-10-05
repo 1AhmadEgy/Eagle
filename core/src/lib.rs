@@ -437,6 +437,31 @@ mod tests {
     }
 
     #[test]
+    fn effective_trust_reports_current_device_authority() {
+        let (mut ctx, mut device) = authenticated();
+        ctx.establish(&device).unwrap();
+        assert_eq!(ctx.effective_trust_state(&device), Ok(TrustState::Trusted));
+
+        device.revoke().unwrap();
+        assert_eq!(
+            ctx.effective_trust_state(&device),
+            Err(SecurityError::Device(DeviceError::Revoked))
+        );
+    }
+
+    #[test]
+    fn negotiation_rejects_revoked_device_without_mutating_protocol() {
+        let (mut ctx, mut device) = authenticated();
+        assert_eq!(ctx.negotiated_protocol(), 1);
+        device.revoke().unwrap();
+        assert_eq!(
+            ctx.validate_and_negotiate(&device, 1),
+            Err(SecurityError::Device(DeviceError::Revoked))
+        );
+        assert_eq!(ctx.negotiated_protocol(), 1);
+    }
+
+    #[test]
     fn revocation_invalidates_bound_context() {
         let (mut ctx, mut device) = authenticated();
         ctx.establish(&device).unwrap();
@@ -463,7 +488,7 @@ mod tests {
     #[test]
     fn wrong_device_cannot_authorize_bound_context() {
         let (mut ctx, device) = authenticated();
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         let mut other = Device::new(1, 3, Platform::Android);
         other.begin_pairing().unwrap();
         other.approve().unwrap();
@@ -504,7 +529,7 @@ mod tests {
         );
         assert_eq!(ctx.negotiated_protocol(), 1);
 
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         assert_eq!(
             ctx.validate_and_negotiate(&device, 1),
             Err(SecurityError::InvalidSessionTransition)
