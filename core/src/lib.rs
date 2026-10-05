@@ -2,6 +2,8 @@
 
 use std::fmt;
 
+use crate::device::Device;
+
 mod device;
 mod policy;
 mod protocol;
@@ -43,6 +45,7 @@ pub enum SecurityError {
     ProtocolDowngrade,
     UnsupportedProtocol,
     ClosedSession,
+    Device(DeviceError),
 }
 
 impl fmt::Display for SecurityError {
@@ -54,11 +57,16 @@ impl fmt::Display for SecurityError {
             Self::ProtocolDowngrade => "protocol downgrade rejected",
             Self::UnsupportedProtocol => "unsupported protocol",
             Self::ClosedSession => "closed session",
+            Self::Device(error) => return write!(f, "device authority error: {error}"),
         })
     }
 }
 
 impl std::error::Error for SecurityError {}
+
+impl From<DeviceError> for SecurityError {
+    fn from(value: DeviceError) -> Self { Self::Device(value) }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct SecurityContext {
@@ -67,6 +75,9 @@ pub struct SecurityContext {
     negotiated_protocol: u16,
     minimum_protocol: u16,
     maximum_protocol: u16,
+    account: u64,
+    device: u64,
+    authority_epoch: u64,
 }
 
 impl SecurityContext {
@@ -85,7 +96,20 @@ impl SecurityContext {
             negotiated_protocol: minimum_protocol,
             minimum_protocol,
             maximum_protocol,
+            account: 0,
+            device: 0,
+            authority_epoch: 0,
         })
+    }
+
+    pub fn bind_device(&mut self, device: &Device) -> Result<(), SecurityError> {
+        if self.session != SessionState::Idle || self.trust != TrustState::Untrusted {
+            return Err(SecurityError::InvalidTrustTransition);
+        }
+        self.account = device.account();
+        self.device = device.device();
+        self.authority_epoch = device.authority_epoch();
+        Ok(())
     }
 
     pub fn trust_state(&self) -> TrustState {
@@ -119,11 +143,12 @@ impl SecurityContext {
     }
 
     #[cfg(test)]
-    pub(crate) fn accept_verified_authentication(&mut self) -> Result<(), SecurityError> {
+    pub(crate) fn accept_verified_authentication(&mut self, device: &Device) -> Result<(), SecurityError> {
         if self.trust != TrustState::Pending || self.session != SessionState::Authenticating {
             return Err(SecurityError::InvalidSessionTransition);
         }
 
+        device.validate_authority(self.account, self.device, self.authority_epoch)?;
         self.trust = TrustState::Trusted;
         self.session = SessionState::Authenticated;
         Ok(())
@@ -189,11 +214,11 @@ impl SecurityContext {
         self.session = SessionState::Closed;
     }
 
-    pub fn authorize(&self) -> Result<(), SecurityError> {
+    pub fn authorize(&self, device: &Device) -> Result<(), SecurityError> {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::Unauthorized);
         }
-
+        device.validate_authority(self.account, self.device, self.authority_epoch)?;
         Ok(())
     }
 
@@ -219,29 +244,38 @@ impl SecurityContext {
 mod tests {
     use super::*;
 
-    fn authenticated() -> SecurityContext {
+    fn authenticated() -> (SecurityContext, Device) {
+        let mut device = Device::new(1, 2, Platform::Android);
+        device.begin_pairing().unwrap();
+        device.approve().unwrap();
         let mut ctx = SecurityContext::new(1, CURRENT_PROTOCOL_VERSION).unwrap();
+        ctx.bind_device(&device).unwrap();
         ctx.begin_authentication().unwrap();
-        ctx.accept_verified_authentication().unwrap();
-        ctx
+        ctx.accept_verified_authentication(&device).unwrap();
+        (ctx, device)
     }
 
     #[test]
     fn unknown_trust_cannot_authorize() {
         let ctx = SecurityContext::new(1, 1).unwrap();
-        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        let device = Device::new(1, 2, Platform::Android);
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Unauthorized));
     }
 
     #[test]
     fn authentication_is_one_way_and_guarded() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
+        let mut device = Device::new(1, 2, Platform::Android);
+        device.begin_pairing().unwrap();
+        device.approve().unwrap();
+        ctx.bind_device(&device).unwrap();
         ctx.begin_authentication().unwrap();
         assert_eq!(ctx.trust_state(), TrustState::Pending);
         assert_eq!(
             ctx.begin_authentication(),
             Err(SecurityError::InvalidTrustTransition)
         );
-        ctx.accept_verified_authentication().unwrap();
+        ctx.accept_verified_authentication(&device).unwrap();
         assert_eq!(ctx.trust_state(), TrustState::Trusted);
         assert_eq!(ctx.session_state(), SessionState::Authenticated);
         assert_eq!(
@@ -257,7 +291,7 @@ mod tests {
         assert_eq!(ctx.abort_authentication(), Ok(()));
         assert_eq!(ctx.trust_state(), TrustState::Untrusted);
         assert_eq!(ctx.session_state(), SessionState::Idle);
-        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        assert_eq!(ctx.authorize(&_device), Err(SecurityError::Unauthorized));
         assert_eq!(
             ctx.abort_authentication(),
             Err(SecurityError::InvalidSessionTransition)
@@ -286,7 +320,7 @@ mod tests {
 
     #[test]
     fn rekey_requires_established_session() {
-        let mut ctx = authenticated();
+        let (mut ctx, _device) = authenticated();
         assert_eq!(
             ctx.begin_rekey(),
             Err(SecurityError::InvalidSessionTransition)
@@ -308,7 +342,7 @@ mod tests {
 
     #[test]
     fn incomplete_rekey_fails_closed() {
-        let mut ctx = authenticated();
+        let (mut ctx, _device) = authenticated();
         ctx.establish().unwrap();
         ctx.begin_rekey().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
@@ -323,7 +357,7 @@ mod tests {
 
     #[test]
     fn revocation_is_terminal_for_context() {
-        let mut ctx = authenticated();
+        let (mut ctx, _device) = authenticated();
         ctx.establish().unwrap();
         ctx.revoke_trust();
         assert_eq!(ctx.trust_state(), TrustState::Revoked);
@@ -344,6 +378,34 @@ mod tests {
     }
 
     #[test]
+    fn revocation_invalidates_bound_context() {
+        let (mut ctx, mut device) = authenticated();
+        ctx.establish().unwrap();
+        assert_eq!(ctx.authorize(&device), Ok(()));
+        device.revoke().unwrap();
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Device(DeviceError::Revoked)));
+    }
+
+    #[test]
+    fn replacement_invalidates_bound_context() {
+        let (mut ctx, mut device) = authenticated();
+        ctx.establish().unwrap();
+        assert_eq!(ctx.authorize(&device), Ok(()));
+        device.replace().unwrap();
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Device(DeviceError::Replaced)));
+    }
+
+    #[test]
+    fn wrong_device_cannot_authorize_bound_context() {
+        let (mut ctx, _device) = authenticated();
+        ctx.establish().unwrap();
+        let mut other = Device::new(1, 3, Platform::Android);
+        other.begin_pairing().unwrap();
+        other.approve().unwrap();
+        assert_eq!(ctx.authorize(&other), Err(SecurityError::Device(DeviceError::IdentityMismatch)));
+    }
+
+    #[test]
     fn invalid_protocol_configuration_is_rejected() {
         assert_eq!(
             SecurityContext::new(0, 1),
@@ -361,7 +423,7 @@ mod tests {
 
     #[test]
     fn rejected_protocol_does_not_mutate() {
-        let mut ctx = authenticated();
+        let (mut ctx, _device) = authenticated();
         assert_eq!(
             ctx.validate_and_negotiate(0),
             Err(SecurityError::ProtocolDowngrade)
