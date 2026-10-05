@@ -3,6 +3,9 @@
 ## Scope
 Executable verification target for the integrated architecture/security-first baseline.
 
+## Target commit
+Current branch head: 47bd6254aa14df475e7e39609d884a55d0e12ef3
+
 ## Expected CI checks
 1. Repository hygiene
 2. Secret scan
