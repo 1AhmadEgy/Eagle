@@ -1,42 +1,47 @@
 #![forbid(unsafe_code)]
 
 mod crypto;
-mod key_lifecycle;
-mod identity;
-mod storage;
-mod mesh;
-mod replay;
 mod delivery;
 mod device;
+mod identity;
+mod key_lifecycle;
+mod mesh;
 mod policy;
 mod protocol;
+mod replay;
 mod session;
+mod storage;
 
-pub use key_lifecycle::{KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState};
 pub use crypto::{
-    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle,
-    MessagingCrypto, OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderCapabilities,
-    RecoveryKeyHandle, SessionKeyHandle, SignedPreKeyHandle, StorageWrappingKeyHandle,
-    UnavailableCryptoProvider,
+    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
+    OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderCapabilities, RecoveryKeyHandle,
+    SessionKeyHandle, SignedPreKeyHandle, StorageWrappingKeyHandle, UnavailableCryptoProvider,
 };
-pub use device::{Device, DeviceError, DeviceTrustState, Platform};
-pub use storage::{DeleteReceipt, EncryptedRecord, InMemorySecureStorage, SecureStorage, StorageError, StorageState};
-pub use mesh::{InMemoryOpaqueTransport, MeshTransport, OpaqueFrame, OpaquePayload, TransportError};
-pub use replay::{FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow};
 pub use delivery::{DeliveryGuardError, DeliveryMetadata, InboundReplayGuard};
+pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use identity::{
-    TrustState as IdentityTrustState,
     AccountMembershipStatement, AuthorizationAction, ContactIdentity, ContactIdentityState,
-    IdentityReference, MembershipProofVerifier, MembershipRegistry,
-    PairingApprovalVerifier, PairingContext, PlatformAssurance, PublicIdentityKey,
-    SecurityEvent, TrustEpochSet, TrustError, TrustRecord, ContactReverificationVerifier,
+    ContactReverificationVerifier, IdentityReference, MembershipProofVerifier, MembershipRegistry,
+    PairingApprovalVerifier, PairingContext, PlatformAssurance, PublicIdentityKey, SecurityEvent,
+    TrustEpochSet, TrustError, TrustRecord, TrustState as IdentityTrustState,
+};
+pub use key_lifecycle::{
+    KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState,
+};
+pub use mesh::{
+    InMemoryOpaqueTransport, MeshTransport, OpaqueFrame, OpaquePayload, TransportError,
 };
 pub use policy::{authorize, Capability};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
+pub use replay::{FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow};
 pub use session::Session;
+pub use storage::{
+    DeleteReceipt, EncryptedRecord, InMemorySecureStorage, SecureStorage, StorageError,
+    StorageState,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TrustState {
