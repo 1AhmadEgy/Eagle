@@ -23,7 +23,7 @@ pub use mesh::{InMemoryOpaqueTransport, MeshTransport, OpaqueFrame, OpaquePayloa
 pub use identity::{
     TrustState as IdentityTrustState,
     AccountMembershipStatement, AuthorizationAction, ContactIdentity, ContactIdentityState,
-    IdentityReference, IdentityTrustState, MembershipProofVerifier, MembershipRegistry,
+    IdentityReference, MembershipProofVerifier, MembershipRegistry,
     PairingApprovalVerifier, PairingContext, PlatformAssurance, PublicIdentityKey,
     SecurityEvent, TrustEpochSet, TrustError, TrustRecord, ContactReverificationVerifier,
 };
