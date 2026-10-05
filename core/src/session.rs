@@ -71,7 +71,7 @@ mod tests {
     #[test]
     fn aborted_rekey_closes_session() {
         let (mut ctx, device) = authenticated();
-        Session::establish(&mut ctx, 1).unwrap();
+        Session::establish(&mut ctx, &device, 1).unwrap();
         Session::begin_rekey(&mut ctx, &device).unwrap();
         assert_eq!(Session::abort_rekey(&mut ctx), Ok(()));
         assert_eq!(Session::state(&ctx), SessionState::Closed);
@@ -90,7 +90,7 @@ mod tests {
     fn rekey_and_close_are_state_guarded() {
         let mut ctx = authenticated();
         assert_eq!(
-            Session::begin_rekey(&mut ctx),
+            Session::begin_rekey(&mut ctx, &device),
             Err(SecurityError::InvalidSessionTransition)
         );
         Session::establish(&mut ctx, 1).unwrap();
@@ -100,7 +100,7 @@ mod tests {
         Session::close(&mut ctx);
         assert_eq!(Session::state(&ctx), SessionState::Closed);
         assert_eq!(
-            Session::finish_rekey(&mut ctx),
+            Session::finish_rekey(&mut ctx, &device),
             Err(SecurityError::InvalidSessionTransition)
         );
     }
