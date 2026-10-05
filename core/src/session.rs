@@ -23,8 +23,17 @@ impl Session {
         ctx.begin_rekey()
     }
 
-    pub fn finish_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
+    #[cfg(test)]
+    pub(crate) fn finish_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
         ctx.finish_rekey()
+    }
+
+    pub fn abort_authentication(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
+        ctx.abort_authentication()
+    }
+
+    pub fn abort_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
+        ctx.abort_rekey()
     }
 
     pub fn close(ctx: &mut SecurityContext) {
