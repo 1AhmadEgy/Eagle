@@ -279,7 +279,7 @@ mod tests {
         assert_eq!(ctx.trust_state(), TrustState::Trusted);
         assert_eq!(ctx.session_state(), SessionState::Authenticated);
         assert_eq!(
-            ctx.accept_verified_authentication(),
+            ctx.accept_verified_authentication(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
     }
@@ -287,11 +287,13 @@ mod tests {
     #[test]
     fn authentication_can_abort_without_granting_trust() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
+        let device = Device::new(1, 2, Platform::Android);
+        ctx.bind_device(&device).unwrap();
         ctx.begin_authentication().unwrap();
         assert_eq!(ctx.abort_authentication(), Ok(()));
         assert_eq!(ctx.trust_state(), TrustState::Untrusted);
         assert_eq!(ctx.session_state(), SessionState::Idle);
-        assert_eq!(ctx.authorize(&_device), Err(SecurityError::Unauthorized));
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Unauthorized));
         assert_eq!(
             ctx.abort_authentication(),
             Err(SecurityError::InvalidSessionTransition)
@@ -301,6 +303,10 @@ mod tests {
     #[test]
     fn establishment_requires_authenticated_trusted_state() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
+        let mut device = Device::new(1, 2, Platform::Android);
+        device.begin_pairing().unwrap();
+        device.approve().unwrap();
+        ctx.bind_device(&device).unwrap();
         assert_eq!(
             ctx.establish(),
             Err(SecurityError::InvalidSessionTransition)
@@ -310,12 +316,12 @@ mod tests {
             ctx.establish(),
             Err(SecurityError::InvalidSessionTransition)
         );
-        ctx.accept_verified_authentication().unwrap();
+        ctx.accept_verified_authentication(&device).unwrap();
         ctx.establish().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Established);
         ctx.close_session();
         assert_eq!(ctx.session_state(), SessionState::Closed);
-        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Unauthorized));
     }
 
     #[test]
