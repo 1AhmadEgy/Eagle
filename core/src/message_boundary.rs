@@ -103,9 +103,7 @@ impl Default for MessageBoundary {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        MessageId, OpaqueId, CURRENT_PROTOCOL_VERSION,
-    };
+    use crate::{MessageId, OpaqueId, CURRENT_PROTOCOL_VERSION};
 
     fn envelope() -> EncryptedEnvelope {
         EncryptedEnvelope::new(
@@ -142,10 +140,7 @@ mod tests {
             )
             .unwrap();
 
-        assert_eq!(
-            crate::deserialize_envelope(&bytes).unwrap(),
-            envelope()
-        );
+        assert_eq!(crate::deserialize_envelope(&bytes).unwrap(), envelope());
     }
 
     #[test]
@@ -166,7 +161,6 @@ mod tests {
         );
     }
 
-    #[test]
     #[test]
     fn inbound_envelope_rejects_duplicate_message_ids() {
         let boundary = MessageBoundary::new();
@@ -196,7 +190,7 @@ mod tests {
         );
     }
 
-        fn inbound_rejects_unbound_peer_and_untrusted_context() {
+    fn inbound_rejects_unbound_peer_and_untrusted_context() {
         let boundary = MessageBoundary::new();
         let context = SecurityContext::new(1, 1).unwrap();
 
