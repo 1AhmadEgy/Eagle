@@ -9,6 +9,7 @@ use crate::{KeyError, KeyId, KeyPurpose};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LifecycleState {
     Active,
+    Consumed,
     Revoked,
     Destroyed,
 }
@@ -49,7 +50,10 @@ pub enum LifecycleError {
     MissingKey,
     PurposeMismatch,
     GenerationRollback,
+    InvalidGeneration,
+    EpochExhausted,
     InvalidTransition,
+    Consumed,
     Destroyed,
     Revoked,
 }
@@ -62,7 +66,10 @@ impl From<LifecycleError> for KeyError {
             LifecycleError::MissingKey
             | LifecycleError::PurposeMismatch
             | LifecycleError::GenerationRollback
-            | LifecycleError::InvalidTransition => KeyError::InvalidKeyState,
+            | LifecycleError::InvalidGeneration
+            | LifecycleError::EpochExhausted
+            | LifecycleError::InvalidTransition
+            | LifecycleError::Consumed => KeyError::InvalidKeyState,
         }
     }
 }
@@ -72,6 +79,7 @@ pub enum KeyMutation {
     Register,
     Rotate,
     Revoke,
+    Consume,
     Destroy,
 }
 
@@ -110,6 +118,9 @@ impl KeyLifecycle {
         purpose: KeyPurpose,
         generation: u64,
     ) -> Result<LifecycleEvent, LifecycleError> {
+        if generation == 0 {
+            return Err(LifecycleError::InvalidGeneration);
+        }
         if self.find(id).is_some() || self.count >= Self::MAX_KEYS {
             return Err(LifecycleError::InvalidTransition);
         }
@@ -133,6 +144,7 @@ impl KeyLifecycle {
         let old_record = *self.find(old).ok_or(LifecycleError::MissingKey)?;
         if old_record.state != LifecycleState::Active {
             return Err(match old_record.state {
+                LifecycleState::Consumed => LifecycleError::Consumed,
                 LifecycleState::Revoked => LifecycleError::Revoked,
                 LifecycleState::Destroyed => LifecycleError::Destroyed,
                 LifecycleState::Active => LifecycleError::InvalidTransition,
@@ -159,9 +171,31 @@ impl KeyLifecycle {
             });
         }
         record.state = LifecycleState::Revoked;
-        record.epoch = self.next_epoch();
+        record.epoch = self.next_epoch()?;
         self.replace(record)?;
         Ok(self.event(KeyMutation::Revoke, record))
+    }
+
+    pub fn consume_one_time_pre_key(
+        &mut self,
+        id: KeyId,
+    ) -> Result<LifecycleEvent, LifecycleError> {
+        let mut record = *self.find(id).ok_or(LifecycleError::MissingKey)?;
+        if record.purpose != KeyPurpose::OneTimePreKey {
+            return Err(LifecycleError::PurposeMismatch);
+        }
+        if record.state != LifecycleState::Active {
+            return Err(match record.state {
+                LifecycleState::Consumed => LifecycleError::Consumed,
+                LifecycleState::Revoked => LifecycleError::Revoked,
+                LifecycleState::Destroyed => LifecycleError::Destroyed,
+                LifecycleState::Active => LifecycleError::InvalidTransition,
+            });
+        }
+        record.state = LifecycleState::Consumed;
+        record.epoch = self.next_epoch()?;
+        self.replace(record)?;
+        Ok(self.event(KeyMutation::Consume, record))
     }
 
     pub fn destroy(
@@ -189,6 +223,7 @@ impl KeyLifecycle {
         }
         match record.state {
             LifecycleState::Active => Ok(record),
+            LifecycleState::Consumed => Err(LifecycleError::Consumed),
             LifecycleState::Revoked => Err(LifecycleError::Revoked),
             LifecycleState::Destroyed => Err(LifecycleError::Destroyed),
         }
@@ -198,10 +233,13 @@ impl KeyLifecycle {
         self.find(id).copied()
     }
 
-    fn next_epoch(&mut self) -> u64 {
+    fn next_epoch(&mut self) -> Result<u64, LifecycleError> {
         let epoch = self.next_epoch;
-        self.next_epoch = self.next_epoch.saturating_add(1).max(1);
-        epoch
+        if epoch == u64::MAX {
+            return Err(LifecycleError::EpochExhausted);
+        }
+        self.next_epoch += 1;
+        Ok(epoch)
     }
 
     fn event(&self, mutation: KeyMutation, record: KeyRecord) -> LifecycleEvent {
@@ -319,7 +357,36 @@ mod tests {
     }
 
     #[test]
-    fn epochs_never_move_backwards() {
+    fn one_time_prekeys_are_single_use() {
+        let mut lifecycle = KeyLifecycle::default();
+        lifecycle
+            .register(id(5), KeyPurpose::OneTimePreKey, 1)
+            .unwrap();
+
+        let event = lifecycle.consume_one_time_pre_key(id(5)).unwrap();
+        assert_eq!(event.mutation, KeyMutation::Consume);
+        assert_eq!(lifecycle.get(id(5)).unwrap().state(), LifecycleState::Consumed);
+        assert_eq!(
+            lifecycle.consume_one_time_pre_key(id(5)),
+            Err(LifecycleError::Consumed)
+        );
+        assert_eq!(
+            lifecycle.require_active(id(5), KeyPurpose::OneTimePreKey),
+            Err(LifecycleError::Consumed)
+        );
+    }
+
+    #[test]
+    fn zero_generation_is_rejected() {
+        let mut lifecycle = KeyLifecycle::default();
+        assert_eq!(
+            lifecycle.register(id(8), KeyPurpose::Message, 0),
+            Err(LifecycleError::InvalidGeneration)
+        );
+    }
+
+    #[test]
+    fn epochs_never_move_backwards {
         let mut lifecycle = KeyLifecycle::default();
         let a = lifecycle
             .register(id(1), KeyPurpose::Message, 1)
