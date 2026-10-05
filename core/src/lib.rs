@@ -158,11 +158,11 @@ impl SecurityContext {
         Ok(())
     }
 
-    pub fn establish(&mut self) -> Result<(), SecurityError> {
+    pub fn establish(&mut self, device: &Device) -> Result<(), SecurityError> {
         if self.trust != TrustState::Trusted || self.session != SessionState::Authenticated {
             return Err(SecurityError::InvalidSessionTransition);
         }
-
+        device.validate_authority(self.account, self.device, self.authority_epoch)?;
         self.session = SessionState::Established;
         Ok(())
     }
@@ -179,21 +179,21 @@ impl SecurityContext {
         Ok(())
     }
 
-    pub fn begin_rekey(&mut self) -> Result<(), SecurityError> {
+    pub fn begin_rekey(&mut self, device: &Device) -> Result<(), SecurityError> {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::InvalidSessionTransition);
         }
-
+        device.validate_authority(self.account, self.device, self.authority_epoch)?;
         self.session = SessionState::Rekeying;
         Ok(())
     }
 
     #[cfg(test)]
-    pub(crate) fn finish_rekey(&mut self) -> Result<(), SecurityError> {
+    pub(crate) fn finish_rekey(&mut self, device: &Device) -> Result<(), SecurityError> {
         if self.trust != TrustState::Trusted || self.session != SessionState::Rekeying {
             return Err(SecurityError::InvalidSessionTransition);
         }
-
+        device.validate_authority(self.account, self.device, self.authority_epoch)?;
         self.session = SessionState::Established;
         Ok(())
     }
@@ -312,16 +312,16 @@ mod tests {
         device.approve().unwrap();
         ctx.bind_device(&device).unwrap();
         assert_eq!(
-            ctx.establish(),
+            ctx.establish(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
         ctx.begin_authentication().unwrap();
         assert_eq!(
-            ctx.establish(),
+            ctx.establish(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
         ctx.accept_verified_authentication(&device).unwrap();
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         assert_eq!(ctx.session_state(), SessionState::Established);
         ctx.close_session();
         assert_eq!(ctx.session_state(), SessionState::Closed);
@@ -332,20 +332,20 @@ mod tests {
     fn rekey_requires_established_session() {
         let (mut ctx, _device) = authenticated();
         assert_eq!(
-            ctx.begin_rekey(),
+            ctx.begin_rekey(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
         ctx.establish().unwrap();
-        ctx.begin_rekey().unwrap();
+        ctx.begin_rekey(&device).unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
         assert_eq!(
-            ctx.begin_rekey(),
+            ctx.begin_rekey(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
-        ctx.finish_rekey().unwrap();
+        ctx.finish_rekey(&device).unwrap();
         assert_eq!(ctx.session_state(), SessionState::Established);
         assert_eq!(
-            ctx.finish_rekey(),
+            ctx.finish_rekey(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
     }
