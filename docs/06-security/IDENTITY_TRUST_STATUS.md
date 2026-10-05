@@ -1,7 +1,7 @@
 # Eagle — Identity & Trust Status
 
 **Specialty:** Identity & Trust Engineering only  
-**Baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
+**Baseline:** `main` @ `abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`  
 **Posture:** fail-closed / P2P-only  
 **Release:** BLOCKED
 
@@ -137,7 +137,10 @@ A source-level audit found that an unverified identity replacement must never ov
 
 ## Verification state
 
-The latest specialty changes require fresh repository CI evidence on the current head. No local source inspection is treated as CI proof. Existing repository-wide workflow/security-policy and Platform Test Lab failures remain external release blockers and are not bypassed.
+Current branch head verified from GitHub: `7f5f209095ce555bd41b14a2f5e92a96854a2522`.
+
+
+The latest specialty changes require fresh repository CI evidence on the current head. No local source inspection is treated as CI proof. Current head checks are failing at repository security-policy and platform setup boundaries before product tests execute; these failures remain release blockers and are not bypassed.
 
 ## Terminal state
 
@@ -148,7 +151,7 @@ IDENTITY_TRUST = BLOCKED
 
 ## Verification evidence update — 2026-10-05
 
-The clean branch triggered fresh repository verification. A source-level test review also identified and corrected a dedicated verifier mismatch in the positive reverification test before considering the branch verification-ready.
+The current clean branch was verified against GitHub Actions. A source-level test review also identified and corrected a dedicated verifier mismatch in the positive reverification test before the branch was treated as verification-ready.
 
 Observed results:
 - Secret scan on the clean PR merge range: PASS; no leaks were detected.
