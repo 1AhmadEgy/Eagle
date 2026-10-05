@@ -10,7 +10,7 @@ This adapter is for local encrypted application state only. It is not the Eagle 
 
 - AES-256 keys are generated into the Android Keystore provider.
 - Application code receives only ciphertext/plaintext results from the adapter; key material is not returned by the adapter API.
-- Storage-key aliases are scoped to account, device, and trust epoch.
+- Storage operations require an opaque scope-bound handle carrying account, device, and trust epoch; raw Keystore aliases are not accepted by the encrypt/decrypt/delete API.
 - Key deletion is explicit.
 - Every storage encryption operation uses AES-GCM with an authentication tag.
 - Associated data can bind encrypted state to an authenticated context.

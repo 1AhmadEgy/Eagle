@@ -40,12 +40,12 @@ class AndroidKeyStoreStorageInstrumentedTest {
     @Test
     fun keystoreRoundTripAndAadBinding() {
         val storage = AndroidKeyStoreStorage()
-        val alias = storage.ensureStorageKey(10, 20, 1)
+        val key = storage.ensureStorageKey(10, 20, 1)
         val plaintext = "eagle-storage-test".encodeToByteArray()
         val aad = "account=10;device=20;epoch=1".encodeToByteArray()
 
         try {
-            val encrypted = storage.encrypt(alias, plaintext, aad)
+            val encrypted = storage.encrypt(key, plaintext, aad)
             val decrypted = storage.decrypt(key, encrypted, aad)
             assertArrayEquals(plaintext, decrypted)
 
@@ -63,7 +63,7 @@ class AndroidKeyStoreStorageInstrumentedTest {
             }
             assertTrue("AAD mismatch must fail authentication", failed)
         } finally {
-            storage.deleteKey(alias)
+            storage.deleteKey(key)
         }
     }
 }
