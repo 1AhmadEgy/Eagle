@@ -42,7 +42,7 @@ fn device_is_not_authorized_before_trust() {
 fn session_cannot_self_elevate_unverified_context() {
     let mut ctx = SecurityContext::new(1, 1).unwrap();
     assert_eq!(
-        Session::establish(&mut ctx, 1),
+        Session::establish(&mut ctx, &device, 1),
         Err(SecurityError::InvalidSessionTransition)
     );
     assert_eq!(ctx.session_state(), SessionState::Idle);
