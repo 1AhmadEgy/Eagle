@@ -143,18 +143,27 @@ impl KeyLifecycle {
         if generation <= old_record.generation {
             return Err(LifecycleError::GenerationRollback);
         }
-        let mut new_record = KeyRecord {
+        if self.find(new).is_some() || self.count >= Self::MAX_KEYS {
+            return Err(LifecycleError::InvalidTransition);
+        }
+
+        // Reserve all state transitions before mutating the table so rotation is atomic.
+        let new_epoch = self.next_epoch()?;
+        let old_epoch = self.next_epoch()?;
+
+        let new_record = KeyRecord {
             id: new,
             purpose: old_record.purpose,
             generation,
-            epoch: self.next_epoch()?,
+            epoch: new_epoch,
             state: LifecycleState::Active,
         };
+        let mut revoked_record = old_record;
+        revoked_record.state = LifecycleState::Revoked;
+        revoked_record.epoch = old_epoch;
+
         self.insert(new_record)?;
-        let mut old_record = old_record;
-        old_record.state = LifecycleState::Revoked;
-        old_record.epoch = self.next_epoch()?;
-        self.replace(old_record)?;
+        self.replace(revoked_record)?;
         Ok(self.event(KeyMutation::Rotate, new_record))
     }
 
