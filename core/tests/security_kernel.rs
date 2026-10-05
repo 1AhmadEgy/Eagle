@@ -183,3 +183,29 @@ fn key_custody_contract_is_fail_closed() {
         Err(KeyError::Revoked)
     );
 }
+
+
+#[test]
+fn application_data_rejects_non_direct_transport() {
+    use eagle_core::{
+        PeerBinding, TransportError, TransportPath, TransportPolicy,
+    };
+
+    let policy = TransportPolicy::new();
+
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::Relay, PeerBinding::EagleDevice),
+        Err(TransportError::ApplicationDataRequiresDirectPath)
+    );
+    assert_eq!(
+        policy.authorize_application_data(
+            TransportPath::ServerFallback,
+            PeerBinding::EagleDevice
+        ),
+        Err(TransportError::ApplicationDataRequiresDirectPath)
+    );
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::Direct, PeerBinding::Unauthenticated),
+        Err(TransportError::PeerIdentityRequired)
+    );
+}
