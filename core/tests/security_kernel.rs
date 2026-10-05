@@ -1,9 +1,9 @@
 use eagle_core::{
     authorize, validate_version, Capability, DeliveryGuardError, DeliveryMetadata, Device,
     DeviceTrustState, EncryptedEnvelope, EncryptedRecord, InMemoryOpaqueTransport,
-    InMemorySecureStorage, KeyError, KeyId, KeyPurpose, KeyStore, LifecycleError, KeyLifecycle,
+    InMemorySecureStorage, KeyError, KeyId, KeyLifecycle, KeyPurpose, KeyStore, LifecycleError,
     MeshTransport, MessageId, OpaqueFrame, OpaqueId, OpaquePayload, Platform, ReplayError,
-    ReplayWindow, SecurityContext, SecurityError, SecureStorage, Session, SessionState,
+    ReplayWindow, SecureStorage, SecurityContext, SecurityError, Session, SessionState,
     StorageError, StorageState, TransportError, UnavailableCryptoProvider,
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
 };
@@ -21,8 +21,14 @@ fn id(value: u8) -> OpaqueId {
 #[test]
 fn untrusted_kernel_is_not_usable() {
     let ctx = SecurityContext::new(1, 1).unwrap();
-    assert_eq!(authorize(&ctx, Capability::Read), Err(SecurityError::Unauthorized));
-    assert_eq!(authorize(&ctx, Capability::Write), Err(SecurityError::Unauthorized));
+    assert_eq!(
+        authorize(&ctx, Capability::Read),
+        Err(SecurityError::Unauthorized)
+    );
+    assert_eq!(
+        authorize(&ctx, Capability::Write),
+        Err(SecurityError::Unauthorized)
+    );
     assert_eq!(
         authorize(&ctx, Capability::Administrative),
         Err(SecurityError::Unauthorized)
@@ -76,8 +82,14 @@ fn invalid_configuration_fails_closed() {
 #[test]
 fn envelope_and_version_validation_are_bounded() {
     assert_eq!(validate_version(1, 1), Ok(1));
-    assert_eq!(validate_version(0, 1), Err(eagle_core::ProtocolError::DowngradeRejected));
-    assert_eq!(validate_version(2, 1), Err(eagle_core::ProtocolError::UnsupportedVersion));
+    assert_eq!(
+        validate_version(0, 1),
+        Err(eagle_core::ProtocolError::DowngradeRejected)
+    );
+    assert_eq!(
+        validate_version(2, 1),
+        Err(eagle_core::ProtocolError::UnsupportedVersion)
+    );
 
     assert_eq!(
         OpaqueId::new(Vec::new()),
@@ -121,10 +133,7 @@ fn replay_and_freshness_fail_closed() {
     );
     assert_eq!(window.advance_epoch(2), Ok(()));
     assert_eq!(window.epoch(), Some(2));
-    assert_eq!(
-        window.advance_epoch(1),
-        Err(ReplayError::EpochRollback)
-    );
+    assert_eq!(window.advance_epoch(1), Err(ReplayError::EpochRollback));
 }
 
 #[test]
@@ -187,8 +196,10 @@ fn storage_is_opaque_and_fail_closed() {
     assert_eq!(store.get(&id(1), &id(2)), Err(StorageError::NotFound));
 
     store.set_recovery_required();
-    assert_eq!(store.put(EncryptedRecord::new(id(4), id(2), 1, vec![1], 8).unwrap()),
-        Err(StorageError::RecoveryRequired));
+    assert_eq!(
+        store.put(EncryptedRecord::new(id(4), id(2), 1, vec![1], 8).unwrap()),
+        Err(StorageError::RecoveryRequired)
+    );
 }
 
 #[test]
