@@ -24,3 +24,9 @@ No PASS is inferred from source inspection. Category status remains determined b
 
 ## Release
 NO-GO until all mandatory release gates are evidenced.
+
+
+## Android TestLab correction — 2026-10-05
+- TestLab run 1342 exposed a real defensive-copy defect in `EncryptedStoragePayload` (`payloadDefensivelyCopiesOutputArrays`).
+- The payload now owns private copies of IV/ciphertext and exposes copies only; decryption consumes a copied IV.
+- This is a security-hardening correction; Android TestLab must be rerun and pass before release-gate advancement.
