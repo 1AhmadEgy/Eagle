@@ -35,7 +35,7 @@ Resolved within scope:
 Unresolved out-of-scope conflicts remain under the relevant ADRs.
 
 ## 08 Gaps
-Remaining specialization gaps are current-head verification and independent security review. Cryptographic/session semantics, key management, serialization, replay protection, transport, and FFI remain dependencies.
+Remaining specialization gaps are independent security review and the explicit pre-production protocol/crypto/FFI dependencies. Cryptographic/session semantics, key management, serialization, replay protection, transport, and FFI remain dependencies.
 
 ## 09 Canonical Authority
 Authority order:
@@ -68,7 +68,7 @@ Completed:
 The deterministic Security Kernel is implemented as a dependency-free Rust library with pinned toolchain metadata.
 
 ## 13 Testing
-Unit and integration negative-path coverage is present. Current-head CI is running for the latest hardening. Crypto/fuzz/interop/key-storage/FFI categories remain PENDING.
+Unit and integration negative-path coverage is present. Dedicated Rust Security Kernel CI run `37286323259` passed Format, Tests, and Clippy for code head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. Crypto/fuzz/interop/key-storage/FFI categories remain PENDING.
 
 ## 14 Security Review
 Static specialization review completed. The principal newly identified design risk—authority duplication through `Copy`/`Clone`—has been remediated.
@@ -76,7 +76,7 @@ Static specialization review completed. The principal newly identified design ri
 Independent human security review remains required.
 
 ## 15 Verification
-The immediately preceding Rust CI failed on the private-`FrameHeader` integration test mismatch. The latest executable fixes are on code head `29d781e75cadb103e6ed764e8613559f46e22d04`. Fresh checks for that head are queued/in progress; current-head PASS is not claimed.
+The preceding Rust CI failures were resolved through fail-closed API/test corrections. Dedicated run `37286323259` passed Format, Tests, and Clippy for code head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. Current-head Rust verification is PASS.
 
 ## 16 Evidence
 Evidence is persisted in:
@@ -91,7 +91,7 @@ Evidence is persisted in:
 
 ## 17 Release Gate
 Implementation hardening: **COMPLETE**.  
-Current-head verification: **PENDING**.  
+Current-head Rust verification: **PASS**.  
 Independent review: **PENDING**.
 
 ## 18 Release
