@@ -189,8 +189,8 @@ mod tests {
     #[test]
     fn non_canonical_integer_encoding_is_rejected() {
         let mut bytes = serialize_envelope(&envelope()).unwrap();
-        let protocol_index = bytes.len() - 3;
-        bytes.splice(protocol_index..protocol_index + 1, [0x19, 0x00]);
+        let created_at_index = bytes.len() - 2;
+        bytes.splice(created_at_index..created_at_index + 2, [0x19, 0x00, 0x2a]);
         assert_eq!(
             deserialize_envelope(&bytes),
             Err(SerializationError::NonCanonical)
