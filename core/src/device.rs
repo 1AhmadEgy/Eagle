@@ -23,6 +23,8 @@ pub enum DeviceError {
     InvalidTransition,
     Revoked,
     Replaced,
+    IdentityMismatch,
+    AuthorityMismatch,
 }
 
 impl fmt::Display for DeviceError {
