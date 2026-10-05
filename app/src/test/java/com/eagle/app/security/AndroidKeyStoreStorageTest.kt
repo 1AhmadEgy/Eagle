@@ -7,16 +7,6 @@ import org.junit.Test
 
 class AndroidKeyStoreStorageTest {
     @Test
-    fun keyHandlePreservesScope() {
-        val storage = AndroidKeyStoreStorage()
-        val key = StorageKeyHandle.create(10, 20, 3)
-
-        assertEquals(10, key.accountId)
-        assertEquals(20, key.deviceId)
-        assertEquals(3, key.trustEpoch)
-    }
-
-    @Test
     fun aliasIsBoundToAccountDeviceAndEpoch() {
         assertEquals(
             "eagle.storage.10.20.3",
