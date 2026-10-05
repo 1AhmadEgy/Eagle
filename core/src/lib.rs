@@ -353,7 +353,7 @@ mod tests {
     #[test]
     fn incomplete_rekey_fails_closed() {
         let (mut ctx, device) = authenticated();
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         ctx.begin_rekey(&device).unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
         assert_eq!(ctx.abort_rekey(), Ok(()));
@@ -442,7 +442,7 @@ mod tests {
 
     #[test]
     fn rejected_protocol_does_not_mutate() {
-        let (mut ctx, _device) = authenticated();
+        let (mut ctx, device) = authenticated();
         assert_eq!(
             ctx.validate_and_negotiate(0),
             Err(SecurityError::ProtocolDowngrade)
