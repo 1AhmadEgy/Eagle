@@ -121,6 +121,18 @@ impl SecurityContext {
         Ok(())
     }
 
+    /// Aborts an in-progress authentication attempt and returns to the initial
+    /// untrusted state. No trust is granted by cancellation.
+    pub fn abort_authentication(&mut self) -> Result<(), SecurityError> {
+        if self.trust != TrustState::Pending || self.session != SessionState::Authenticating {
+            return Err(SecurityError::InvalidSessionTransition);
+        }
+
+        self.trust = TrustState::Untrusted;
+        self.session = SessionState::Idle;
+        Ok(())
+    }
+
     pub fn begin_rekey(&mut self) -> Result<(), SecurityError> {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::InvalidSessionTransition);
@@ -130,12 +142,24 @@ impl SecurityContext {
         Ok(())
     }
 
-    pub fn finish_rekey(&mut self) -> Result<(), SecurityError> {
+    #[cfg(test)]
+    pub(crate) fn finish_rekey(&mut self) -> Result<(), SecurityError> {
         if self.trust != TrustState::Trusted || self.session != SessionState::Rekeying {
             return Err(SecurityError::InvalidSessionTransition);
         }
 
         self.session = SessionState::Established;
+        Ok(())
+    }
+
+    /// Aborts a rekey attempt by closing the session. A failed or incomplete
+    /// rekey must not silently continue using the pre-rekey session state.
+    pub fn abort_rekey(&mut self) -> Result<(), SecurityError> {
+        if self.trust != TrustState::Trusted || self.session != SessionState::Rekeying {
+            return Err(SecurityError::InvalidSessionTransition);
+        }
+
+        self.session = SessionState::Closed;
         Ok(())
     }
 
