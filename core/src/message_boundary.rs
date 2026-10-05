@@ -1,8 +1,8 @@
 use std::vec::Vec;
 
 use crate::{
-    serialize_envelope, EncryptedEnvelope, PeerBinding, SecurityContext, SerializationError,
-    TransportError, TransportPath, TransportPolicy,
+    serialize_envelope, EncryptedEnvelope, PeerBinding, ReplayError, ReplayTracker,
+    SecurityContext, SerializationError, TransportError, TransportPath, TransportPolicy,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,6 +10,7 @@ pub enum MessageBoundaryError {
     Unauthorized,
     Transport(TransportError),
     Serialization(SerializationError),
+    Replay(ReplayError),
 }
 
 impl From<TransportError> for MessageBoundaryError {
@@ -21,6 +22,12 @@ impl From<TransportError> for MessageBoundaryError {
 impl From<SerializationError> for MessageBoundaryError {
     fn from(value: SerializationError) -> Self {
         Self::Serialization(value)
+    }
+}
+
+impl From<ReplayError> for MessageBoundaryError {
+    fn from(value: ReplayError) -> Self {
+        Self::Replay(value)
     }
 }
 
@@ -66,6 +73,24 @@ impl MessageBoundary {
         self.transport
             .authorize_application_data(path, peer)
             .map_err(Into::into)
+    }
+
+    pub fn authorize_inbound_envelope(
+        &self,
+        context: &SecurityContext,
+        path: TransportPath,
+        peer: PeerBinding,
+        envelope: &EncryptedEnvelope,
+        replay: &mut ReplayTracker,
+    ) -> Result<(), MessageBoundaryError> {
+        self.authorize_inbound(context, path, peer)?;
+
+        envelope
+            .validate(context.negotiated_protocol())
+            .map_err(|_| MessageBoundaryError::Serialization(SerializationError::InvalidEnvelope))?;
+
+        replay.accept(envelope.message_id().clone())?;
+        Ok(())
     }
 }
 
@@ -142,7 +167,36 @@ mod tests {
     }
 
     #[test]
-    fn inbound_rejects_unbound_peer_and_untrusted_context() {
+    #[test]
+    fn inbound_envelope_rejects_duplicate_message_ids() {
+        let boundary = MessageBoundary::new();
+        let context = established_context();
+        let envelope = envelope();
+        let mut replay = ReplayTracker::new();
+
+        assert_eq!(
+            boundary.authorize_inbound_envelope(
+                &context,
+                TransportPath::Direct,
+                PeerBinding::EagleDevice,
+                &envelope,
+                &mut replay,
+            ),
+            Ok(())
+        );
+        assert_eq!(
+            boundary.authorize_inbound_envelope(
+                &context,
+                TransportPath::Direct,
+                PeerBinding::EagleDevice,
+                &envelope,
+                &mut replay,
+            ),
+            Err(MessageBoundaryError::Replay(ReplayError::DuplicateMessage))
+        );
+    }
+
+        fn inbound_rejects_unbound_peer_and_untrusted_context() {
         let boundary = MessageBoundary::new();
         let context = SecurityContext::new(1, 1).unwrap();
 
