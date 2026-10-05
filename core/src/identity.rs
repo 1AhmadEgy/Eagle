@@ -167,7 +167,7 @@ impl MembershipRegistry {
         Self::default()
     }
 
-    pub fn observe_account_epoch(
+    fn observe_account_epoch(
         &mut self,
         account_id: impl Into<String>,
         epoch: u64,
