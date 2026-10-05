@@ -58,6 +58,10 @@ jobs:
         shell: bash
         run: python3 scripts/ci/verify-architecture-boundaries.py
 
+      - name: Verify P2P-only transport boundary
+        shell: bash
+        run: python3 scripts/ci/verify-relay-boundary.py
+
       - name: Discover product surface
         shell: bash
         run: python3 scripts/ci/discover-product-surface.py
