@@ -41,6 +41,8 @@ The registry does not establish that a document or implementation is correct. It
 | PM-NET-LIM-001 | Resource & Abuse Limits | docs/05-network/PRIVATEMESH_RESOURCE_LIMITS.md | Security Control | REQUIRED | P2P GATE |
 | PM-NET-SEC-001 | Security Review Checklist | docs/05-network/PRIVATEMESH_SECURITY_REVIEW_CHECKLIST.md | Security Review | REQUIRED | P2P GATE |
 | PM-NET-EVID-001 | PrivateMesh Evidence Index | docs/05-network/PRIVATEMESH_EVIDENCE_INDEX.md | Evidence | GATED | P2P GATE |
+| PM-NET-AUD-001 | PrivateMesh Execution Audit | docs/05-network/PRIVATEMESH_EXECUTION_AUDIT.md | Audit | GATED | P2P GATE |
+| PM-NET-REL-001 | PrivateMesh Release Gate | docs/05-network/PRIVATEMESH_RELEASE_GATE.md | Release Control | NO-GO | P2P GATE |
 
 ## 4. Provenance states
 
