@@ -6,7 +6,7 @@ Security specialization only. Evidence-first, fail-closed, P2P-only, no producti
 ## Current verified state
 - Corrected branch: `security/reconciled-foundation-2026-10-05`
 - Latest previously verified head with full CI: `134e8ece297aed8146cacfe52e35657a5c396892`
-- Current work head: implementation continued through scoped Android key custody, canonical serialization, direct-only transport policy, bounded replay suppression, and a single inbound wire boundary; fresh CI evidence is required for the current head
+- Current work head: `current PR head`, with scoped Android key custody, canonical serialization, direct-only transport policy, bounded replay suppression, opaque peer binding, and a single inbound wire boundary; fresh CI evidence is required for the current head
 - CI: PASS at latest verified head with prior corrected foundation
 - Rust Security Kernel: PASS
 - Eagle Test Lab: PASS
@@ -28,7 +28,7 @@ Security specialization only. Evidence-first, fail-closed, P2P-only, no producti
 11. Correction — executed without weakening security gates.
 12. Implementation — foundation slice implemented; device-scoped key-custody contract, scoped Android Keystore adapter, canonical bounded CBOR serialization, direct-only transport policy, bounded replay suppression, and unified inbound/outbound message gates are executable; production cryptographic/P2P/storage runtime remains gated.
 13. Testing — corrected head independently verified by CI, Rust kernel, and Test Lab.
-14. Security Review — baseline controls verified; key-custody, serialization, replay suppression, and direct-only message-boundary contracts reviewed; product-level cryptographic, concrete transport, and recovery review remains open.
+14. Security Review — baseline controls verified; scoped key custody, serialization, replay suppression, opaque peer binding, and direct-only message-boundary contracts reviewed; product-level cryptographic, concrete transport, and recovery review remains open.
 15. Verification — prior corrected foundation verified; newest key-custody changes require fresh CI before being treated as verified.
 16. Evidence — lifecycle, traceability, threat models, gates, due diligence, and test matrices recorded in-repository.
 17. Release Gate — BLOCKED.
