@@ -1,7 +1,7 @@
 use eagle_core::{
     authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
     FrameHeader, MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session,
-    SessionState, CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
+    SessionState, CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
 };
 
 fn trusted_context() -> SecurityContext {
