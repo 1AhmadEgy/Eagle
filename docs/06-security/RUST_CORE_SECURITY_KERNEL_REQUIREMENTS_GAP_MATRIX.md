@@ -11,7 +11,7 @@
 | Public caller cannot self-promote trust | Security Kernel contract / Identity threat model | verifier seam is crate-test-only | PASS | real verifier comes from approved protocol |
 | Unknown/pending trust cannot authorize | threat model | `authorize()` guards | PASS | none for deterministic slice |
 | Session establishment requires trusted authenticated state | Security Kernel contract | state preconditions | PASS | real authentication integration pending |
-| Device and session trust share one canonical revocation authority | threat model / research | two state holders currently exist | PENDING | unify identity/session revocation semantics |
+| Device is the authority source for derived session authorization | threat model / research | bound context stores identity + monotonic epoch and re-checks current Device state | IMPLEMENTED / VERIFY | fresh CI + review; distributed membership/restart semantics remain pending |
 | Rekey requires established trusted session | Security Kernel contract | guarded transition + tests | PASS | cryptographic rekey semantics pending |
 | Rekey completion cannot be claimed without cryptographic proof | Security Kernel contract | public finish path removed; test/internal seam only | PASS | real rekey proof required |
 | Incomplete rekey fails closed | Security Kernel contract | abort closes session + test | PASS | integrate with real key lifecycle |
@@ -19,8 +19,8 @@
 | Replaced device fails closed | threat model | terminal `Replaced` state | PASS | membership protocol integration pending |
 | Protocol downgrade rejected | ADR-0008 proposal + security invariants | bounded monotonic negotiation | PASS | protocol ADR still pending |
 | Envelope/resource bounds enforced | Security Kernel contract | constructor and payload limits | PASS | canonical wire serialization pending |
-| Replay protection defined and authenticated | protocol/security research | not present in structural envelope | PENDING | accepted protocol/key design required |
-| Wire parser bounds allocations before untrusted lengths | hostile-input requirement | object constructors bounded | PENDING | implement decoder with pre-allocation limits |
+| Replay protection defined and authenticated | protocol/security research | test-only replay window seam; no cryptographic authentication binding yet | PENDING | accepted protocol/key design required |
+| Wire parser bounds allocations before untrusted lengths | hostile-input requirement | bounded `FrameHeader::decode` validates length before slicing and returns borrowed payload | IMPLEMENTED / PARTIAL | full canonical serialization decoder + hostile-input fuzzing pending |
 | Frame flags are fail-closed / versioned | protocol security requirement | v1 constructor rejects non-zero/unknown flags | PASS | define additional flags in protocol ADR before use |
 | No unsafe Rust | project security baseline | crate root `forbid(unsafe_code)` | PASS | none for current crate |
 | No secrets in source | security baseline | no secret material introduced | PASS | continuous CI scan |
@@ -28,7 +28,7 @@
 | Cross-platform binding cannot bypass kernel | PLATFORMS.md / FFI rule | documented interface rule | PASS | UniFFI ABI/security tests pending |
 | Security errors are typed and FFI-safe at the Rust boundary | FFI/security research | SecurityError/DeviceError implement Display + Error | PASS | UniFFI error mapping tests pending |
 | Deterministic unit/negative tests | DoD / Test Matrix | tests committed | PASS | current-head CI verification pending |
-| Independent CI verification | project gate | Rust Security Kernel run `37286323259` passed Format, Tests, Clippy for `3ef9fcd0647ab945e872f4a5607a2449e772394c` | PASS | broader repository checks remain outside specialization |
+| Independent CI verification | project gate | historical Rust run `37286323259` passed Format/Tests/Clippy; current authority/framing changes require fresh verification | PENDING | current-head workflow must pass |
 | Independent security review | DoD | no review evidence yet | PENDING | required before security-sensitive merge |
 | Production release of specialization | release gate | PR #81 draft | BLOCKED | verification + human review + dependency gates |
 
