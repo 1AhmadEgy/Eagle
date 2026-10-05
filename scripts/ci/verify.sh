@@ -3,6 +3,10 @@ set -euo pipefail
 
 echo "== Eagle CI verification =="
 echo "OS: $(uname -s)"
+python3 scripts/ci/verify-security-policy.py
+python3 scripts/ci/verify-architecture-boundaries.py
+python3 scripts/ci/verify-relay-boundary.py
+
 run_npm() {
   echo "== Node.js project detected =="
   node --version
