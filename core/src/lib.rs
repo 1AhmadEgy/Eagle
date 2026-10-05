@@ -1,11 +1,20 @@
 #![forbid(unsafe_code)]
 
+mod crypto;
 mod device;
+mod key_lifecycle;
 mod key_management;
 mod policy;
 mod protocol;
 mod session;
 
+pub use crypto::{
+    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle,
+    MessagingCrypto, OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderApproval,
+    ProviderCapabilities, ProviderRevision, ProviderVersion, RecoveryKeyHandle, SessionKeyHandle,
+    SignedPreKeyHandle, StorageWrappingKeyHandle, UnavailableCryptoProvider,
+};
+pub use key_lifecycle::{KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState};
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use key_management::{
     KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
