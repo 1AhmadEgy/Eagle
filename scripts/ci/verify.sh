@@ -3,8 +3,6 @@ set -euo pipefail
 
 echo "== Eagle CI verification =="
 echo "OS: $(uname -s)"
-echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
 run_npm() {
   echo "== Node.js project detected =="
   node --version
