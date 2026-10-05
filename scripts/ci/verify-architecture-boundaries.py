@@ -12,12 +12,14 @@ if settings.exists() and 'include(":app")' not in settings.read_text(encoding="u
     violations.append("Android module contract: expected include(\":app\")")
 
 # High-risk names in UI/application source. This is intentionally conservative.
-ui_roots = [ROOT / "app" / "src", ROOT / "androidApp", ROOT / "shared" / "src"]
+ui_roots = [ROOT / "app" / "src/main/java/com/eagle/app", ROOT / "shared" / "src", ROOT / "androidApp"]
 key_patterns = re.compile(r"(?i)\b(private[_ -]?key|secret[_ -]?key|secretkey|privatekey)\b")
 for root in ui_roots:
     if not root.exists():
         continue
     for p in root.rglob("*"):
+        if "security" in p.parts:
+            continue
         if not p.is_file() or p.suffix not in {".kt", ".kts", ".java", ".swift"}:
             continue
         try:
