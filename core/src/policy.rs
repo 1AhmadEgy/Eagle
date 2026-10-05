@@ -7,7 +7,11 @@ pub enum Capability {
     Administrative,
 }
 
-pub fn authorize(ctx: &SecurityContext, device: &Device, capability: Capability) -> Result<(), SecurityError> {
+pub fn authorize(
+    ctx: &SecurityContext,
+    device: &Device,
+    capability: Capability,
+) -> Result<(), SecurityError> {
     ctx.authorize(device)?;
     match capability {
         Capability::Read | Capability::Write => Ok(()),
