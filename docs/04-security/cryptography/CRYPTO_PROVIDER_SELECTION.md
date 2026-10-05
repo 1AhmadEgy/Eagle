@@ -58,7 +58,7 @@ A provider is not production-approvable from library identity/version alone. The
 
 - non-exportable identity-key capability;
 - hardware protection;
-- verifiable hardware-backed attestation where the platform supports it;
+- verifiable hardware-backed attestation of the platform/provider security anchor where the platform supports it;
 - required PQ KEM capability;
 - required message-ratchet capability;
 - an explicit protocol profile: Signal PQXDH + Double Ratchet v1, or MLS RFC 9420 v1;
@@ -67,3 +67,12 @@ A provider is not production-approvable from library identity/version alone. The
 Android evidence: Android Keystore keeps key material non-exportable and can bind keys to secure hardware; StrongBox provides stronger isolation and supports attestation. Hardware-backed status must be verified rather than assumed. Apple Secure Enclave similarly keeps supported private-key material inside the enclave, but is constrained to supported key types/operations. These platform constraints are implementation gates, not reasons to silently downgrade to software custody.
 
 The provider gate therefore fails closed when attestation, protocol binding, or any required capability is absent.
+
+
+### Important platform constraint
+
+`hardware_attestation` is an approval property for the device/provider security anchor. It must not be interpreted as proof that every protocol key is physically stored in the same hardware boundary.
+
+For example, Apple documents that Secure Enclave private-key protection is limited to supported P-256 operations and cannot import pre-existing keys. Android StrongBox similarly supports a constrained algorithm set. Therefore the implementation must never claim hardware custody for an unsupported PQXDH key merely because the device has Secure Enclave/StrongBox. Instead, the platform adapter must attest the supported hardware-bound anchor and explicitly record which protocol keys are hardware-backed, software-backed, or hybrid.
+
+A missing hardware capability must cause the applicable security profile to fail closed rather than silently downgrade its stated assurance level.
