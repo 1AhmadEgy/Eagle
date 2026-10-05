@@ -53,7 +53,19 @@ The latest known completed CI on the integrated candidate reported:
 
 The Android failure is outside the Identity & Trust code path and is not silently reclassified as a specialty PASS.
 
-The candidate has changed after that run by Identity & Trust hardening; therefore fresh exact-head workflow evidence is required before verification can be promoted.
+The candidate has changed after that run by Identity & Trust hardening and research-derived controls; therefore fresh exact-head workflow evidence is required before verification can be promoted.
+
+## Deep research integration
+
+Research against NIST SP 800-63-4, current Signal key-change/key-transparency guidance, Android hardware attestation guidance, Apple App Attest guidance, and RFC 9420 reinforced:
+- pairing codes are human-verification aids, not sole cryptographic authentication;
+- final pairing authorization must bind to exact session/transcript context;
+- identity changes require conservative key continuity handling;
+- platform attestation is advisory and freshness/revocation-sensitive;
+- device/authenticator uniqueness is mandatory per account context;
+- local trust epochs must change only through authoritative transitions.
+
+The research record is maintained in `docs/06-security/IDENTITY_TRUST_RESEARCH_2026-10-05.md`.
 
 ## Open security gates
 
