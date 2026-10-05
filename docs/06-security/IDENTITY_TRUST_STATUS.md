@@ -137,8 +137,9 @@ A source-level audit found that an unverified identity replacement must never ov
 
 ## Verification state
 
-Current branch head verified from GitHub: `7f5f209095ce555bd41b14a2f5e92a96854a2522`.
+Current branch head verified from GitHub: `24dc0d488759420d1d772db8aa8956100fb102a8`.
 
+No pull-request workflow run is currently associated with this latest documentation/test-corpus head, so no fresh CI PASS is claimed for this commit.
 
 The latest specialty changes require fresh repository CI evidence on the current head. No local source inspection is treated as CI proof. Current head checks are failing at repository security-policy and platform setup boundaries before product tests execute; these failures remain release blockers and are not bypassed.
 
