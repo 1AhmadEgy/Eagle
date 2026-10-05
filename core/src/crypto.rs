@@ -80,7 +80,11 @@ pub struct ProviderCapabilities {
     pub message_ratchet: bool,
 }
 
-
+impl ProviderCapabilities {
+    pub const fn satisfies_required_messaging_profile(&self) -> bool {
+        self.identity_keys_non_exportable && self.pq_kem && self.message_ratchet
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ProviderVersion {
@@ -139,6 +143,13 @@ impl ProviderApproval {
 
     pub const fn version(&self) -> ProviderVersion { self.version }
     pub const fn revision(&self) -> ProviderRevision { self.revision }
+
+    pub const fn is_production_approved_with_capabilities(
+        &self,
+        capabilities: ProviderCapabilities,
+    ) -> bool {
+        self.is_production_approved() && capabilities.satisfies_required_messaging_profile()
+    }
 }
 
 pub trait KeyStore {
@@ -296,6 +307,18 @@ mod tests {
             independent_reviewed: true,
         };
         assert!(approved.is_production_approved());
+        assert!(!approved.is_production_approved_with_capabilities(ProviderCapabilities {
+            identity_keys_non_exportable: true,
+            hardware_protection: true,
+            pq_kem: false,
+            message_ratchet: true,
+        }));
+        assert!(approved.is_production_approved_with_capabilities(ProviderCapabilities {
+            identity_keys_non_exportable: true,
+            hardware_protection: false,
+            pq_kem: true,
+            message_ratchet: true,
+        }));
     }
 
     #[test]
