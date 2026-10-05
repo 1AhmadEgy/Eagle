@@ -13,9 +13,10 @@ class AndroidKeyStoreStorageTest {
 
         assertEquals(first, second)
         assert(first.startsWith("eagle.storage."))
-        assert(!first.contains("10"))
-        assert(!first.contains("20"))
-        assert(!first.contains("3"))
+        assert(!first.contains(".10."))
+        assert(!first.contains(".20."))
+        assert(!first.endsWith(".3"))
+        assertEquals("eagle.storage.".length + 64, first.length)
     }
 
     @Test
