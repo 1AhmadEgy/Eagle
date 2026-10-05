@@ -51,3 +51,15 @@ For Eagle's strict P2P requirement:
 - the implementation must not claim wire-level PQXDH interoperability until the exact rendezvous semantics, bundle encoding, deletion/consumption semantics and authentication profile are frozen and conformance-tested;
 - an online direct-pairing profile is the safest strict-P2P baseline when no public rendezvous service is allowed;
 - if offline-first delivery is required, that requirement must be treated as a separate deployment profile because it necessarily introduces a store-and-forward component.
+
+## Asynchronous PQXDH compatibility boundary
+
+The upstream PQXDH specification explicitly models Bob publishing prekeys to a server and Alice fetching a prekey bundle from that server. That is an asynchronous rendezvous/store-and-forward model, not a pure direct-peer transport.
+
+For Eagle's strict P2P requirement:
+- application ciphertext, message history, session state and private keys must never be stored by a central messaging service;
+- direct peer transport remains the only approved path for application data;
+- a discovery/rendezvous service, if used, may carry only the minimum public/prekey material required by the frozen deployment profile;
+- the implementation must not claim wire-level PQXDH interoperability until exact rendezvous semantics, bundle encoding, deletion/consumption semantics and authentication are frozen and conformance-tested;
+- an online direct-pairing profile is the safest strict-P2P baseline when no public rendezvous service is allowed;
+- offline-first delivery is a separate profile because it necessarily introduces a store-and-forward component.
