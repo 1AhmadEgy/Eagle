@@ -11,20 +11,20 @@ mod serialization;
 mod transport_policy;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
-pub use message_boundary::{MessageBoundary, MessageBoundaryError};
 pub use key_management::{
     KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
 };
+pub use message_boundary::{MessageBoundary, MessageBoundaryError};
 pub use policy::{authorize, Capability};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
-pub use session::Session;
+pub use replay::{ReplayError, ReplayTracker, MAX_TRACKED_MESSAGE_IDS};
 pub use serialization::{
     deserialize_envelope, serialize_envelope, SerializationError, MAX_SERIALIZED_ENVELOPE_BYTES,
 };
-pub use replay::{ReplayError, ReplayTracker, MAX_TRACKED_MESSAGE_IDS};
+pub use session::Session;
 pub use transport_policy::{PeerBinding, TransportError, TransportPath, TransportPolicy};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
