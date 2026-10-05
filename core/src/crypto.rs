@@ -25,6 +25,7 @@ pub enum KeyError {
     UnsupportedOperation,
     RevokedKey,
     DestroyedKey,
+    InvalidKeyState,
 }
 
 impl fmt::Display for KeyError {
@@ -34,6 +35,7 @@ impl fmt::Display for KeyError {
             Self::UnsupportedOperation => "cryptographic operation unsupported",
             Self::RevokedKey => "key is revoked",
             Self::DestroyedKey => "key has been destroyed",
+            Self::InvalidKeyState => "invalid key state",
         })
     }
 }
