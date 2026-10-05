@@ -7,7 +7,7 @@
 
 ## Gate result
 
-**IMPLEMENTATION HARDENED — CURRENT-HEAD VERIFICATION PENDING.**
+**IMPLEMENTATION HARDENED — CURRENT-HEAD RUST VERIFICATION PASS.**
 
 The gate covers only the deterministic non-cryptographic Security Kernel slice.
 
