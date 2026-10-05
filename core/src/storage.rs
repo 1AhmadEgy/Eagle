@@ -8,6 +8,12 @@ pub enum StorageState {
     Unavailable,
 }
 
+impl Default for StorageState {
+    fn default() -> Self {
+        Self::Healthy
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EncryptedRecord {
     record_id: OpaqueId,
@@ -63,12 +69,11 @@ impl EncryptedRecord {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DeleteReceipt {
-    Deleted {
-        record_id: u64,
-        schema_version: u16,
-    },
+pub struct DeleteReceipt {
+    pub record_id: OpaqueId,
+    pub schema_version: u16,
 }
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StorageError {
@@ -176,8 +181,8 @@ impl SecureStorage for InMemorySecureStorage {
         }
         let schema_version = record.schema_version();
         self.records.remove(record_id.as_bytes());
-        Ok(DeleteReceipt::Deleted {
-            record_id: 0,
+        Ok(DeleteReceipt {
+            record_id: record_id.clone(),
             schema_version,
         })
     }
