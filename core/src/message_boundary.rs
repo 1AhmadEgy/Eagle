@@ -60,7 +60,7 @@ impl MessageBoundary {
         serialize_envelope(envelope).map_err(Into::into)
     }
 
-    pub fn authorize_inbound(
+    fn authorize_inbound(
         &self,
         context: &SecurityContext,
         path: TransportPath,
