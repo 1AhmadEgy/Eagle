@@ -19,7 +19,7 @@ Technology is not adopted because it appears in historical planning. It must pas
 - QUIC: RFC 9000.
 - ICE: RFC 8445, updated by RFC 8863.
 - TURN: RFC 8656.
-- TLS 1.3: RFC 8446; current status and updates MUST be rechecked before normative adoption.
+- TLS 1.3: RFC 9846 (July 2026); RFC 8446 is obsolete. Normative adoption MUST track the current RFC.
 - WebRTC transports/security: RFC 8835 / RFC 8826.
 
 ## Security decision rule
