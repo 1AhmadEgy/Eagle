@@ -357,3 +357,8 @@ References consulted on 2026-10-05:
 
 ### Security interpretation
 These references do **not** authorize Eagle to copy a protocol fragment and call it an E2E protocol. They define constraints that any accepted protocol must satisfy. Cryptographic authenticity, key epochs, message ordering semantics, persistence, and offline conflict resolution remain protocol-ADR work.
+
+
+## Current implementation delta — 2026-10-05
+
+The Rust slice additionally revalidates Device authority before protocol negotiation, session establishment, and rekey transitions. `effective_trust_state` distinguishes derived local state from the current device authority. The structural sequence seams remain test-only until an accepted cryptographic protocol binds them to authenticated traffic.
