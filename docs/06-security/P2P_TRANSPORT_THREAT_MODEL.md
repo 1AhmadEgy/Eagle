@@ -34,6 +34,10 @@ The attacker can observe, delay, replay, inject, reorder, drop, and terminate pa
 | P2P-11 | Malicious peer attempts protocol confusion | High | explicit version/ALPN/protocol separation | Pending final protocol |
 | P2P-12 | Background lifecycle causes unsafe reconnection | High | platform adapter state machine + reauth | Pending platform implementation |
 
+### Identity-binding invariant
+
+A caller must never be able to manufacture an authenticated-peer state by choosing an enum or boolean. The transport boundary must produce an opaque verification token after cryptographic peer authentication and identity binding. Until the concrete transport adapter exists, Eagle must fail closed rather than expose a production constructor for authenticated peer state.
+
 ## Security invariants
 
 1. Network reachability never grants authorization.
