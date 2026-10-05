@@ -1,31 +1,29 @@
 # Eagle — Platform Key Storage Contract
 
 ## Android
-- Primary boundary: Android Keystore.
-- Prefer hardware-backed protection where supported.
-- StrongBox is an optional higher-assurance tier.
-- Key Attestation requires certificate-chain and policy validation.
-- Never claim all protocol keys are hardware-backed without device/API evidence.
-- Test key invalidation, restore, and migration.
+
+Primary boundary: Android Keystore. Prefer hardware-backed key protection when supported; treat StrongBox as an optional higher-isolation capability. Record actual security level and test invalidation/restore behavior. Attestation is assurance evidence, not the messaging identity itself.
 
 ## Apple
-- Primary boundary: Keychain.
-- Secure Enclave only for supported algorithms and operations.
-- Never claim Secure-Enclave residency without exact platform evidence.
-- Test restore, migration, and invalidation.
+
+Primary boundary: Keychain. Use Secure Enclave only for key types and operations supported by the exact target OS/device. Do not claim Secure-Enclave residency for unsupported protocol algorithms. Test migration, restore and invalidation behavior.
 
 ## Desktop
-Use native protected credential/key facilities for each supported OS.
-Fallback to encrypted application state is lower assurance and must be labeled.
 
-## Forbidden crossings
-UI -> private keys: forbidden.
-Mesh -> plaintext: forbidden.
-Storage -> identity private keys: forbidden.
-Transport -> protocol secrets: forbidden.
+Use native protected key/credential facilities on each supported operating system. Application-encrypted state is fallback only and receives a lower assurance label when hardware protection is absent.
 
-## Assurance
-HW_BACKED = hardware-backed protection verified.
-OS_PROTECTED = OS protection verified; hardware backing not established.
-APP_ENCRYPTED = application encryption only.
-UNTRUSTED = required protection is not met; fail closed where required.
+## Contract
+
+- Crypto core consumes abstract key-domain handles.
+- UI does not access private key material.
+- Mesh/transport does not access private key material or plaintext.
+- Storage encryption keys remain separate from messaging keys.
+- Recovery keys remain separate from messaging and storage keys.
+- Missing required platform protection causes the relevant operation to fail closed.
+
+## Assurance labels
+
+HW_BACKED — hardware-backed protection verified.
+OS_PROTECTED — OS-protected, hardware backing not established.
+APP_ENCRYPTED — application-level at-rest encryption only.
+UNTRUSTED — required protection not met; reject security-sensitive operation.
