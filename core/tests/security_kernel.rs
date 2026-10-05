@@ -41,6 +41,7 @@ fn device_is_not_authorized_before_trust() {
 #[test]
 fn session_cannot_self_elevate_unverified_context() {
     let mut ctx = SecurityContext::new(1, 1).unwrap();
+    let device = Device::new(10, 20, Platform::Android);
     assert_eq!(
         Session::establish(&mut ctx, &device, 1),
         Err(SecurityError::InvalidSessionTransition)
@@ -55,10 +56,11 @@ fn pending_context_cannot_establish_or_rekey() {
 
     // The actual verifier remains an internal test seam until the approved
     // authentication/cryptographic protocol is integrated.
-    assert!(ctx.establish().is_err());
+    let device = Device::new(10, 20, Platform::Android);
+    assert!(ctx.establish(&device).is_err());
 
     assert_eq!(
-        Session::begin_rekey(&mut ctx),
+        Session::begin_rekey(&mut ctx, &device),
         Err(SecurityError::InvalidSessionTransition)
     );
 }
