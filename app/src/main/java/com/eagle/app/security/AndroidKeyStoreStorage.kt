@@ -1,9 +1,11 @@
 package com.eagle.app.security
 
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyInfo
 import android.security.keystore.KeyProperties
 import java.security.KeyStore
 import javax.crypto.Cipher
+import javax.crypto.SecretKeyFactory
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
@@ -50,6 +52,10 @@ class AndroidKeyStoreStorage(
             trustEpoch = trustEpoch,
         )
         if (keyStore.containsAlias(handle.alias)) {
+            val existingKey = requireKey(handle)
+            if (requireStrongBox && !isStrongBoxBacked(existingKey)) {
+                throw IllegalStateException("existing storage key is not StrongBox-backed")
+            }
             return handle
         }
 
@@ -115,6 +121,11 @@ class AndroidKeyStoreStorage(
     private fun requireKey(key: StorageKeyHandle): SecretKey =
         (keyStore.getKey(key.alias, null) as? SecretKey)
             ?: throw IllegalStateException("storage key is unavailable")
+
+    private fun isStrongBoxBacked(key: SecretKey): Boolean =
+        (SecretKeyFactory.getInstance(key.algorithm, ANDROID_KEYSTORE)
+            .getKeySpec(key, KeyInfo::class.java) as KeyInfo)
+            .isStrongBoxBacked
 
     companion object {
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
