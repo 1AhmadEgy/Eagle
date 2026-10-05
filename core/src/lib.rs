@@ -1,11 +1,15 @@
 #![forbid(unsafe_code)]
 
 mod device;
+mod key_management;
 mod policy;
 mod protocol;
 mod session;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
+pub use key_management::{
+    KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference,
+};
 pub use policy::{authorize, Capability};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
