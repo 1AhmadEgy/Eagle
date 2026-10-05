@@ -11,6 +11,33 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidKeyStoreStorageInstrumentedTest {
     @Test
+    fun ciphertextTamperingFailsAuthentication() {
+        val storage = AndroidKeyStoreStorage()
+        val alias = storage.ensureStorageKey(10, 20, 2)
+        val plaintext = "eagle-storage-tamper-test".encodeToByteArray()
+        val aad = "account=10;device=20;epoch=2".encodeToByteArray()
+
+        try {
+            val encrypted = storage.encrypt(alias, plaintext, aad)
+            val tamperedCiphertext = encrypted.copyCiphertext()
+            tamperedCiphertext[0] = (tamperedCiphertext[0].toInt() xor 0x01).toByte()
+            val tampered = EncryptedStoragePayload(encrypted.copyIv(), tamperedCiphertext)
+
+            var failed = false
+            try {
+                storage.decrypt(alias, tampered, aad)
+            } catch (_: AEADBadTagException) {
+                failed = true
+            } catch (_: GeneralSecurityException) {
+                failed = true
+            }
+            assertTrue("ciphertext tampering must fail authentication", failed)
+        } finally {
+            storage.deleteKey(alias)
+        }
+    }
+
+    @Test
     fun keystoreRoundTripAndAadBinding() {
         val storage = AndroidKeyStoreStorage()
         val alias = storage.ensureStorageKey(10, 20, 1)
