@@ -89,6 +89,7 @@ pub struct ProviderCapabilities {
     pub hardware_attestation: bool,
     pub pq_kem: bool,
     pub message_ratchet: bool,
+    pub post_quantum_ratchet: bool,
 }
 
 impl ProviderCapabilities {
@@ -98,6 +99,7 @@ impl ProviderCapabilities {
             && self.hardware_attestation
             && self.pq_kem
             && self.message_ratchet
+            && self.post_quantum_ratchet
     }
 }
 
@@ -131,11 +133,11 @@ impl ProviderRevision {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProtocolProfile {
     Unapproved = 0,
     SignalPqxdhDoubleRatchetV1 = 1,
     MlsRfc9420V1 = 2,
+    SignalPqxdhTripleRatchetV1 = 3,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -172,6 +174,7 @@ impl ProviderApproval {
             && self.platform_reviewed
             && self.conformance_verified
             && self.independent_reviewed
+            && self.protocol_profile == ProtocolProfile::SignalPqxdhTripleRatchetV1
     }
 
     pub const fn version(&self) -> ProviderVersion {
@@ -338,7 +341,7 @@ mod tests {
 
         let approved = ProviderApproval {
             version: ProviderVersion::new(1, 2, 3),
-            protocol_profile: ProtocolProfile::SignalPqxdhDoubleRatchetV1,
+            protocol_profile: ProtocolProfile::SignalPqxdhTripleRatchetV1,
             revision: ProviderRevision::new([0xAB; 20]),
             license_reviewed: true,
             support_reviewed: true,
@@ -354,6 +357,7 @@ mod tests {
                 hardware_attestation: true,
                 pq_kem: false,
                 message_ratchet: true,
+                post_quantum_ratchet: true,
             })
         );
         assert!(
@@ -363,6 +367,7 @@ mod tests {
                 hardware_attestation: true,
                 pq_kem: true,
                 message_ratchet: true,
+                post_quantum_ratchet: true,
             })
         );
     }
@@ -385,6 +390,7 @@ mod tests {
             hardware_attestation: false,
             pq_kem: true,
             message_ratchet: true,
+            post_quantum_ratchet: true,
         }));
         approved.protocol_profile = ProtocolProfile::Unapproved;
         assert!(!approved.is_production_approved());
