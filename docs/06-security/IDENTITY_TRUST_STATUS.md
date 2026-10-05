@@ -136,3 +136,17 @@ A passing local test suite cannot override any missing security gate.
 ```text
 IDENTITY_TRUST = BLOCKED
 ```
+
+
+## Verification evidence update — 2026-10-05
+
+The clean branch triggered fresh repository verification.
+
+Observed results:
+- Secret scan on the clean PR merge range: PASS; no leaks were detected.
+- Repository baseline hygiene: PASS.
+- Repository-wide CI security-policy step: FAIL because the current main testlab workflow contains unpinned action references; this is outside the Identity & Trust specialty and was not bypassed.
+- Platform Test Lab: FAIL before product tests because the current workflow requests Android 37 / build-tools 37.0.0 and the runner could not resolve that package; this is a platform/CI infrastructure boundary outside Identity & Trust.
+- Therefore current clean-head verification is NOT PASS.
+
+This evidence keeps the Identity & Trust release gate BLOCKED. No failed external check is reclassified as a specialty PASS.
