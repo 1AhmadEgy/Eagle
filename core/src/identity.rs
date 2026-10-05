@@ -188,7 +188,7 @@ impl MembershipRegistry {
         current_epoch: u64,
         verifier: &impl MembershipProofVerifier,
     ) -> Result<(), TrustError> {
-        validate_membership(statement, verifier)?;
+        statement.validate_structure()?;
         match statement.trust_epoch.cmp(&current_epoch) {
             std::cmp::Ordering::Less => return Err(TrustError::MembershipEpochStale),
             std::cmp::Ordering::Greater => return Err(TrustError::MembershipEpochFuture),
@@ -202,6 +202,7 @@ impl MembershipRegistry {
             return Err(TrustError::DeviceAlreadyBound);
         }
 
+        validate_membership(statement, verifier)?;
         self.observe_account_epoch(statement.account.id.clone(), statement.trust_epoch)?;
         self.device_accounts
             .insert(statement.device.id.clone(), statement.account.id.clone());
@@ -654,6 +655,21 @@ mod tests {
         }
     }
 
+    struct PanicMembershipVerifier;
+
+    impl MembershipProofVerifier for PanicMembershipVerifier {
+        fn verify_identity_binding(&self, _identity: &IdentityReference) -> Result<(), TrustError> {
+            panic!("membership verifier must not run for rejected epoch");
+        }
+
+        fn verify_membership(
+            &self,
+            _statement: &AccountMembershipStatement,
+        ) -> Result<(), TrustError> {
+            panic!("membership verifier must not run for rejected epoch");
+        }
+    }
+
     struct RejectReverificationVerifier;
 
     impl ContactReverificationVerifier for RejectReverificationVerifier {
@@ -832,6 +848,31 @@ mod tests {
             Err(TrustError::MembershipEpochFuture)
         );
         assert!(registry.bound_account("dev-1").is_none());
+    }
+
+    #[test]
+    fn rejected_future_epoch_does_not_invoke_membership_verifier() {
+        let key_a = PublicIdentityKey::new(vec![1]).unwrap();
+        let key_b = PublicIdentityKey::new(vec![2]).unwrap();
+        let account = IdentityReference::new("acct-a", key_a).unwrap();
+        let device = IdentityReference::new("dev-1", key_b).unwrap();
+
+        let statement = AccountMembershipStatement {
+            protocol_version: 1,
+            account,
+            device,
+            issued_at_unix: 10,
+            not_before_unix: 10,
+            not_after_unix: None,
+            trust_epoch: 5,
+            capabilities: 0,
+        };
+
+        let mut registry = MembershipRegistry::new();
+        assert_eq!(
+            registry.bind(&statement, 4, &PanicMembershipVerifier),
+            Err(TrustError::MembershipEpochFuture)
+        );
     }
 
     #[test]
