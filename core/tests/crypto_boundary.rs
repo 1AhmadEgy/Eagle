@@ -45,3 +45,11 @@ fn messaging_operations_fail_closed_without_approved_provider() {
         Err(KeyError::ProviderUnavailable)
     );
 }
+
+
+#[test]
+fn key_id_does_not_change_key_purpose() {
+    let id = KeyId::new([9; 16]);
+    assert_eq!(IdentityKeyHandle::from_id(id).purpose(), KeyPurpose::DeviceIdentity);
+    assert_eq!(MessageKeyHandle::from_id(id).purpose(), KeyPurpose::Message);
+}
