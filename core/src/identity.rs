@@ -122,10 +122,7 @@ impl AccountMembershipStatement {
 }
 
 pub trait MembershipProofVerifier {
-    fn verify_identity_binding(
-        &self,
-        identity: &IdentityReference,
-    ) -> Result<(), TrustError>;
+    fn verify_identity_binding(&self, identity: &IdentityReference) -> Result<(), TrustError>;
 
     fn verify_membership(&self, statement: &AccountMembershipStatement) -> Result<(), TrustError>;
 }
@@ -157,7 +154,6 @@ pub fn validate_membership(
     verifier.verify_identity_binding(&statement.device)?;
     verifier.verify_membership(statement)
 }
-
 
 #[derive(Debug, Default)]
 pub struct MembershipRegistry {
@@ -242,8 +238,7 @@ impl ContactIdentity {
         &mut self,
         replacement: IdentityReference,
     ) -> Result<(), TrustError> {
-        if self.identity.id == replacement.id
-            && self.identity.public_key == replacement.public_key
+        if self.identity.id == replacement.id && self.identity.public_key == replacement.public_key
         {
             return Err(TrustError::UnchangedIdentity);
         }
@@ -435,7 +430,8 @@ impl PairingContext {
         let token_id = token_id.into();
         let account_id = account_id.into();
         let device_id = device_id.into();
-        if token_id.trim().is_empty() || account_id.trim().is_empty() || device_id.trim().is_empty() {
+        if token_id.trim().is_empty() || account_id.trim().is_empty() || device_id.trim().is_empty()
+        {
             return Err(TrustError::MalformedPairingContext);
         }
         let now = now_unix().ok_or(TrustError::PairingExpired)?;
@@ -452,7 +448,12 @@ impl PairingContext {
         })
     }
 
-    pub fn verify(&self, account_id: &str, device_id: &str, current_epoch: u64) -> Result<(), TrustError> {
+    pub fn verify(
+        &self,
+        account_id: &str,
+        device_id: &str,
+        current_epoch: u64,
+    ) -> Result<(), TrustError> {
         if self.account_id != account_id {
             return Err(TrustError::AccountMismatch);
         }
@@ -564,20 +565,15 @@ mod tests {
     use super::*;
 
     fn pending_record() -> TrustRecord {
-        let mut record =
-            TrustRecord::new("acct-a", "dev-a", PlatformAssurance::Software);
+        let mut record = TrustRecord::new("acct-a", "dev-a", PlatformAssurance::Software);
         record.enter_pending().unwrap();
         record
     }
 
-
     struct AcceptAllVerifier;
 
     impl MembershipProofVerifier for AcceptAllVerifier {
-        fn verify_identity_binding(
-            &self,
-            _identity: &IdentityReference,
-        ) -> Result<(), TrustError> {
+        fn verify_identity_binding(&self, _identity: &IdentityReference) -> Result<(), TrustError> {
             Ok(())
         }
 
@@ -592,10 +588,7 @@ mod tests {
     struct AcceptApprovalVerifier;
 
     impl MembershipProofVerifier for AcceptApprovalVerifier {
-        fn verify_identity_binding(
-            &self,
-            _identity: &IdentityReference,
-        ) -> Result<(), TrustError> {
+        fn verify_identity_binding(&self, _identity: &IdentityReference) -> Result<(), TrustError> {
             Ok(())
         }
 
@@ -634,10 +627,7 @@ mod tests {
     struct RejectApprovalVerifier;
 
     impl MembershipProofVerifier for RejectApprovalVerifier {
-        fn verify_identity_binding(
-            &self,
-            _identity: &IdentityReference,
-        ) -> Result<(), TrustError> {
+        fn verify_identity_binding(&self, _identity: &IdentityReference) -> Result<(), TrustError> {
             Ok(())
         }
 
@@ -660,7 +650,6 @@ mod tests {
             Err(TrustError::PairingApprovalRequired)
         }
     }
-
 
     struct RejectReverificationVerifier;
 
@@ -848,7 +837,9 @@ mod tests {
         let new_identity = IdentityReference::new("dev-new", new_key).unwrap();
         let mut contact = ContactIdentity::new(old_identity.clone());
 
-        contact.observe_identity_change(new_identity.clone()).unwrap();
+        contact
+            .observe_identity_change(new_identity.clone())
+            .unwrap();
         assert_eq!(contact.state, ContactIdentityState::Quarantined);
         assert_eq!(contact.identity, old_identity);
         assert_eq!(contact.pending_identity, Some(new_identity.clone()));
@@ -869,7 +860,9 @@ mod tests {
         let different_identity = IdentityReference::new("dev-other", different_key).unwrap();
         let mut contact = ContactIdentity::new(old_identity.clone());
 
-        contact.observe_identity_change(pending_identity.clone()).unwrap();
+        contact
+            .observe_identity_change(pending_identity.clone())
+            .unwrap();
 
         assert_eq!(
             contact.reverify(different_identity, &AcceptReverificationVerifier),
@@ -888,7 +881,9 @@ mod tests {
         let new_identity = IdentityReference::new("dev-new", new_key).unwrap();
         let mut contact = ContactIdentity::new(old_identity);
 
-        contact.observe_identity_change(new_identity.clone()).unwrap();
+        contact
+            .observe_identity_change(new_identity.clone())
+            .unwrap();
 
         assert_eq!(
             contact.reverify(new_identity, &RejectReverificationVerifier),
@@ -920,13 +915,14 @@ mod tests {
 
     #[test]
     fn explicit_approval_promotes_pending_device() {
-        let mut record =
-            TrustRecord::new("acct-a", "dev-a", PlatformAssurance::HardwareBacked);
+        let mut record = TrustRecord::new("acct-a", "dev-a", PlatformAssurance::HardwareBacked);
         record.enter_pending().unwrap();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 7).unwrap();
 
-        let event = record.approve_trust("acct-a", &mut pairing, 7, &AcceptApprovalVerifier).unwrap();
+        let event = record
+            .approve_trust("acct-a", &mut pairing, 7, &AcceptApprovalVerifier)
+            .unwrap();
 
         assert_eq!(record.state, TrustState::Trusted);
         assert_eq!(record.trust_epoch, 7);
@@ -943,12 +939,7 @@ mod tests {
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
         assert_eq!(
-            record.approve_trust(
-                "acct-a",
-                &mut pairing,
-                1,
-                &RejectApprovalVerifier
-            ),
+            record.approve_trust("acct-a", &mut pairing, 1, &RejectApprovalVerifier),
             Err(TrustError::PairingApprovalRequired)
         );
         assert_eq!(record.state, TrustState::Pending);
@@ -981,7 +972,13 @@ mod tests {
     #[test]
     fn pairing_expiry_overflow_fails_closed() {
         assert_eq!(
-            PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(u64::MAX), 1),
+            PairingContext::new(
+                "pair-1",
+                "acct-a",
+                "dev-a",
+                Duration::from_secs(u64::MAX),
+                1
+            ),
             Err(TrustError::PairingExpiryOverflow)
         );
     }
@@ -990,7 +987,8 @@ mod tests {
     fn pairing_is_bound_to_the_expected_device() {
         let mut record = pending_record();
         let mut pairing =
-            PairingContext::new("pair-1", "acct-a", "dev-other", Duration::from_secs(60), 3).unwrap();
+            PairingContext::new("pair-1", "acct-a", "dev-other", Duration::from_secs(60), 3)
+                .unwrap();
 
         assert_eq!(
             record.approve_trust("acct-a", &mut pairing, 3, &AcceptApprovalVerifier),
@@ -1005,7 +1003,9 @@ mod tests {
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 3).unwrap();
 
-        record.approve_trust("acct-a", &mut pairing, 3, &AcceptApprovalVerifier).unwrap();
+        record
+            .approve_trust("acct-a", &mut pairing, 3, &AcceptApprovalVerifier)
+            .unwrap();
 
         assert_eq!(
             pairing.verify("acct-a", "dev-a", 3),
@@ -1026,13 +1026,14 @@ mod tests {
 
     #[test]
     fn stale_epoch_cannot_authorize() {
-        let mut record =
-            TrustRecord::new("acct-a", "dev-a", PlatformAssurance::PlatformAttested);
+        let mut record = TrustRecord::new("acct-a", "dev-a", PlatformAssurance::PlatformAttested);
         record.enter_pending().unwrap();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 8).unwrap();
 
-        record.approve_trust("acct-a", &mut pairing, 8, &AcceptApprovalVerifier).unwrap();
+        record
+            .approve_trust("acct-a", &mut pairing, 8, &AcceptApprovalVerifier)
+            .unwrap();
 
         assert_eq!(
             record.authorize(AuthorizationAction::StartProtectedSession, 7),
@@ -1050,7 +1051,9 @@ mod tests {
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 1).unwrap();
 
-        record.approve_trust("acct-a", &mut pairing, 1, &AcceptApprovalVerifier).unwrap();
+        record
+            .approve_trust("acct-a", &mut pairing, 1, &AcceptApprovalVerifier)
+            .unwrap();
         let event = record.revoke(2).unwrap();
 
         assert!(matches!(
@@ -1104,7 +1107,9 @@ mod tests {
         let mut record = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 5).unwrap();
-        record.approve_trust("acct-a", &mut pairing, 5, &AcceptApprovalVerifier).unwrap();
+        record
+            .approve_trust("acct-a", &mut pairing, 5, &AcceptApprovalVerifier)
+            .unwrap();
         record.suspend().unwrap();
 
         assert_eq!(
@@ -1128,25 +1133,18 @@ mod tests {
         let mut record = pending_record();
         let mut pairing =
             PairingContext::new("pair-1", "acct-a", "dev-a", Duration::from_secs(60), 2).unwrap();
-        record.approve_trust("acct-a", &mut pairing, 2, &AcceptApprovalVerifier).unwrap();
+        record
+            .approve_trust("acct-a", &mut pairing, 2, &AcceptApprovalVerifier)
+            .unwrap();
 
-        assert_eq!(
-            record.revoke(2),
-            Err(TrustError::TrustEpochNotMonotonic)
-        );
-        assert_eq!(
-            record.replace(1),
-            Err(TrustError::TrustEpochNotMonotonic)
-        );
+        assert_eq!(record.revoke(2), Err(TrustError::TrustEpochNotMonotonic));
+        assert_eq!(record.replace(1), Err(TrustError::TrustEpochNotMonotonic));
     }
 
     #[test]
     fn trust_epoch_overflow_fails_closed() {
         let mut epochs = TrustEpochSet::new(u64::MAX);
-        assert_eq!(
-            epochs.advance(),
-            Err(TrustError::TrustEpochOverflow)
-        );
+        assert_eq!(epochs.advance(), Err(TrustError::TrustEpochOverflow));
     }
 
     #[test]
@@ -1171,9 +1169,6 @@ mod tests {
             pairing.verify("acct-a", "dev-a", 1),
             Err(TrustError::PairingCancelled)
         );
-        assert_eq!(
-            pairing.cancel(),
-            Err(TrustError::PairingAlreadyCompleted)
-        );
+        assert_eq!(pairing.cancel(), Err(TrustError::PairingAlreadyCompleted));
     }
 }
