@@ -52,3 +52,20 @@ fn revoked_and_destroyed_keys_are_not_usable() {
         Err(LifecycleError::Destroyed)
     );
 }
+
+#[test]
+fn one_time_prekey_is_consumed_once() {
+    let mut lifecycle = KeyLifecycle::default();
+    lifecycle
+        .register(id(4), KeyPurpose::OneTimePreKey, 1)
+        .unwrap();
+
+    assert_eq!(
+        lifecycle.consume_one_time_pre_key(id(4)).unwrap().mutation,
+        KeyMutation::Consume
+    );
+    assert_eq!(
+        lifecycle.consume_one_time_pre_key(id(4)),
+        Err(LifecycleError::Consumed)
+    );
+}
