@@ -65,3 +65,26 @@ External cryptographic references are not dependency approval. Every production 
 - OpenMLS 0.9.0 continues toward standards-compliant MLS RFC 9420 and includes recent security/storage hardening.
 - NIST's 2026 PQC migration material continues to recommend finalized standards such as ML-KEM/ML-DSA rather than draft candidates.
 - Android and Apple platform evidence requires capability-specific custody claims; hardware presence alone is insufficient.
+
+
+## 2026-10-05 research refresh
+
+
+- Signal PQXDH specification: asynchronous first-contact model explicitly assumes a server publishes/furnishes prekey bundles; strict P2P deployment therefore requires a separately defined transport/rendezvous profile and must not claim stock asynchronous interoperability without that profile.
+- Signal Double Ratchet specification revision 4 (2025-11-04): message keys evolve per message and DH public values are mixed into the ratchet state.
+- libsignal v0.104.0 is current upstream release observed during this review; upstream states use outside Signal is unsupported and the workspace is AGPL-3.0-only. Treat as reference/conformance candidate, not automatically approved dependency.
+- vodozemac 0.10.0 is Apache-2.0 and reports one Least Authority audit with no significant findings; it implements Olm/Megolm and is not a PQXDH replacement.
+- OpenMLS 0.9.0 is the current observed release and continues toward standards-compliant MLS RFC 9420; its release notes include security fixes and storage-state migration changes.
+- NIST's current PQC migration guidance says ML-KEM and ML-DSA are ready for implementation; Eagle must track finalized standards rather than draft/withdrawn candidates.
+- Android Keystore documentation confirms non-exportable key material, secure-hardware binding, StrongBox, and hardware key attestation. Hardware backing must be verified rather than assumed.
+- Apple Secure Enclave documentation confirms hardware isolation but limits supported private-key operations/key types; Eagle must not mislabel unsupported PQXDH keys as Secure-Enclave protected.
+
+## 2026-10-05 research refresh
+
+- Signal PQXDH's standard asynchronous model uses a server for prekey publication/fetching; strict direct-P2P deployment therefore requires a separately frozen rendezvous profile.
+- Signal Double Ratchet revision 4 (2025-11-04) continues the per-message key evolution and DH-mixing model.
+- libsignal v0.104.0 is current upstream in this review; upstream explicitly says use outside Signal is unsupported and the workspace is AGPL-3.0-only.
+- vodozemac 0.10.0 is Apache-2.0 and reports one Least Authority audit with no significant findings; it implements Olm/Megolm and is not a PQXDH replacement.
+- OpenMLS 0.9.0 continues toward standards-compliant MLS RFC 9420 and includes recent security/storage hardening.
+- NIST's 2026 PQC migration material continues to recommend finalized standards such as ML-KEM/ML-DSA rather than draft candidates.
+- Android and Apple platform evidence requires capability-specific custody claims; hardware presence alone is insufficient.
