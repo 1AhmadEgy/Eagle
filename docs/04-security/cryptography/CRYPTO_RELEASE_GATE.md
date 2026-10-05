@@ -4,7 +4,7 @@
 PASS only when no custom primitive, custom ratchet, or undocumented protocol construction is used.
 
 ## G1 — Protocol conformance
-Requires exact protocol profile/version, defined encoding, conformance vectors, negative tests, and interoperability evidence.
+Requires exact protocol profile/version, defined encoding, conformance vectors, negative tests, and interoperability evidence; for 1:1 this is Signal PQXDH + Triple Ratchet v1.
 
 ## G2 — Key boundary
 Requires isolated identity, prekey, session, message, storage, and recovery key domains with lifecycle evidence.
@@ -34,3 +34,19 @@ Current:
 - G0-G5: design evidence complete.
 - G6-G8: implementation/independent evidence required.
 - G9: BLOCKED.
+
+
+## Additional hard gates — 2026-10-05
+
+- Exact provider revision and explicit protocol profile binding verified.
+- Required hardware-backed attestation/security-anchor evidence verified where claimed.
+- No unsupported Secure Enclave/StrongBox custody claims for PQXDH/MLS keys.
+- Strict-P2P profile semantics independently conformance-tested; no stock asynchronous PQXDH interoperability claim without its required rendezvous semantics.
+- PQC selection bound to finalized standards and current NIST migration baseline.
+
+
+## 2026 provider hard gates
+
+- 1:1 production provider profile must be Signal PQXDH + Triple Ratchet v1.
+- Post-quantum-ratchet capability must be evidenced independently of PQ KEM capability.
+- Hardware-backed status and attestation are per-key/profile evidence, not blanket device claims.
