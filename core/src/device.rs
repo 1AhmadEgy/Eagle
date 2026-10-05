@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DeviceTrustState {
     Unknown,
@@ -22,6 +24,18 @@ pub enum DeviceError {
     Revoked,
     Replaced,
 }
+
+impl fmt::Display for DeviceError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::InvalidTransition => "invalid device trust transition",
+            Self::Revoked => "device is revoked",
+            Self::Replaced => "device is replaced",
+        })
+    }
+}
+
+impl std::error::Error for DeviceError {}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Device {
