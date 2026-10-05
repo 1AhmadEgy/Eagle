@@ -6,9 +6,15 @@ pub enum TransportPath {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum PeerBinding {
-    Unauthenticated,
-    EagleDevice,
+pub struct PeerBinding {
+    _private: (),
+}
+
+impl PeerBinding {
+    #[cfg(test)]
+    pub(crate) const fn for_test() -> Self {
+        Self { _private: () }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -51,13 +57,13 @@ impl TransportPolicy {
     pub fn authorize_application_data(
         &self,
         path: TransportPath,
-        peer: PeerBinding,
+        peer: Option<&PeerBinding>,
     ) -> Result<(), TransportError> {
         if self.application_data_direct_only && path != TransportPath::Direct {
             return Err(TransportError::ApplicationDataRequiresDirectPath);
         }
 
-        if self.require_peer_identity_binding && peer != PeerBinding::EagleDevice {
+        if self.require_peer_identity_binding && peer.is_none() {
             return Err(TransportError::PeerIdentityRequired);
         }
 
@@ -72,11 +78,12 @@ mod tests {
     #[test]
     fn default_policy_is_direct_only_and_identity_bound() {
         let policy = TransportPolicy::new();
+        let binding = PeerBinding::for_test();
         assert!(policy.application_data_direct_only());
         assert!(policy.require_peer_identity_binding());
 
         assert_eq!(
-            policy.authorize_application_data(TransportPath::Direct, PeerBinding::EagleDevice,),
+            policy.authorize_application_data(TransportPath::Direct, Some(&binding)),
             Ok(())
         );
     }
@@ -84,27 +91,34 @@ mod tests {
     #[test]
     fn relay_and_server_fallback_are_rejected_for_application_data() {
         let policy = TransportPolicy::new();
+        let binding = PeerBinding::for_test();
 
         assert_eq!(
-            policy.authorize_application_data(TransportPath::Relay, PeerBinding::EagleDevice,),
+            policy.authorize_application_data(TransportPath::Relay, Some(&binding)),
             Err(TransportError::ApplicationDataRequiresDirectPath)
         );
         assert_eq!(
             policy.authorize_application_data(
                 TransportPath::ServerFallback,
-                PeerBinding::EagleDevice,
+                Some(&binding),
             ),
             Err(TransportError::ApplicationDataRequiresDirectPath)
         );
     }
 
     #[test]
-    fn unauthenticated_direct_peer_is_rejected() {
+    fn missing_peer_binding_is_rejected() {
         let policy = TransportPolicy::new();
 
         assert_eq!(
-            policy.authorize_application_data(TransportPath::Direct, PeerBinding::Unauthenticated,),
+            policy.authorize_application_data(TransportPath::Direct, None),
             Err(TransportError::PeerIdentityRequired)
         );
+    }
+
+    #[test]
+    fn caller_cannot_construct_a_peer_binding() {
+        let binding = PeerBinding::for_test();
+        assert_eq!(binding, PeerBinding::for_test());
     }
 }
