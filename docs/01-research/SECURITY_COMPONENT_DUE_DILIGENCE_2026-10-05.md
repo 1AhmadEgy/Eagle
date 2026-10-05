@@ -75,7 +75,7 @@ Keep Eagle-owned logic limited to orchestration, identity binding, state machine
 ## Current 2026-10-05 research refresh
 - libsignal v0.104.0 remains the latest observed release; upstream continues to scope support to Signal's own clients and warns APIs/implementations may change.
 - OpenMLS v0.9.0 remains the latest observed release; its recent history includes security fixes and stricter storage expectations.
-- rust-libp2p v0.56.0 remains the latest observed release; QUIC and hole punching remain viable transport candidates, but Eagle still requires explicit identity binding, DoS controls, and relay exclusion evidence.
+- rust-libp2p v0.57.0 is the current upstream workspace version observed on 2026-10-05; QUIC and hole punching remain viable transport candidates, but Eagle still requires explicit identity binding, DoS controls, and relay exclusion evidence.
 - Android Keystore exposes security-level information through KeyInfo and StrongBox-backed status can be queried; Eagle therefore treats an explicit StrongBox request as a hard custody requirement rather than a best-effort hint.
 
 ## Status
