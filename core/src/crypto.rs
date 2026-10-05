@@ -80,6 +80,67 @@ pub struct ProviderCapabilities {
     pub message_ratchet: bool,
 }
 
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProviderVersion {
+    pub major: u16,
+    pub minor: u16,
+    pub patch: u16,
+}
+
+impl ProviderVersion {
+    pub const fn new(major: u16, minor: u16, patch: u16) -> Self {
+        Self { major, minor, patch }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProviderRevision([u8; 20]);
+
+impl ProviderRevision {
+    pub const fn new(bytes: [u8; 20]) -> Self { Self(bytes) }
+    pub const fn bytes(&self) -> &[u8; 20] { &self.0 }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProviderApproval {
+    pub version: ProviderVersion,
+    pub revision: ProviderRevision,
+    pub license_reviewed: bool,
+    pub support_reviewed: bool,
+    pub platform_reviewed: bool,
+    pub conformance_verified: bool,
+    pub independent_reviewed: bool,
+}
+
+impl ProviderApproval {
+    pub const fn rejected() -> Self {
+        Self {
+            version: ProviderVersion::new(0, 0, 0),
+            revision: ProviderRevision::new([0; 20]),
+            license_reviewed: false,
+            support_reviewed: false,
+            platform_reviewed: false,
+            conformance_verified: false,
+            independent_reviewed: false,
+        }
+    }
+
+    pub const fn is_production_approved(&self) -> bool {
+        (self.version.major != 0 || self.version.minor != 0 || self.version.patch != 0)
+            && self.revision.0 != [0; 20]
+            && self.license_reviewed
+            && self.support_reviewed
+            && self.platform_reviewed
+            && self.conformance_verified
+            && self.independent_reviewed
+    }
+
+    pub const fn version(&self) -> ProviderVersion { self.version }
+    pub const fn revision(&self) -> ProviderRevision { self.revision }
+}
+
 pub trait KeyStore {
     type Error;
 
@@ -218,6 +279,24 @@ mod tests {
         let message = MessageKeyHandle::from_id(id);
         assert_eq!(identity.id(), message.id());
         assert_ne!(identity.purpose(), message.purpose());
+    }
+
+    #[test]
+    #[test]
+    fn provider_approval_is_fail_closed() {
+        let rejected = ProviderApproval::rejected();
+        assert!(!rejected.is_production_approved());
+
+        let approved = ProviderApproval {
+            version: ProviderVersion::new(1, 2, 3),
+            revision: ProviderRevision::new([0xAB; 20]),
+            license_reviewed: true,
+            support_reviewed: true,
+            platform_reviewed: true,
+            conformance_verified: true,
+            independent_reviewed: true,
+        };
+        assert!(approved.is_production_approved());
     }
 
     #[test]
