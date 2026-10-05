@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Scope:** Rust Core / Security Kernel only  
 **Branch:** `execution/rust-core-security-kernel-complete-2026-10-05`  
-**Research head:** `c987bb283d8ca9ffac6cbf654c8fc0100711ab74`  
+**Research head:** `307a56184235463a6ebecc4a564412f5ef9248b1`  
 **PR:** #81 (draft)
 
 ## 1. Executive finding
@@ -39,7 +39,7 @@ Research references:
 - https://doc.rust-lang.org/stable/core/clone/trait.Clone.html
 - https://doc.rust-lang.org/stable/error_codes/E0382.html
 
-### RUST-K-002 — Device trust and session trust have two state holders — HIGH
+### RUST-K-002 — Device trust and session trust have two state holders — REMEDIATED / INTEGRATION PENDING
 
 The kernel currently models trust in both `DeviceTrustState` and `SecurityContext::trust`. They are not yet cryptographically linked.
 
@@ -48,12 +48,20 @@ Risk:
 - a device may be revoked while an independently-held authenticated session context still appears trusted;
 - future FFI/platform bindings could accidentally treat the two state machines as separate authorities.
 
-Required architectural outcome:
+Remediation now present in the Rust slice:
 
-- define one canonical trust authority;
-- bind session authorization to that authority;
-- make device revocation invalidate all sessions derived from that device;
-- reject stale authorization after replacement or revocation.
+- `Device` is the local authority source for derived-session authorization;
+- bound `SecurityContext` values record device identity plus an authority epoch;
+- revocation/replacement monotonically advances the epoch;
+- authorization re-checks identity, epoch, and current device state;
+- stale and wrong-device authorization paths are rejected by negative tests.
+
+Remaining integration work:
+
+- define the authoritative identity/device membership model across KMP/Rust;
+- persist and reconcile monotonic revocation across offline P2P, restart, and recovery;
+- prove UniFFI/KMP cannot bypass the authority check;
+- independently review the resulting trust/revocation semantics.
 
 This is an integration dependency, not a reason to weaken the current fail-closed API.
 
@@ -122,11 +130,11 @@ A production protocol must define:
 
 These are protocol/key-management properties and must not be inferred from the current `created_at_epoch_ms` field.
 
-### RUST-K-008 — Bounds are enforced at the object boundary, not yet at the wire parser — MEDIUM
+### RUST-K-008 — Bounds are enforced at the object boundary and structural frame parser — PARTIAL
 
 The kernel rejects payloads and identifiers that exceed configured limits after a caller has already supplied them as Rust values.
 
-A production decoder must enforce size limits before unbounded allocation. In hostile P2P input handling, the parser boundary is the actual resource-exhaustion control point.
+The Rust slice now has a bounded structural `FrameHeader::decode(&[u8])` that reads a fixed 8-byte header, rejects truncation, validates the declared length before slicing the payload, and returns a borrowed payload without allocation. This is intentionally structural framing only; canonical message serialization remains pending.
 
 Required tests:
 
@@ -308,3 +316,44 @@ The deterministic Rust kernel is now materially more fail-closed than the earlie
 
 The remaining blockers are architectural/security dependencies, not candidates for "quick fixes" inside the Rust scaffold:
 cryptographic protocol selection, key management, canonical serialization, authenticated identity verification, replay/sequence protection, P2P transport security, UniFFI security review, platform key custody, hostile-input parser testing, and independent security review.
+
+
+## 10. New protocol-safety research — framing and replay
+
+### Framing
+The implemented structural decoder uses a fixed 8-byte header:
+
+```text
+u16 protocol_version
+u32 payload_len
+u16 flags
+```
+
+The header is interpreted in network/big-endian order. Parsing uses checked conversions and bounded slice access. No payload allocation occurs in the decoder. A declared length beyond `MAX_PAYLOAD_BYTES` is rejected by the validated header constructor before the payload range is accepted.
+
+This is deliberately **not** the canonical Eagle serialization format. ADR-0010 remains authoritative for the eventual serialized message schema.
+
+### Replay / sequencing
+The research baseline is:
+
+- maintain independent sending and receiving sequence state;
+- never allow sequence-number wrap;
+- bind ordering information to authenticated message context;
+- reject duplicates and values outside the configured receive window;
+- do not advance replay state for a packet until its authenticity has been verified;
+- define behavior across key changes, restart, recovery, loss, and reordering in the accepted protocol.
+
+The current branch contains test-only sequence-state implementations to validate these invariants without exposing a misleading production API before the cryptographic protocol is accepted.
+
+References consulted on 2026-10-05:
+
+- RFC 4347 — https://www.rfc-editor.org/rfc/rfc4347.html
+- RFC 8446 — https://www.rfc-editor.org/rfc/rfc8446.html
+- RFC 9000 — https://www.rfc-editor.org/rfc/rfc9000/
+- RFC 9180 — https://www.rfc-editor.org/rfc/rfc9180.html
+- RFC 9420 — https://www.rfc-editor.org/rfc/rfc9420/
+- Rust `u64::checked_add` — https://doc.rust-lang.org/std/primitive.u64.html
+- Rust slice bounds API — https://doc.rust-lang.org/std/primitive.slice.html
+
+### Security interpretation
+These references do **not** authorize Eagle to copy a protocol fragment and call it an E2E protocol. They define constraints that any accepted protocol must satisfy. Cryptographic authenticity, key epochs, message ordering semantics, persistence, and offline conflict resolution remain protocol-ADR work.
