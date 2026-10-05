@@ -3,7 +3,6 @@
 **Scope:** Identity & Trust only  
 **Canonical baseline:** `main @ abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`  
 **Current implementation candidate:** `implementation/security-first-v1-2026-10-05` / PR #77  
-**Current head under verification:** `136f595d2dfa0fdd6350bda1d758353837c0f299`  
 **Gate:** BLOCKED / NO-GO
 
 | Area | Current artifact | State | Security boundary |
