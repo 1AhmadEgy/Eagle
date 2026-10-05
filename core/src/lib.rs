@@ -14,7 +14,8 @@ mod storage;
 
 pub use crypto::{
     IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
-    OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderCapabilities, RecoveryKeyHandle,
+    OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderApproval, ProviderCapabilities,
+    ProviderRevision, ProviderVersion, RecoveryKeyHandle,
     SessionKeyHandle, SignedPreKeyHandle, StorageWrappingKeyHandle, UnavailableCryptoProvider,
 };
 pub use delivery::{DeliveryGuardError, DeliveryMetadata, InboundReplayGuard};
