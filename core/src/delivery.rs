@@ -58,6 +58,12 @@ impl From<FreshnessError> for DeliveryGuardError {
     }
 }
 
+/// Replay/freshness enforcement for a single authenticated sender/session scope.
+///
+/// Callers must invoke this guard only after the selected cryptographic/session
+/// implementation has authenticated the message and established the epoch context.
+/// This guard is not an authentication primitive and never substitutes for
+/// cryptographic verification.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InboundReplayGuard {
     replay: ReplayWindow,
@@ -72,6 +78,9 @@ impl InboundReplayGuard {
         })
     }
 
+    /// Accept delivery metadata after cryptographic authentication has succeeded.
+    ///
+    /// Freshness is evaluated before replay state is mutated.
     pub fn accept(
         &mut self,
         metadata: DeliveryMetadata,
