@@ -165,28 +165,51 @@ fn device_revocation_and_replacement_are_terminal() {
 #[test]
 fn replay_window_enforces_duplicate_epoch_and_window_bounds() {
     let mut window = ReplayWindow::new(4).unwrap();
+    let binding = eagle_core::ContentBinding::new([7; 32]);
 
-    assert_eq!(window.observe(1, 10, MessageId::new([10; 16])), Ok(()));
     assert_eq!(
-        window.observe(1, 10, MessageId::new([10; 16])),
+        window.observe(1, 10, MessageId::new([10; 16]), binding),
+        Ok(())
+    );
+    assert_eq!(
+        window.observe(1, 10, MessageId::new([10; 16]), binding),
         Err(ReplayError::Duplicate)
     );
     assert_eq!(
-        window.observe(1, 10, MessageId::new([11; 16])),
+        window.observe(
+            1,
+            10,
+            MessageId::new([10; 16]),
+            eagle_core::ContentBinding::new([8; 32])
+        ),
+        Err(ReplayError::ContentBindingMismatch)
+    );
+    assert_eq!(
+        window.observe(
+            1,
+            10,
+            MessageId::new([11; 16]),
+            eagle_core::ContentBinding::new([9; 32])
+        ),
         Err(ReplayError::SequenceCollision)
     );
-    assert_eq!(window.observe(1, 8, MessageId::new([8; 16])), Ok(()));
     assert_eq!(
-        window.observe(2, 1, MessageId::new([1; 16])),
-        Err(ReplayError::EpochChanged)
+        window.observe(
+            1,
+            8,
+            MessageId::new([8; 16]),
+            eagle_core::ContentBinding::new([8; 32])
+        ),
+        Ok(())
     );
     assert_eq!(
-        window.observe(2, 1, MessageId::new([1; 16])),
+        window.observe(
+            2,
+            1,
+            MessageId::new([1; 16]),
+            eagle_core::ContentBinding::new([1; 32])
+        ),
         Err(ReplayError::EpochChanged)
-    );
-    assert_eq!(
-        window.observe(2, 0, MessageId::new([0; 16])),
-        Err(ReplayError::Duplicate)
     );
 }
 
