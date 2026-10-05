@@ -275,3 +275,36 @@ Unresolved blockers:
 No cryptographic implementation should be added merely to turn the current scaffold green.
 
 The kernel must remain fail-closed until the protocol, key-management, serialization, and identity contracts are accepted and their evidence is available.
+
+## 7. Additional hardening decision — rekey completion
+
+A public `finish_rekey()` operation was identified as unsafe for the pre-cryptographic kernel because the method changed a `Rekeying` session back to `Established` without requiring an authenticated cryptographic proof.
+
+The method is now test/internal-only. Production callers can begin rekey, but an incomplete rekey can only terminate the session through a fail-closed abort path. This prevents a future platform adapter or FFI caller from treating "rekey started" as equivalent to "new keys verified".
+
+This aligns the current scaffold with the intended security property of refusing to continue a session when key-state transition proof is absent.
+
+## 8. Current external reference basis
+
+Rust's ownership model distinguishes implicit `Copy` values from explicit `Clone` values; this supports treating authority-bearing session/device objects as move-only state until a canonical shared authority exists. citeturn987370search7
+
+UniFFI documents explicit handling of Rust `Result` errors and panic boundaries across foreign calls. Security-sensitive Eagle APIs should therefore prefer explicit typed `Result` failures and should not depend on foreign exceptions or callbacks as the trust root. citeturn987370search4turn987370search9
+
+Android Keystore is explicitly designed so key material remains non-exportable while allowing policy restrictions on key use; StrongBox can provide stronger isolation when supported. This supports keeping platform key custody outside the Rust value model and treating the platform store as a constrained key-custody dependency, not an application-level raw key container. citeturn987370search3turn987370search8
+
+OWASP MASVS remains a useful cross-check because it separates storage, cryptography, authentication, network, platform, code, resilience, and privacy controls. The Rust kernel should therefore never be represented as sufficient evidence for the complete mobile security posture. citeturn987370search0turn987370search1
+
+## 9. Updated release conclusion
+
+The deterministic Rust kernel is now materially more fail-closed than the earlier baseline:
+
+- authority-bearing state is move-only;
+- public trust elevation is unavailable;
+- public rekey completion is unavailable before cryptographic proof exists;
+- authentication cancellation cannot grant trust;
+- incomplete rekey closes the session;
+- frame construction is validated;
+- protocol/resource checks remain bounded.
+
+The remaining blockers are architectural/security dependencies, not candidates for "quick fixes" inside the Rust scaffold:
+cryptographic protocol selection, key management, canonical serialization, authenticated identity verification, replay/sequence protection, P2P transport security, UniFFI security review, platform key custody, hostile-input parser testing, and independent security review.
