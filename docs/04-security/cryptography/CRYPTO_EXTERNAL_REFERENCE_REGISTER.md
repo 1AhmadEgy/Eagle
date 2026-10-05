@@ -43,3 +43,15 @@ Android Keystore can expose whether enforcement is software, TEE, or StrongBox; 
 External cryptographic references are not dependency approval. Every production dependency requires exact version/commit, provenance, license review, platform support, interoperability/conformance, supply-chain checks, and independent security review.
 
 ---
+
+
+## 2026-10-05 research refresh
+
+- Signal PQXDH specification: asynchronous first-contact model explicitly assumes a server publishes/furnishes prekey bundles; strict P2P deployment therefore requires a separately defined transport/rendezvous profile and must not claim stock asynchronous interoperability without that profile.
+- Signal Double Ratchet specification revision 4 (2025-11-04): message keys evolve per message and DH public values are mixed into the ratchet state.
+- libsignal v0.104.0 is current upstream release observed during this review; upstream states use outside Signal is unsupported and the workspace is AGPL-3.0-only. Treat as reference/conformance candidate, not automatically approved dependency.
+- vodozemac 0.10.0 is Apache-2.0 and reports one Least Authority audit with no significant findings; it implements Olm/Megolm and is not a PQXDH replacement.
+- OpenMLS 0.9.0 is the current observed release and continues toward standards-compliant MLS RFC 9420; its release notes include security fixes and storage-state migration changes.
+- NIST's current PQC migration guidance says ML-KEM and ML-DSA are ready for implementation; Eagle must track finalized standards rather than draft/withdrawn candidates.
+- Android Keystore documentation confirms non-exportable key material, secure-hardware binding, StrongBox, and hardware key attestation. Hardware backing must be verified rather than assumed.
+- Apple Secure Enclave documentation confirms hardware isolation but limits supported private-key operations/key types; Eagle must not mislabel unsupported PQXDH keys as Secure-Enclave protected.
