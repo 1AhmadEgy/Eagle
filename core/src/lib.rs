@@ -43,7 +43,7 @@ pub enum SecurityError {
     ClosedSession,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct SecurityContext {
     trust: TrustState,
     session: SessionState,
