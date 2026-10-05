@@ -28,6 +28,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Set up Rust 1.99.0
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # reviewed upstream commit
+        with:
+          toolchain: "1.99.0"
+          components: rustfmt, clippy
+
       - name: Verify repository hygiene
         shell: bash
         run: |
