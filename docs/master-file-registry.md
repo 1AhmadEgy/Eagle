@@ -38,8 +38,11 @@ The registry does not establish that a document or implementation is correct. It
 | PM-NET-REG-001 | PrivateMesh Canonical Authority | docs/05-network/PRIVATEMESH_CANONICAL_AUTHORITY.md | Governance | IN REVIEW | P2P GATE |
 | PM-NET-GAP-001 | PrivateMesh Gap Matrix | docs/05-network/PRIVATEMESH_GAP_MATRIX.md | Internal Review | IN REVIEW | P2P GATE |
 | PM-NET-INT-001 | Transport Interoperability Matrix | docs/05-network/PRIVATEMESH_INTEROPERABILITY_MATRIX.md | Candidate Evaluation | CANDIDATE | P2P GATE |
+| PM-NET-RES-001 | Transport Security Research | docs/05-network/PRIVATEMESH_TRANSPORT_SECURITY_RESEARCH_2026-10-05.md | Research | CANDIDATE INPUT | P2P GATE |
+| PM-NET-THR-001 | P2P Threat Model | docs/05-network/PRIVATEMESH_P2P_THREAT_MODEL_2026-10-05.md | Security Baseline | IMPLEMENTATION-GATED | P2P GATE |
 | PM-NET-LIM-001 | Resource & Abuse Limits | docs/05-network/PRIVATEMESH_RESOURCE_LIMITS.md | Security Control | REQUIRED | P2P GATE |
 | PM-NET-SEC-001 | Security Review Checklist | docs/05-network/PRIVATEMESH_SECURITY_REVIEW_CHECKLIST.md | Security Review | REQUIRED | P2P GATE |
+| PM-NET-MNT-001 | Continuous Maintenance Register | docs/05-network/PRIVATEMESH_CONTINUOUS_MAINTENANCE_REGISTER.md | Maintenance | ACTIVE | P2P GATE |
 | PM-NET-EVID-001 | PrivateMesh Evidence Index | docs/05-network/PRIVATEMESH_EVIDENCE_INDEX.md | Evidence | GATED | P2P GATE |
 | PM-NET-AUD-001 | PrivateMesh Execution Audit | docs/05-network/PRIVATEMESH_EXECUTION_AUDIT.md | Audit | GATED | P2P GATE |
 | PM-NET-REL-001 | PrivateMesh Release Gate | docs/05-network/PRIVATEMESH_RELEASE_GATE.md | Release Control | NO-GO | P2P GATE |
@@ -80,6 +83,7 @@ A normative specification is not promoted to CANONICAL until:
 8. Standards/reference verification and current applicability.
 9. PrivateMesh transport stack is not yet approved by ADR-0012.
 10. PrivateMesh numeric resource limits and executable network-fault evidence are not yet established.
+11. Exact resolved transport dependency graph and advisory evidence do not yet exist in Eagle.
 
 ## 7. P2P authority rule
 
