@@ -29,15 +29,18 @@ Cryptographic verification, private-key custody, transport, persistence, UI, and
 2. Trust elevation cannot be performed by a public caller.
 3. Session establishment requires verified trusted state.
 4. Rekey is legal only for an established trusted session.
-5. Revocation closes the session and is terminal for the context.
+5. Rekey completion requires an internal/test verification seam until real cryptographic rekey proof is integrated.
+6. An incomplete rekey fails closed by closing the session.
+7. Authentication cancellation returns only to untrusted/idle state and never grants trust.
+8. Revocation closes the session and is terminal for the context.
 6. Replaced devices cannot authorize.
 7. Protocol negotiation is bounded by configured minimum/maximum and current implementation version.
-8. A rejected protocol offer cannot mutate state.
-9. Identifier and payload bounds are enforced before acceptance.
-10. Raw private key material is not represented by the public kernel API.
-11. Unsafe Rust is forbidden.
-12. Platform bindings must not expose trust elevation or policy bypass.
-13. Authority-bearing state must not implement implicit value-copy semantics that can create stale independent security authority.
+11. A rejected protocol offer cannot mutate state.
+12. Identifier and payload bounds are enforced before acceptance.
+13. Raw private key material is not represented by the public kernel API.
+14. Unsafe Rust is forbidden.
+15. Platform bindings must not expose trust elevation or policy bypass.
+16. Authority-bearing state must not implement implicit value-copy semantics that can create stale independent security authority.
 
 ## API boundary rules
 
@@ -51,6 +54,7 @@ The following are intentionally unavailable to external callers until a real ver
 
 - direct trust promotion;
 - direct insertion of authentication success;
+- direct rekey completion;
 - direct mutation of negotiated protocol state;
 - direct mutation of device trust state.
 
