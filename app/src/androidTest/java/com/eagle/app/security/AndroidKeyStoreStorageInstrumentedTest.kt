@@ -13,19 +13,19 @@ class AndroidKeyStoreStorageInstrumentedTest {
     @Test
     fun ciphertextTamperingFailsAuthentication() {
         val storage = AndroidKeyStoreStorage()
-        val alias = storage.ensureStorageKey(10, 20, 2)
+        val key = storage.ensureStorageKey(10, 20, 2)
         val plaintext = "eagle-storage-tamper-test".encodeToByteArray()
         val aad = "account=10;device=20;epoch=2".encodeToByteArray()
 
         try {
-            val encrypted = storage.encrypt(alias, plaintext, aad)
+            val encrypted = storage.encrypt(key, plaintext, aad)
             val tamperedCiphertext = encrypted.copyCiphertext()
             tamperedCiphertext[0] = (tamperedCiphertext[0].toInt() xor 0x01).toByte()
             val tampered = EncryptedStoragePayload(encrypted.copyIv(), tamperedCiphertext)
 
             var failed = false
             try {
-                storage.decrypt(alias, tampered, aad)
+                storage.decrypt(key, tampered, aad)
             } catch (_: AEADBadTagException) {
                 failed = true
             } catch (_: GeneralSecurityException) {
@@ -33,7 +33,7 @@ class AndroidKeyStoreStorageInstrumentedTest {
             }
             assertTrue("ciphertext tampering must fail authentication", failed)
         } finally {
-            storage.deleteKey(alias)
+            storage.deleteKey(key)
         }
     }
 
@@ -46,13 +46,13 @@ class AndroidKeyStoreStorageInstrumentedTest {
 
         try {
             val encrypted = storage.encrypt(alias, plaintext, aad)
-            val decrypted = storage.decrypt(alias, encrypted, aad)
+            val decrypted = storage.decrypt(key, encrypted, aad)
             assertArrayEquals(plaintext, decrypted)
 
             var failed = false
             try {
                 storage.decrypt(
-                    alias,
+                    key,
                     encrypted,
                     "account=10;device=21;epoch=1".encodeToByteArray(),
                 )
