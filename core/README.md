@@ -1,28 +1,42 @@
 # Eagle Rust Core
 
-Platform-independent Security Kernel boundary.
+Platform-independent, fail-closed security foundation.
 
-Implemented in this specialization:
+## Implemented in this branch
+
 - fail-closed trust and session state machines;
 - explicit device trust lifecycle;
 - capability authorization;
 - bounded protocol negotiation and downgrade rejection;
-- validated encrypted-envelope construction;
-- immutable identifier/session representations;
-- unsafe Rust forbidden;
-- zero external runtime dependencies;
-- device-scoped, non-exportable key-reference/custody contract with terminal revocation.
+- immutable validated encrypted-envelope representations;
+- typed cryptographic/key-purpose boundaries without custom primitives;
+- deterministic key lifecycle with rotation, revocation, destruction and one-time prekey consumption;
+- identity/device trust, pairing, reverification and trust-epoch controls;
+- opaque encrypted-record storage contract with explicit recovery states;
+- bounded replay/freshness and inbound delivery guards;
+- opaque P2P transport contract and hop-limit enforcement;
+- Android Keystore storage adapter with scoped alias hardening;
+- static architecture security gate;
+- unsafe Rust forbidden where this core is implemented;
+- zero external runtime dependencies in the Rust core workspace.
 
-Deferred by security gate:
-- cryptographic primitives and primitive selection;
-- concrete Signal/PQXDH/MLS adoption;
-- concrete platform key-store implementation and secure storage;
-- cryptographic key generation, signing/agreement, and protocol integration;
+## Intentionally gated
+
+The following remain release-blocked until their approval/evidence gates close:
+
+- production cryptographic primitive/provider integration;
+- exact Signal/PQXDH/Double-Ratchet implementation/provider selection;
 - canonical serialization/wire encoding;
-- transport;
-- platform keystore integration;
-- UniFFI security ABI.
+- real direct P2P transport implementation;
+- production storage backend/recovery implementation;
+- UniFFI security ABI and cross-platform binding evidence;
+- independent cryptographic and security review;
+- adversarial interoperability/fuzz evidence.
 
-Trust elevation remains internal until an approved authentication and cryptographic verification path exists.
+## Security invariant
 
-The authoritative specialization contract and threat model are in `docs/06-security/`.
+No component may treat transport reachability as trust, access private key material outside the security boundary, or receive application plaintext merely because it handles protocol/transport records.
+
+Trust elevation remains constrained to an approved authentication/cryptographic verification path.
+
+The architecture, requirements/gap matrix, reconciliation, and release gates are recorded under `docs/03-architecture/`.
