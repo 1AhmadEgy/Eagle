@@ -20,9 +20,7 @@ fn identity_key_cannot_be_repurposed_as_message_key() {
 #[test]
 fn rotation_is_forward_only() {
     let mut lifecycle = KeyLifecycle::default();
-    lifecycle
-        .register(id(1), KeyPurpose::Session, 10)
-        .unwrap();
+    lifecycle.register(id(1), KeyPurpose::Session, 10).unwrap();
 
     let event = lifecycle.rotate(id(1), id(2), 11).unwrap();
     assert_eq!(event.mutation, KeyMutation::Rotate);
@@ -55,7 +53,10 @@ fn failed_rotation_is_atomic() {
         lifecycle.rotate(id(1), id(1), 11),
         Err(LifecycleError::InvalidTransition)
     );
-    assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Active);
+    assert_eq!(
+        lifecycle.get(id(1)).unwrap().state(),
+        LifecycleState::Active
+    );
 }
 
 #[test]
