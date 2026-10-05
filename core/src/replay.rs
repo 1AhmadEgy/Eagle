@@ -2,6 +2,19 @@ use std::collections::BTreeMap;
 
 use crate::MessageId;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ContentBinding([u8; 32]);
+
+impl ContentBinding {
+    pub const fn new(bytes: [u8; 32]) -> Self {
+        Self(bytes)
+    }
+
+    pub const fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
 pub const MAX_REPLAY_WINDOW: usize = 1024;
 pub const MAX_FUTURE_SKEW_MS: u64 = 120_000;
 pub const MAX_MESSAGE_AGE_MS: u64 = 7 * 24 * 60 * 60 * 1000;
@@ -11,6 +24,7 @@ pub enum ReplayError {
     InvalidWindow,
     Duplicate,
     SequenceCollision,
+    ContentBindingMismatch,
     TooOld,
     EpochChanged,
     EpochRollback,
@@ -86,7 +100,7 @@ impl FreshnessPolicy {
 pub struct ReplayWindow {
     epoch: Option<u64>,
     highest_sequence: Option<u64>,
-    entries: BTreeMap<u64, MessageId>,
+    entries: BTreeMap<u64, (MessageId, ContentBinding)>,
     window_size: usize,
 }
 
@@ -121,6 +135,7 @@ impl ReplayWindow {
         epoch: u64,
         sequence: u64,
         message_id: MessageId,
+        content_binding: ContentBinding,
     ) -> Result<(), ReplayError> {
         match self.epoch {
             None => self.epoch = Some(epoch),
@@ -131,12 +146,12 @@ impl ReplayWindow {
         match self.highest_sequence {
             None => {
                 self.highest_sequence = Some(sequence);
-                self.entries.insert(sequence, message_id);
+                self.entries.insert(sequence, (message_id, content_binding));
                 Ok(())
             }
             Some(highest) if sequence > highest => {
                 self.highest_sequence = Some(sequence);
-                self.entries.insert(sequence, message_id);
+                self.entries.insert(sequence, (message_id, content_binding));
                 self.prune();
                 Ok(())
             }
@@ -147,7 +162,14 @@ impl ReplayWindow {
                 }
 
                 match self.entries.get(&sequence) {
-                    Some(existing) if existing == &message_id => Err(ReplayError::Duplicate),
+                    Some((existing_id, existing_binding))
+                        if existing_id == &message_id && existing_binding == &content_binding =>
+                    {
+                        Err(ReplayError::Duplicate)
+                    }
+                    Some((existing_id, _)) if existing_id == &message_id => {
+                        Err(ReplayError::ContentBindingMismatch)
+                    }
                     Some(_) => Err(ReplayError::SequenceCollision),
                     None => {
                         self.entries.insert(sequence, message_id);
@@ -176,8 +198,14 @@ impl ReplayWindow {
         }
     }
 
-    pub fn contains(&self, sequence: u64, message_id: &MessageId) -> bool {
-        self.entries.get(&sequence) == Some(message_id)
+    pub fn contains(
+        &self,
+        sequence: u64,
+        message_id: &MessageId,
+        content_binding: &ContentBinding,
+    ) -> bool {
+        self.entries.get(&sequence)
+            == Some(&(*message_id, *content_binding))
     }
 
     fn prune(&mut self) {
@@ -197,6 +225,10 @@ mod tests {
         MessageId::new([value; 16])
     }
 
+    fn binding(value: u8) -> ContentBinding {
+        ContentBinding::new([value; 32])
+    }
+
     #[test]
     fn invalid_window_is_rejected() {
         assert_eq!(ReplayWindow::new(0), Err(ReplayError::InvalidWindow));
@@ -209,7 +241,7 @@ mod tests {
     #[test]
     fn duplicate_is_idempotently_rejected_without_new_entry() {
         let mut window = ReplayWindow::new(4).unwrap();
-        assert_eq!(window.observe(7, 1, message(1)), Ok(()));
+        assert_eq!(window.observe(7, 1, message(1), binding(1)), Ok(()));
         assert_eq!(
             window.observe(7, 1, message(1)),
             Err(ReplayError::Duplicate)
@@ -220,28 +252,38 @@ mod tests {
     #[test]
     fn sequence_reuse_with_different_message_is_rejected() {
         let mut window = ReplayWindow::new(4).unwrap();
-        assert_eq!(window.observe(1, 4, message(1)), Ok(()));
+        assert_eq!(window.observe(1, 4, message(1), binding(1)), Ok(()));
         assert_eq!(
-            window.observe(1, 4, message(2)),
+            window.observe(1, 4, message(2), binding(2)),
             Err(ReplayError::SequenceCollision)
+        );
+    }
+
+    #[test]
+    fn same_message_id_with_different_content_binding_is_rejected() {
+        let mut window = ReplayWindow::new(4).unwrap();
+        assert_eq!(window.observe(1, 4, message(1), binding(1)), Ok(()));
+        assert_eq!(
+            window.observe(1, 4, message(1), binding(2)),
+            Err(ReplayError::ContentBindingMismatch)
         );
     }
 
     #[test]
     fn bounded_out_of_order_delivery_is_accepted() {
         let mut window = ReplayWindow::new(4).unwrap();
-        assert_eq!(window.observe(1, 10, message(10)), Ok(()));
-        assert_eq!(window.observe(1, 8, message(8)), Ok(()));
-        assert_eq!(window.observe(1, 9, message(9)), Ok(()));
-        assert_eq!(window.observe(1, 6, message(6)), Err(ReplayError::TooOld));
+        assert_eq!(window.observe(1, 10, message(10), binding(10)), Ok(()));
+        assert_eq!(window.observe(1, 8, message(8), binding(8)), Ok(()));
+        assert_eq!(window.observe(1, 9, message(9), binding(9)), Ok(()));
+        assert_eq!(window.observe(1, 6, message(6), binding(6)), Err(ReplayError::TooOld));
     }
 
     #[test]
     fn epoch_changes_fail_closed() {
         let mut window = ReplayWindow::new(4).unwrap();
-        assert_eq!(window.observe(1, 1, message(1)), Ok(()));
+        assert_eq!(window.observe(1, 1, message(1), binding(1)), Ok(()));
         assert_eq!(
-            window.observe(2, 1, message(1)),
+            window.observe(2, 1, message(1), binding(1)),
             Err(ReplayError::EpochChanged)
         );
         assert_eq!(window.epoch(), Some(1));
@@ -251,11 +293,11 @@ mod tests {
     #[test]
     fn epoch_can_advance_only_monotonically() {
         let mut window = ReplayWindow::new(4).unwrap();
-        assert_eq!(window.observe(1, 7, message(7)), Ok(()));
+        assert_eq!(window.observe(1, 7, message(7), binding(7)), Ok(()));
         assert_eq!(window.advance_epoch(2), Ok(()));
         assert_eq!(window.epoch(), Some(2));
         assert_eq!(window.highest_sequence(), None);
-        assert!(!window.contains(7, &message(7)));
+        assert!(!window.contains(7, &message(7), &binding(7)));
         assert_eq!(window.advance_epoch(2), Err(ReplayError::EpochRollback));
         assert_eq!(window.advance_epoch(1), Err(ReplayError::EpochRollback));
     }
