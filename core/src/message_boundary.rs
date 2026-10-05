@@ -74,6 +74,23 @@ impl MessageBoundary {
             .map_err(Into::into)
     }
 
+    pub fn accept_inbound_bytes(
+        &self,
+        context: &SecurityContext,
+        path: TransportPath,
+        peer: PeerBinding,
+        bytes: &[u8],
+        replay: &mut ReplayTracker,
+    ) -> Result<EncryptedEnvelope, MessageBoundaryError> {
+        self.authorize_inbound(context, path, peer)?;
+
+        let envelope = crate::deserialize_envelope(bytes)?;
+
+        self.authorize_inbound_envelope(context, path, peer, &envelope, replay)?;
+
+        Ok(envelope)
+    }
+
     pub fn authorize_inbound_envelope(
         &self,
         context: &SecurityContext,
