@@ -2,12 +2,12 @@
 
 **Date:** 2026-10-05  
 **Branch:** `execution/rust-core-security-kernel-complete-2026-10-05`  
-**Current code head:** `c987bb283d8ca9ffac6cbf654c8fc0100711ab74`  
+**Current code head:** `bc05c18420b2c0a29bb935466db6fa2ae0c9e766`  
 **PR:** #81 (draft)
 
 ## Gate result
 
-**IMPLEMENTATION HARDENED — CURRENT-HEAD RUST VERIFICATION PASS.**
+**IMPLEMENTATION HARDENED — CURRENT-HEAD RUST VERIFICATION PENDING.**
 
 The gate covers only the deterministic non-cryptographic Security Kernel slice.
 
@@ -36,7 +36,7 @@ Remediation:
 - removed an unused test helper;
 - removed `Copy`/`Clone` from authority-bearing values.
 
-Dedicated Rust Security Kernel run `37286323259` passed Format, Tests, and Clippy for executable head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. This is the current verified Rust evidence.
+Dedicated Rust Security Kernel run `37286323259` passed Format, Tests, and Clippy for executable head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. That remains historical evidence only. The current authority/framing/transition changes are on head `bc05c18420b2c0a29bb935466db6fa2ae0c9e766`; its Rust Security Kernel workflow is queued and therefore not yet PASS.
 
 ## Non-specialization CI
 
@@ -58,4 +58,4 @@ The specialization does not close:
 - fuzz/property/interop coverage;
 - independent security review.
 
-Therefore this gate **must not be interpreted as product release approval**.
+Therefore this gate **must not be interpreted as product release approval**. The current gate cannot advance to PASS until the current head completes Format, Tests, and Clippy.
