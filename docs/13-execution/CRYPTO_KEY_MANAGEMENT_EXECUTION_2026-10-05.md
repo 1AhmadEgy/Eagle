@@ -1,54 +1,21 @@
-# Cryptography / Key Management — Execution Record — 2026-10-05
+[object Object]
 
-## Scope
+## Deep-research continuation — 2026-10-05
 
-Specialty only. Evidence-first, fail-closed, no bespoke cryptography.
+External review confirmed:
+- PQXDH's standard asynchronous model uses a server for prekey publication/fetching; strict direct-P2P deployment therefore requires a separately frozen rendezvous profile.
+- libsignal v0.104.0 remains upstream-current in this review, but upstream explicitly says use outside Signal is unsupported and the workspace is AGPL-3.0-only.
+- vodozemac 0.10.0 remains a useful audited Olm/Megolm candidate, not a PQXDH replacement.
+- OpenMLS 0.9.0 continues toward standards-compliant MLS RFC 9420 and includes recent security/storage hardening.
+- NIST's 2026 PQC migration material continues to recommend finalized standards such as ML-KEM/ML-DSA rather than draft candidates.
+- Android and Apple platform evidence requires capability-specific custody claims; hardware presence alone is insufficient.
 
-## Completed in this cycle
+Implementation hardening completed after that review:
+- provider approval now binds an explicit protocol profile;
+- provider approval now requires hardware protection plus verifiable hardware-attestation capability;
+- platform contracts distinguish hardware security anchors from protocol-key custody;
+- iOS and desktop key-storage adapter contracts were added;
+- P2P deployment and release-gate documents now explicitly block unsupported asynchronous/interoperability claims;
+- CKM-027 and CKM-028 were added for attestation/profile binding.
 
-- Deterministic key lifecycle state machine.
-- Purpose-separated key domains.
-- Monotonic generation and lifecycle epoch rules.
-- Atomic metadata rotation with pre-reserved epoch allocation.
-- Explicit revoke/destroy transitions.
-- Single-use One-Time PreKey consumption.
-- Fail-closed lifecycle error mapping.
-- Explicit production-provider approval policy.
-- Provider selection register.
-- Key lifecycle specification.
-- Extended lifecycle/provider test matrix.
-- Regression coverage for failed rotation atomicity and metadata-capacity exhaustion.
-- Canonicalized Rust exports after reconciling the pre-existing `key_management` policy API with the new cryptography/key-lifecycle API; overlapping legacy types are now exposed under `Policy*` aliases instead of colliding with canonical crypto types.
-
-## Provider status
-
-No production cryptographic provider is approved.
-
-libsignal remains reference/conformance material pending license/support/provenance/platform/security approval. vodozemac remains a research/component candidate only because it does not implement Eagle's full PQXDH profile.
-
-## Verification evidence
-
-- Current branch: `execution/crypto-key-lifecycle-canonical-v4-2026-10-05`.
-- - Current reconciled head: `5b9c91a7f74c412dedee95b8f8227bdd73bb94ac`.
-- Base: `security/reconciled-foundation-2026-10-05` at `b49bbbb1724f1dbcd2e498dfcf2d12c49f2c0a35`.
-- PR state is open and GitHub currently reports it as mergeable; human review is still required.
-- The prior CI cycle reached execution and exposed two verified issues: Rust 1.99 rejected the array comparison inside `const fn`, and rustfmt reported workspace formatting drift. Both causes were corrected without changing cryptographic behavior. An additional security review then closed a `u64::MAX` epoch-allocation overflow edge case with a regression test. CI on the reconciled head then exposed two verified namespace/import defects in existing security tests: the serialization test module lacked its `MAX_ID_BYTES` import, and the key-custody test referenced the legacy `KeyPurpose` name after canonical aliasing. Both were corrected without changing behavior. Current CI runs for the corrected head are queued; no PASS is claimed until completion.
-- A local execution attempt was blocked because the execution environment has no `cargo`, `rustc`, or `rustfmt` toolchain installed. No local test PASS is claimed.
-
-## Release disposition
-
-Design and implementation boundary: COMPLETE.
-
-Executable production crypto: NOT VERIFIED.
-
-CI verification: PENDING — current Rust Security Kernel run #281 and CI run #716 are queued for head `5b9c91a7f74c412dedee95b8f8227bdd73bb94ac`.
-
-Independent cryptographic review: REQUIRED.
-
-Security review finding closed in this cycle: lifecycle epoch reservation now rejects any multi-epoch allocation that would exceed the representable range before mutating state.
-
-Production release: BLOCKED.
-
-## Re-entry rule
-
-Any provider, protocol, platform-keystore, serialization, migration, recovery, or key-lifecycle change restarts the specialty lifecycle at Inventory.
+Verification remains pending because GitHub Actions are queued behind prior runs. No PASS or release authorization is claimed.
