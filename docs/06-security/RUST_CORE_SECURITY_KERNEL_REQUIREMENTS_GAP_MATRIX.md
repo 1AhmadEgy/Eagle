@@ -28,7 +28,7 @@
 | Cross-platform binding cannot bypass kernel | PLATFORMS.md / FFI rule | documented interface rule | PASS | UniFFI ABI/security tests pending |
 | Security errors are typed and FFI-safe at the Rust boundary | FFI/security research | SecurityError/DeviceError implement Display + Error | PASS | UniFFI error mapping tests pending |
 | Deterministic unit/negative tests | DoD / Test Matrix | tests committed | PASS | current-head CI verification pending |
-| Independent CI verification | project gate | fresh current-head checks queued/in progress | PENDING | await workflow results |
+| Independent CI verification | project gate | Rust Security Kernel run `37286323259` passed Format, Tests, Clippy for `3ef9fcd0647ab945e872f4a5607a2449e772394c` | PASS | broader repository checks remain outside specialization |
 | Independent security review | DoD | no review evidence yet | PENDING | required before security-sensitive merge |
 | Production release of specialization | release gate | PR #81 draft | BLOCKED | verification + human review + dependency gates |
 
