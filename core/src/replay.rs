@@ -265,14 +265,8 @@ mod tests {
         let policy = FreshnessPolicy::new(1_000, 100);
 
         assert_eq!(policy.validate(10_000, 10_050, None), Ok(()));
-        assert_eq!(
-            policy.validate(10_000, 10_101, Some(10_151)),
-            Ok(())
-        );
-        assert_eq!(
-            policy.validate(10_000, 10_101, None),
-            Ok(())
-        );
+        assert_eq!(policy.validate(10_000, 10_101, Some(10_151)), Ok(()));
+        assert_eq!(policy.validate(10_000, 10_101, None), Ok(()));
         assert_eq!(
             policy.validate(10_000, 10_101, Some(10_101)),
             Err(FreshnessError::InvalidExpiry)
@@ -281,14 +275,8 @@ mod tests {
             policy.validate(10_200, 10_050, Some(10_150)),
             Err(FreshnessError::Expired)
         );
-        assert_eq!(
-            policy.validate(10_000, 10_101, None),
-            Ok(())
-        );
-        assert_eq!(
-            policy.validate(10_000, 10_101, None),
-            Ok(())
-        );
+        assert_eq!(policy.validate(10_000, 10_101, None), Ok(()));
+        assert_eq!(policy.validate(10_000, 10_101, None), Ok(()));
         assert_eq!(
             policy.validate(10_101, 10_202, None),
             Err(FreshnessError::CreatedInFuture)
