@@ -25,6 +25,7 @@ pub enum DeviceError {
     Replaced,
     IdentityMismatch,
     AuthorityMismatch,
+    AuthorityExhausted,
 }
 
 impl fmt::Display for DeviceError {
@@ -35,6 +36,7 @@ impl fmt::Display for DeviceError {
             Self::Replaced => "device is replaced",
             Self::IdentityMismatch => "device identity does not match",
             Self::AuthorityMismatch => "device authority epoch does not match",
+            Self::AuthorityExhausted => "device authority epoch exhausted",
         })
     }
 }
@@ -103,11 +105,12 @@ impl Device {
         if self.trust != DeviceTrustState::Trusted {
             return Err(DeviceError::InvalidTransition);
         }
-        self.trust = DeviceTrustState::Revoked;
-        self.authority_epoch = self
+        let next_epoch = self
             .authority_epoch
             .checked_add(1)
-            .ok_or(DeviceError::InvalidTransition)?;
+            .ok_or(DeviceError::AuthorityExhausted)?;
+        self.trust = DeviceTrustState::Revoked;
+        self.authority_epoch = next_epoch;
         Ok(())
     }
 
@@ -115,11 +118,12 @@ impl Device {
         if self.trust != DeviceTrustState::Trusted {
             return Err(DeviceError::InvalidTransition);
         }
-        self.trust = DeviceTrustState::Replaced;
-        self.authority_epoch = self
+        let next_epoch = self
             .authority_epoch
             .checked_add(1)
-            .ok_or(DeviceError::InvalidTransition)?;
+            .ok_or(DeviceError::AuthorityExhausted)?;
+        self.trust = DeviceTrustState::Replaced;
+        self.authority_epoch = next_epoch;
         Ok(())
     }
 
@@ -170,6 +174,17 @@ mod tests {
         device.approve().unwrap();
         assert_eq!(device.trust_state(), DeviceTrustState::Trusted);
         assert_eq!(device.can_authorize(), Ok(()));
+    }
+
+    #[test]
+    fn authority_epoch_overflow_does_not_partially_apply_revocation() {
+        let mut device = Device::new(1, 2, Platform::Android);
+        device.begin_pairing().unwrap();
+        device.approve().unwrap();
+        device.authority_epoch = u64::MAX;
+        assert_eq!(device.revoke(), Err(DeviceError::AuthorityExhausted));
+        assert_eq!(device.trust_state(), DeviceTrustState::Trusted);
+        assert_eq!(device.authority_epoch(), u64::MAX);
     }
 
     #[test]
