@@ -20,6 +20,7 @@
 | RK-13 | administrative capability denied | integration |
 | RK-14 | invalid protocol configuration rejected | unit + integration |
 | RK-15 | unsafe Rust forbidden | crate-level `forbid(unsafe_code)` |
+| RK-16 | authority-bearing values are not Copy/Clone | compile/API boundary + source regression |
 
 ## CI gate
 
