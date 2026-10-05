@@ -16,9 +16,9 @@
 
 PQXDH is designed for asynchronous communication with prekey publication. Eagle's strict P2P requirement therefore needs a separately frozen deployment profile; stock PQXDH assumptions must not be silently changed.
 
-### Double Ratchet
+### Signal Triple Ratchet / Double Ratchet
 
-The adopted revision must be pinned exactly and validated against approved vectors. Eagle must not implement a bespoke ratchet.
+The adopted Triple Ratchet profile must be pinned exactly and validated against approved vectors. Double Ratchet remains a component/fallback profile only when explicitly authorized. Eagle must not implement a bespoke ratchet.
 
 ### MLS
 
@@ -89,7 +89,7 @@ External cryptographic references are not dependency approval. Every production 
 - NIST's 2026 PQC migration material continues to recommend finalized standards such as ML-KEM/ML-DSA rather than draft candidates.
 - Android and Apple platform evidence requires capability-specific custody claims; hardware presence alone is insufficient.
 
-## Supply-chain and standards refresh — 2026-10-05
 
-- minicbor 2.3.0 is published under Blue Oak Model License 1.0.0; dependency approval must preserve the project's explicit license-review gate.
-- NIST FIPS 203 is the finalized ML-KEM standard; FIPS 204 is the finalized ML-DSA standard. Both have published 2026 planning notes/errata, so Eagle must track errata while treating the finalized standards—not drafts—as the algorithm baseline.
+### 2026 profile binding
+
+The current Eagle 1:1 target is Signal PQXDH + Triple Ratchet (Double Ratchet + SPQR/SCKA). This is a protocol-profile requirement, not permission to assemble SPQR/SCKA from unrelated libraries. The exact implementation, transcript/KDF rules, serialization, downgrade behavior and state migration must be frozen before interoperability is claimed.

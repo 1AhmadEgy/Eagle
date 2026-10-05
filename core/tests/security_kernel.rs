@@ -171,7 +171,7 @@ fn key_custody_contract_is_fail_closed() {
     let reference = KeyReference::new([8; 16]).unwrap();
     let scope = KeyScope::new(10, 20, 1).unwrap();
     let policy = KeyPolicy::for_purpose(PolicyPolicyKeyPurpose::IdentitySigning);
-    let mut record = PolicyPolicyKeyRecord::new(reference, scope, policy);
+    let mut record = PolicyKeyRecord::new(reference, scope, policy);
 
     assert_eq!(
         record.authorize(

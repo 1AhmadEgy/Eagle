@@ -31,3 +31,8 @@ The previous Rust Security Kernel run reached execution and exposed formatting/n
 BLOCKED.
 
 Independent cryptographic review, exact provider/conformance evidence, platform proof, P2P profile conformance, full CI categories and release evidence remain mandatory. No production crypto provider is approved and no release authorization is granted.
+
+
+## 2026 research and profile refresh
+
+The canonical 1:1 security target is now Signal PQXDH + Triple Ratchet. Provider approval requires explicit post-quantum-ratchet capability; no production crypto provider is approved. Current upstream evidence remains reference-only until conformance and independent review close.

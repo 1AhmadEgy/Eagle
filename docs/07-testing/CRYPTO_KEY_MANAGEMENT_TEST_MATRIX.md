@@ -7,7 +7,7 @@
 | CKM-003 | Identity lifecycle | generate/register/revoke/replace semantics are monotonic |
 | CKM-004 | Prekeys | signed, one-time and PQ prekey consumption semantics match adopted protocol |
 | CKM-005 | PQXDH | official/approved conformance vectors + negative cases |
-| CKM-006 | Double Ratchet | send/receive, skipped keys, loss, reorder, duplicate and replay cases |
+| CKM-006 | Triple Ratchet | send/receive, skipped keys, loss, reorder, duplicate, replay and post-quantum ratchet cases |
 | CKM-007 | Rollback | stale session state cannot overwrite newer cryptographic state |
 | CKM-008 | Crash/power loss | transactional key-state transitions after interruption |
 | CKM-009 | Restore/migration | restore never silently recreates trust |
@@ -35,8 +35,11 @@
 | CKM-023 | Provider approval | unapproved provider cannot reach production crypto path |
 | CKM-024 | Capacity exhaustion | metadata exhaustion fails closed without eviction |
 
-| CKM-025 | Provider capability gate | approved provider must prove non-exportable identity keys, PQ KEM, and message-ratchet capability |
+| CKM-025 | Provider capability gate | approved provider must prove non-exportable identity keys, PQ KEM, message-ratchet, hardware protection/attestation and post-quantum-ratchet capability |
 | CKM-026 | Epoch upper-bound safety | multi-epoch allocation near `u64::MAX` fails closed without overflow or state mutation |
 
 | CKM-027 | Hardware attestation gate | provider approval fails closed without verifiable hardware-backed attestation |
 | CKM-028 | Protocol profile binding | provider approval fails closed when the exact Signal/MLS protocol profile is not bound |
+
+| CKM-029 | Triple Ratchet profile | 1:1 production provider is explicitly bound to Signal PQXDH + Triple Ratchet v1 |
+| CKM-030 | Research freshness | exact provider/library versions and primary standards evidence remain current and pinned |

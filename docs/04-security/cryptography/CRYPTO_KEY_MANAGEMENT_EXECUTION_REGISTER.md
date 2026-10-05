@@ -21,7 +21,7 @@
 
 CRYPTO-DEC-001: Signal Protocol remains the one-to-one cryptographic reference.
 CRYPTO-DEC-002: PQXDH is the target session-establishment profile.
-CRYPTO-DEC-003: Double Ratchet is the target message-key evolution profile.
+CRYPTO-DEC-003: Signal-defined Triple Ratchet (Double Ratchet + SPQR/SCKA) is the target message-key evolution profile; Double Ratchet-only is interoperability fallback only.
 CRYPTO-DEC-004: MLS is the group-crypto standards track.
 CRYPTO-DEC-005: No custom cryptographic primitive or bespoke ratchet.
 CRYPTO-DEC-006: libsignal remains reference/conformance material until explicit production authorization.
@@ -44,4 +44,7 @@ KEY-FOUNDATION-006: This contract does not claim secure hardware storage, key ge
 A design stage is not equivalent to executable PASS. Implementation, conformance, adversarial verification, and independent review remain separate gates.
 
 PROVIDER-POLICY-005: Provider approval requires hardware-backed attestation capability where applicable.
-PROVIDER-POLICY-006: Provider approval is bound to an explicit Signal PQXDH+Double Ratchet v1 or MLS RFC 9420 v1 profile; unbound suites fail closed.
+PROVIDER-POLICY-007: The 1:1 provider must demonstrate post-quantum-ratchet capability in addition to PQ KEM/message-ratchet capability.
+PROVIDER-POLICY-006: Provider approval is bound to an explicit Signal PQXDH+Triple Ratchet v1 or MLS RFC 9420 v1 profile; unbound suites and Double Ratchet-only default profiles fail closed.
+
+RESEARCH-2026-001: Current 2026 review keeps libsignal 0.104.0 as reference/conformance only, vodozemac 0.10.0 as Olm/Megolm-only research candidate, OpenMLS 0.9.0 as RFC 9420 group candidate, and NIST FIPS 203/204 as finalized PQ standards.

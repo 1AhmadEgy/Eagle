@@ -8,7 +8,7 @@ No provider is production-approved merely because it implements a relevant proto
 
 Status: REFERENCE / CONFORMANCE ONLY
 
-Current upstream workspace version: **0.104.0**. The upstream repository implements the Signal protocol family, including PQXDH and Double Ratchet, but explicitly states that use outside Signal is unsupported. The current repository is AGPL-3.0-only.
+Current upstream workspace version: **0.104.0**. The upstream repository implements the Signal protocol family, including PQXDH and the current Signal ratchet stack, but explicitly states that use outside Signal is unsupported. The current repository is AGPL-3.0-only.
 
 Decision:
 - retain as the primary protocol/reference corpus;
@@ -61,7 +61,8 @@ A provider is not production-approvable from library identity/version alone. The
 - verifiable hardware-backed attestation of the platform/provider security anchor where the platform supports it;
 - required PQ KEM capability;
 - required message-ratchet capability;
-- an explicit protocol profile: Signal PQXDH + Double Ratchet v1, or MLS RFC 9420 v1;
+- required post-quantum-ratchet capability for the 1:1 profile;
+- an explicit protocol profile: Signal PQXDH + Triple Ratchet v1, or MLS RFC 9420 v1;
 - license, platform, support, conformance and independent cryptographic review.
 
 Android evidence: Android Keystore keeps key material non-exportable and can bind keys to secure hardware; StrongBox provides stronger isolation and supports attestation. Hardware-backed status must be verified rather than assumed. Apple Secure Enclave similarly keeps supported private-key material inside the enclave, but is constrained to supported key types/operations. These platform constraints are implementation gates, not reasons to silently downgrade to software custody.
@@ -82,3 +83,8 @@ A missing hardware capability must cause the applicable security profile to fail
 Approval is a compound proof, not a package name/version. The exact provider revision must satisfy non-exportable identity-key capability, hardware protection, applicable hardware-backed attestation of the platform/provider security anchor, PQ KEM, message-ratchet capability, explicit protocol-profile binding, license/support/platform review, conformance and independent cryptographic review.
 
 The hardware-attestation property does not mean every protocol key is physically stored in the same hardware boundary. Apple Secure Enclave and Android StrongBox have algorithm/operation constraints; unsupported PQXDH/MLS key types must not be mislabeled as hardware-protected. Missing capability fails closed.
+
+
+## 1:1 production profile
+
+The default 1:1 production gate is **Signal PQXDH + Triple Ratchet v1**. A Double-Ratchet-only implementation may remain a research/interoperability candidate but does not satisfy the default production approval gate. Provider capability evidence must explicitly demonstrate the post-quantum ratchet component rather than infer it from a PQ KEM flag.
