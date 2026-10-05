@@ -28,10 +28,6 @@ impl Session {
         ctx.finish_rekey()
     }
 
-    pub fn abort_authentication(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
-        ctx.abort_authentication()
-    }
-
     pub fn abort_rekey(ctx: &mut SecurityContext) -> Result<(), SecurityError> {
         ctx.abort_rekey()
     }
@@ -65,6 +61,15 @@ mod tests {
         );
         assert_eq!(ctx.negotiated_protocol(), 1);
         assert_eq!(ctx.session_state(), SessionState::Idle);
+    }
+
+    #[test]
+    fn aborted_rekey_closes_session() {
+        let mut ctx = authenticated();
+        Session::establish(&mut ctx, 1).unwrap();
+        Session::begin_rekey(&mut ctx).unwrap();
+        assert_eq!(Session::abort_rekey(&mut ctx), Ok(()));
+        assert_eq!(Session::state(&ctx), SessionState::Closed);
     }
 
     #[test]
