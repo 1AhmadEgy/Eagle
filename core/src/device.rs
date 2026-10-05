@@ -7,8 +7,6 @@ pub enum DeviceTrustState {
     Trusted,
     Revoked,
     Replaced,
-    IdentityMismatch,
-    AuthorityMismatch,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,6 +23,8 @@ pub enum DeviceError {
     InvalidTransition,
     Revoked,
     Replaced,
+    IdentityMismatch,
+    AuthorityMismatch,
 }
 
 impl fmt::Display for DeviceError {
@@ -104,7 +104,10 @@ impl Device {
             return Err(DeviceError::InvalidTransition);
         }
         self.trust = DeviceTrustState::Revoked;
-        self.authority_epoch = self.authority_epoch.checked_add(1).ok_or(DeviceError::InvalidTransition)?;
+        self.authority_epoch = self
+            .authority_epoch
+            .checked_add(1)
+            .ok_or(DeviceError::InvalidTransition)?;
         Ok(())
     }
 
@@ -127,6 +130,7 @@ impl Device {
             }
         }
     }
+
     pub(crate) fn validate_authority(
         &self,
         account: u64,
@@ -141,7 +145,6 @@ impl Device {
         }
         self.can_authorize()
     }
-
 }
 
 #[cfg(test)]
@@ -155,6 +158,7 @@ mod tests {
         assert_eq!(device.device(), 2);
         assert_eq!(device.platform(), Platform::Android);
         assert_eq!(device.trust_state(), DeviceTrustState::Unknown);
+        assert_eq!(device.authority_epoch(), 0);
         assert_eq!(device.approve(), Err(DeviceError::InvalidTransition));
 
         device.begin_pairing().unwrap();
@@ -171,6 +175,7 @@ mod tests {
         revoked.begin_pairing().unwrap();
         revoked.approve().unwrap();
         revoked.revoke().unwrap();
+        assert_eq!(revoked.authority_epoch(), 1);
         assert_eq!(revoked.can_authorize(), Err(DeviceError::Revoked));
         assert_eq!(revoked.revoke(), Err(DeviceError::InvalidTransition));
         assert_eq!(revoked.replace(), Err(DeviceError::InvalidTransition));
@@ -179,6 +184,7 @@ mod tests {
         replaced.begin_pairing().unwrap();
         replaced.approve().unwrap();
         replaced.replace().unwrap();
+        assert_eq!(replaced.authority_epoch(), 1);
         assert_eq!(replaced.can_authorize(), Err(DeviceError::Replaced));
         assert_eq!(replaced.revoke(), Err(DeviceError::InvalidTransition));
         assert_eq!(replaced.replace(), Err(DeviceError::InvalidTransition));
