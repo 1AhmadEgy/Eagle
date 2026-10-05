@@ -36,7 +36,7 @@ Remediation:
 - removed an unused test helper;
 - removed `Copy`/`Clone` from authority-bearing values.
 
-New checks for the current executable head `29d781e75cadb103e6ed764e8613559f46e22d04` are queued/in progress; no PASS is claimed until they complete.
+Dedicated Rust Security Kernel run `37286323259` passed Format, Tests, and Clippy for executable head `3ef9fcd0647ab945e872f4a5607a2449e772394c`. This is the current verified Rust evidence.
 
 ## Non-specialization CI
 
