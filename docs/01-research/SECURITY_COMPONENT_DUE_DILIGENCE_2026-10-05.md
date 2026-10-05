@@ -34,6 +34,11 @@ Observed latest release: v0.9.0 (2026-08-03). The project is implementing MLS an
 Eagle disposition: Future group-protocol candidate.
 Do not activate group messaging until requirements, ciphersuite, storage, membership semantics, interoperability, and security review are complete.
 
+## 3. Serialization
+### minicbor
+Observed current release: v2.3.0 (2026-07-23). The crate provides type-directed CBOR encoding/decoding and a non-allocating Decoder; definite-length byte strings are supported, while indefinite-length forms can be rejected by using the strict bytes decoder.
+Eagle disposition: approved as the current serialization implementation baseline only. Eagle uses a fixed seven-field CBOR array, bounded inputs, strict decoding, and byte-for-byte re-encoding checks for canonical acceptance. Cross-language interoperability and protocol-level approval remain open.
+
 ## 3. Direct P2P transport
 ### rust-libp2p
 Observed latest release: v0.56.0 (2026-06-28). Official libp2p documentation states QUIC uses TLS 1.3 and provides encrypted, multiplexed connections with cryptographic peer identity binding. Direct hole punching is supported. Relay functionality also exists in libp2p.
