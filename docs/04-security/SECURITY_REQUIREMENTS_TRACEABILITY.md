@@ -18,7 +18,7 @@ BLOCKED = release cannot proceed until closed.
 | SEC-006 | No custom cryptographic primitives/ratchet | security architecture + crypto baseline | no crypto primitives in current core | VERIFIED |
 | SEC-007 | Production E2E uses an approved standard protocol profile | crypto baseline | Signal/PQXDH target documented | PENDING |
 | SEC-008 | Private keys remain inside approved secure-storage boundary | key-management baseline | non-exportable device-scoped key contract plus Android Keystore local-storage adapter; identity-key custody and cross-platform enforcement remain open | PARTIAL |
-| SEC-009 | Application content never uses relay fallback | P2P architecture | policy/ADR documented; runtime transport absent | PENDING |
+| SEC-009 | Application content never uses relay fallback | P2P architecture | Rust core direct-only transport policy rejects relay and server fallback; runtime transport still absent | PARTIAL |
 | SEC-010 | Direct P2P transport authenticates the peer and binds to Eagle identity | P2P threat model | implementation absent | PENDING |
 | SEC-011 | Recovery cannot silently restore revoked authority or decrypt history | identity/key recovery model | design baseline exists | PENDING |
 | SEC-012 | Security-critical UI/platform code cannot bypass Rust security policy | Rust kernel contract | current API boundary supports fail-closed control | IMPLEMENTED |
