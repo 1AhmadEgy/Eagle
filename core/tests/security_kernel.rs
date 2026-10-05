@@ -167,7 +167,7 @@ fn bounded_frame_decoder_rejects_truncated_or_oversized_input() {
 
     let mut frame = Vec::new();
     frame.extend_from_slice(&CURRENT_PROTOCOL_VERSION.to_be_bytes());
-    frame.extend_from_slice(&((eagle_core::MAX_ID_BYTES as u32) << 16).to_be_bytes());
+    frame.extend_from_slice(&((eagle_core::MAX_PAYLOAD_BYTES as u32) + 1).to_be_bytes());
     frame.extend_from_slice(&0u16.to_be_bytes());
     assert!(matches!(
         FrameHeader::decode(&frame),
