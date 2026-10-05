@@ -14,9 +14,9 @@
 | Requirements | متطلبات وظيفية وغير وظيفية authoritative | Pending |
 | Architecture | platform/trust/security boundaries موثقة | Partial |
 | Stack | Android/Gradle + Rust core مثبت؛ المنتج الكامل غير مثبت | Partial |
-| Security | security baseline + identity + P2P threat models | Partial |
+| Security | security baseline + identity + P2P threat models + non-forgeable peer-binding contract | Partial |
 | Crypto | protocol/key/serialization production decisions + evidence | Blocked |
-| Data | encrypted storage + recovery/deletion policy | Pending |
+| Data | scoped Android encrypted storage foundation; recovery/deletion lifecycle still open | Partial |
 | QA | negative/integration/adversarial test matrix | Partial |
 | CI/CD | security policy + secret scan + verification pipeline | Partial |
 | Supply Chain | pinning + provenance/SBOM/security dependency policy | Partial |
@@ -37,7 +37,7 @@
 - Secret scanning has passed on the corrected branch.
 - CI security-policy verification has passed after action pinning correction.
 - Rust kernel tests and clippy passed on the corrected intermediate run after removing verified defects.
-- Android Test Lab had earlier environment/package failures around Android 37 availability; workflow channel handling was corrected and fresh verification is in progress.
+- Android Test Lab had earlier environment/package failures around Android 37 availability; workflow channel handling was corrected. Current-head verification is still required.
 
 ## Current release decision
 
