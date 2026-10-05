@@ -209,3 +209,52 @@ fn application_data_rejects_non_direct_transport() {
         Err(TransportError::PeerIdentityRequired)
     );
 }
+
+
+#[test]
+fn message_boundary_is_the_single_outbound_gate() {
+    use eagle_core::{
+        MessageBoundary, MessageBoundaryError, MessageId, OpaqueId, PeerBinding,
+        TransportError, TransportPath, EncryptedEnvelope, CURRENT_PROTOCOL_VERSION,
+    };
+
+    let mut context = SecurityContext::new(1, CURRENT_PROTOCOL_VERSION).unwrap();
+    context.begin_authentication().unwrap();
+
+    let boundary = MessageBoundary::new();
+    let envelope = EncryptedEnvelope::new(
+        MessageId::new([1; 16]),
+        OpaqueId::new(vec![2; 8]).unwrap(),
+        OpaqueId::new(vec![3; 8]).unwrap(),
+        None,
+        vec![0xAA; 32],
+        CURRENT_PROTOCOL_VERSION,
+        42,
+    )
+    .unwrap();
+
+    assert_eq!(
+        boundary.prepare_outbound(
+            &context,
+            &envelope,
+            TransportPath::Direct,
+            PeerBinding::EagleDevice,
+        ),
+        Err(MessageBoundaryError::Unauthorized)
+    );
+
+    context.accept_verified_authentication().unwrap();
+    context.establish().unwrap();
+
+    assert_eq!(
+        boundary.prepare_outbound(
+            &context,
+            &envelope,
+            TransportPath::Relay,
+            PeerBinding::EagleDevice,
+        ),
+        Err(MessageBoundaryError::Transport(
+            TransportError::ApplicationDataRequiresDirectPath
+        ))
+    );
+}
