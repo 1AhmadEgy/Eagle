@@ -2,8 +2,6 @@
 
 use std::fmt;
 
-use crate::device::Device;
-
 mod device;
 mod policy;
 mod protocol;
@@ -359,7 +357,7 @@ mod tests {
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
         assert_eq!(ctx.abort_rekey(), Ok(()));
         assert_eq!(ctx.session_state(), SessionState::Closed);
-        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Unauthorized));
         assert_eq!(
             ctx.abort_rekey(),
             Err(SecurityError::InvalidSessionTransition)
@@ -373,7 +371,7 @@ mod tests {
         ctx.revoke_trust();
         assert_eq!(ctx.trust_state(), TrustState::Revoked);
         assert_eq!(ctx.session_state(), SessionState::Closed);
-        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        assert_eq!(ctx.authorize(&device), Err(SecurityError::Unauthorized));
         assert_eq!(
             ctx.begin_authentication(),
             Err(SecurityError::InvalidTrustTransition)
