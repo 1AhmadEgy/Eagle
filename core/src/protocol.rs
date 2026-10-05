@@ -271,6 +271,32 @@ fn validate_id(id: &OpaqueId) -> Result<(), ProtocolError> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SendSequence {
+    next: u64,
+}
+
+impl SendSequence {
+    pub const fn new() -> Self {
+        Self { next: 0 }
+    }
+
+    pub fn next(&mut self) -> Result<u64, ProtocolError> {
+        let current = self.next;
+        self.next = self
+            .next
+            .checked_add(1)
+            .ok_or(ProtocolError::SequenceExhausted)?;
+        Ok(current)
+    }
+}
+
+impl Default for SendSequence {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ReceiveSequenceWindow {
     highest: Option<u64>,
     bitmap: u64,
@@ -449,6 +475,17 @@ mod tests {
         assert_eq!(FrameHeader::decode(&frame), Err(ProtocolError::TruncatedFrame));
     }
 
+
+    #[test]
+    fn send_sequence_is_monotonic_and_never_wraps() {
+        let mut sequence = SendSequence::new();
+        assert_eq!(sequence.next().unwrap(), 0);
+        assert_eq!(sequence.next().unwrap(), 1);
+        sequence.next = u64::MAX;
+        assert_eq!(sequence.next().unwrap(), u64::MAX);
+        assert_eq!(sequence.next(), Err(ProtocolError::SequenceExhausted));
+    }
+
     #[test]
     fn receive_window_rejects_duplicates_and_old_sequences() {
         let mut window = ReceiveSequenceWindow::new();
@@ -456,7 +493,7 @@ mod tests {
         assert_eq!(window.accept_authenticated(10), Err(ProtocolError::DuplicateSequence));
         assert_eq!(window.accept_authenticated(9), Ok(()));
         assert_eq!(window.accept_authenticated(9), Err(ProtocolError::DuplicateSequence));
-        assert_eq!(window.accept_authenticated(10 - 64), Err(ProtocolError::SequenceTooOld));
+        assert_eq!(window.accept_authenticated(11), Err(ProtocolError::SequenceTooOld));
         assert_eq!(window.accept_authenticated(75), Ok(()));
     }
 
