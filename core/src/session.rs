@@ -25,7 +25,10 @@ impl Session {
     }
 
     #[cfg(test)]
-    pub(crate) fn finish_rekey(ctx: &mut SecurityContext, device: &Device) -> Result<(), SecurityError> {
+    pub(crate) fn finish_rekey(
+        ctx: &mut SecurityContext,
+        device: &Device,
+    ) -> Result<(), SecurityError> {
         ctx.finish_rekey(device)
     }
 
@@ -60,6 +63,7 @@ mod tests {
     #[test]
     fn establish_does_not_mutate_invalid_context() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
+        let device = crate::Device::new(1, 2, crate::Platform::Android);
         assert_eq!(
             Session::establish(&mut ctx, &device, 1),
             Err(SecurityError::InvalidSessionTransition)
@@ -79,8 +83,8 @@ mod tests {
 
     #[test]
     fn establish_commits_protocol_and_state() {
-        let mut ctx = authenticated();
-        let session = Session::establish(&mut ctx, 1).unwrap();
+        let (mut ctx, device) = authenticated();
+        let session = Session::establish(&mut ctx, &device, 1).unwrap();
         assert_eq!(session.protocol(), 1);
         assert_eq!(ctx.negotiated_protocol(), session.protocol());
         assert_eq!(ctx.session_state(), SessionState::Established);
@@ -88,13 +92,13 @@ mod tests {
 
     #[test]
     fn rekey_and_close_are_state_guarded() {
-        let mut ctx = authenticated();
+        let (mut ctx, device) = authenticated();
         assert_eq!(
             Session::begin_rekey(&mut ctx, &device),
             Err(SecurityError::InvalidSessionTransition)
         );
-        Session::establish(&mut ctx, 1).unwrap();
-        Session::begin_rekey(&mut ctx).unwrap();
+        Session::establish(&mut ctx, &device, 1).unwrap();
+        Session::begin_rekey(&mut ctx, &device).unwrap();
         Session::finish_rekey(&mut ctx, &device).unwrap();
         assert_eq!(Session::state(&ctx), SessionState::Established);
         Session::close(&mut ctx);
