@@ -433,7 +433,7 @@ mod tests {
     #[test]
     fn epoch_exhaustion_fails_before_mutation() {
         let mut lifecycle = KeyLifecycle {
-            records: [None; Self::MAX_KEYS],
+            records: [None; KeyLifecycle::MAX_KEYS],
             count: 0,
             next_epoch: u64::MAX,
         };
