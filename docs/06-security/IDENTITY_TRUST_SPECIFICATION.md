@@ -2,7 +2,7 @@
 
 **Status:** Draft for ADR-005 / ADR-006 / ADR-007 review  
 **Branch:** `execution/identity-trust-clean-v1`  
-**Baseline:** `main` @ `6c46bf53fce06ee7f7b5b2bf35c720ab5bcb7dee`  
+**Baseline:** `main` @ `abfc263e6ac28ff7b19a40a4d8e1da93c565a6e9`  
 **Owner:** Identity & Trust Engineering  
 **Security posture:** fail-closed / local-first / P2P-only project requirement
 
@@ -300,7 +300,7 @@ QR/code data must **not** contain:
 - recovery secrets;
 - exportable long-term secret material.
 
-### 5.3 Identity-change quarantine
+### 6.3 Identity-change quarantine
 
 A newly observed identity or public-key replacement is **untrusted input** until the replacement has passed explicit reverification.
 
