@@ -28,6 +28,7 @@ CRYPTO-DEC-006: libsignal remains reference/conformance material until explicit 
 CRYPTO-DEC-007: Hardware-backed platform protection is preferred, but claims require device/API evidence.
 CRYPTO-DEC-008: Account recovery and history recovery remain separate trust domains.
 CRYPTO-DEC-009: Transport never receives plaintext or E2EE secret material.
+CRYPTO-DEC-010: Production wire serialization must use an approved standard format; the current minicbor-based fixed-array baseline is implementation evidence only until protocol review closes.
 
 ## Executable foundation
 
