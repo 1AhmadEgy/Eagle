@@ -92,19 +92,19 @@ Before a second wire version is introduced, the protocol design must specify:
 
 This belongs to the accepted protocol ADR, not ad-hoc kernel expansion.
 
-### RUST-K-006 — Frame flags have no semantic validation — MEDIUM
+### RUST-K-006 — Frame flags are fail-closed for protocol v1 — FIXED / FUTURE GATE
 
-`FrameHeader::flags` is currently carried as a raw `u16` and unknown bits are accepted.
+`FrameHeader::flags` remains a bounded `u16`, but protocol v1 now accepts only `0`. Any non-zero value is rejected at construction with `UnsupportedFlags`.
 
-Before the field is exposed on a real wire format, define:
+When future protocol versions define flags, the accepted protocol ADR must specify:
 
 - reserved bits;
 - allowed flags per protocol version;
-- whether unknown flags are reject-by-default;
-- whether any flag changes parsing or authorization;
+- unknown-bit handling;
+- whether a flag changes parsing or authorization;
 - canonical encoding rules.
 
-Unknown security-relevant bits should not silently acquire semantics.
+Unknown security-relevant bits must never silently acquire semantics.
 
 ### RUST-K-007 — Replay protection is absent from the current structural envelope — HIGH dependency
 
