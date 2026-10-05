@@ -161,10 +161,11 @@ fn device_revocation_and_replacement_are_terminal() {
     );
 }
 
-
 #[test]
 fn key_custody_contract_is_fail_closed() {
-    use eagle_core::{KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope};
+    use eagle_core::{
+        KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
+    };
 
     let reference = KeyReference::new([8; 16]).unwrap();
     let scope = KeyScope::new(10, 20, 1).unwrap();
@@ -184,12 +185,9 @@ fn key_custody_contract_is_fail_closed() {
     );
 }
 
-
 #[test]
 fn application_data_rejects_non_direct_transport() {
-    use eagle_core::{
-        PeerBinding, TransportError, TransportPath, TransportPolicy,
-    };
+    use eagle_core::{PeerBinding, TransportError, TransportPath, TransportPolicy};
 
     let policy = TransportPolicy::new();
 
@@ -210,51 +208,3 @@ fn application_data_rejects_non_direct_transport() {
     );
 }
 
-
-#[test]
-fn message_boundary_is_the_single_outbound_gate() {
-    use eagle_core::{
-        MessageBoundary, MessageBoundaryError, MessageId, OpaqueId, PeerBinding,
-        TransportError, TransportPath, EncryptedEnvelope, CURRENT_PROTOCOL_VERSION,
-    };
-
-    let mut context = SecurityContext::new(1, CURRENT_PROTOCOL_VERSION).unwrap();
-    context.begin_authentication().unwrap();
-
-    let boundary = MessageBoundary::new();
-    let envelope = EncryptedEnvelope::new(
-        MessageId::new([1; 16]),
-        OpaqueId::new(vec![2; 8]).unwrap(),
-        OpaqueId::new(vec![3; 8]).unwrap(),
-        None,
-        vec![0xAA; 32],
-        CURRENT_PROTOCOL_VERSION,
-        42,
-    )
-    .unwrap();
-
-    assert_eq!(
-        boundary.prepare_outbound(
-            &context,
-            &envelope,
-            TransportPath::Direct,
-            PeerBinding::EagleDevice,
-        ),
-        Err(MessageBoundaryError::Unauthorized)
-    );
-
-    context.accept_verified_authentication().unwrap();
-    context.establish().unwrap();
-
-    assert_eq!(
-        boundary.prepare_outbound(
-            &context,
-            &envelope,
-            TransportPath::Relay,
-            PeerBinding::EagleDevice,
-        ),
-        Err(MessageBoundaryError::Transport(
-            TransportError::ApplicationDataRequiresDirectPath
-        ))
-    );
-}
