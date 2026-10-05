@@ -88,3 +88,8 @@ External cryptographic references are not dependency approval. Every production 
 - OpenMLS 0.9.0 continues toward standards-compliant MLS RFC 9420 and includes recent security/storage hardening.
 - NIST's 2026 PQC migration material continues to recommend finalized standards such as ML-KEM/ML-DSA rather than draft candidates.
 - Android and Apple platform evidence requires capability-specific custody claims; hardware presence alone is insufficient.
+
+## Supply-chain and standards refresh — 2026-10-05
+
+- minicbor 2.3.0 is published under Blue Oak Model License 1.0.0; dependency approval must preserve the project's explicit license-review gate.
+- NIST FIPS 203 is the finalized ML-KEM standard; FIPS 204 is the finalized ML-DSA standard. Both have published 2026 planning notes/errata, so Eagle must track errata while treating the finalized standards—not drafts—as the algorithm baseline.
