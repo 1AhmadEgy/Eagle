@@ -11,7 +11,7 @@ impl Session {
         device: &Device,
         offered_protocol: u16,
     ) -> Result<Self, SecurityError> {
-        let protocol = ctx.validate_and_negotiate(offered_protocol)?;
+        let protocol = ctx.validate_and_negotiate(device, offered_protocol)?;
         ctx.establish(device)?;
         Ok(Self { protocol })
     }
