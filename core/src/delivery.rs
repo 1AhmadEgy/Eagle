@@ -92,11 +92,8 @@ impl InboundReplayGuard {
             metadata.created_at_epoch_ms,
             metadata.expires_at_epoch_ms,
         )?;
-        self.replay.observe(
-            metadata.epoch,
-            metadata.sequence,
-            message_id,
-        )?;
+        self.replay
+            .observe(metadata.epoch, metadata.sequence, message_id)?;
         Ok(())
     }
 
@@ -148,9 +145,18 @@ mod tests {
     #[test]
     fn epoch_transition_is_explicit() {
         let mut guard = guard();
-        assert_eq!(guard.accept(metadata(1, 1), MessageId::new([1; 16]), 10_050), Ok(()));
+        assert_eq!(
+            guard.accept(metadata(1, 1), MessageId::new([1; 16]), 10_050),
+            Ok(())
+        );
         assert_eq!(guard.advance_epoch(2), Ok(()));
-        assert_eq!(guard.accept(metadata(2, 1), MessageId::new([2; 16]), 10_050), Ok(()));
-        assert_eq!(guard.advance_epoch(1), Err(ReplayError::EpochRollback));
+        assert_eq!(
+            guard.accept(metadata(2, 1), MessageId::new([2; 16]), 10_050),
+            Ok(())
+        );
+        assert_eq!(
+            guard.advance_epoch(1),
+            Err(ReplayError::EpochRollback)
+        );
     }
 }
