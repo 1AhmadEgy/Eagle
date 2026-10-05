@@ -1,6 +1,6 @@
 use crate::{SecurityContext, SecurityError, SessionState};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Session {
     protocol: u16,
 }
