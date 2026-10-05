@@ -1,34 +1,36 @@
 # Eagle — Cryptography / Key Management Execution Register
 
-| Stage | Result |
+## Ordered specialty status
+
+| Stage | Status |
 |---|---|
 | Inventory | COMPLETE |
 | Provenance | COMPLETE for available Git evidence |
 | Classification | COMPLETE |
 | Document audit | COMPLETE |
-| Historical version comparison | COMPLETE for located crypto records |
-| Canonical reference | COMPLETE for available specialty evidence |
-| Requirements and gaps | COMPLETE at design level |
-| Design corrections | COMPLETE |
-| Implementation preparation | COMPLETE |
+| Historical comparison | COMPLETE for located crypto records |
+| Canonical reference | COMPLETE |
+| Requirements/gaps | COMPLETE |
+| Design correction | COMPLETE |
+| Implementation boundary | COMPLETE; production provider not yet approved |
 | Test design | COMPLETE |
-| Security design review | COMPLETE |
-| Executable verification | BLOCKED until implementation exists |
+| Security review | COMPLETE at architecture level |
+| Executable crypto verification | BLOCKED until approved provider is integrated |
 | Independent cryptographic review | REQUIRED |
-| Production release gate | BLOCKED |
+| Production release | BLOCKED |
 
 ## Specialty decisions
 
-CRYPTO-DEC-001: Signal Protocol remains the one-to-one cryptographic reference.
-CRYPTO-DEC-002: PQXDH is the target session-establishment profile.
-CRYPTO-DEC-003: Double Ratchet is the target message-key evolution profile.
-CRYPTO-DEC-004: MLS is the group-crypto standards track.
-CRYPTO-DEC-005: No custom cryptographic primitive or bespoke ratchet.
-CRYPTO-DEC-006: libsignal remains reference/conformance material until explicit production authorization.
-CRYPTO-DEC-007: Hardware-backed platform protection is preferred, but claims require device/API evidence.
-CRYPTO-DEC-008: Account recovery and history recovery remain separate trust domains.
-CRYPTO-DEC-009: Transport never receives plaintext or E2EE secret material.
+- CRYPTO-DEC-001: Signal Protocol family is the one-to-one reference.
+- CRYPTO-DEC-002: PQXDH is the session-establishment reference, subject to a frozen P2P deployment profile.
+- CRYPTO-DEC-003: Double Ratchet is the message-key evolution reference.
+- CRYPTO-DEC-004: MLS RFC 9420 is the group-crypto standards track.
+- CRYPTO-DEC-005: No custom primitive and no bespoke ratchet.
+- CRYPTO-DEC-006: libsignal remains reference/conformance material until exact production use is separately approved.
+- CRYPTO-DEC-007: Platform hardware protection is preferred, but hardware residency is claimed only when the exact platform operation is proven.
+- CRYPTO-DEC-008: Recovery is a separate trust domain and never a universal decryptor.
+- CRYPTO-DEC-009: Transport components never receive plaintext or E2EE secret material.
 
 ## Evidence rule
 
-A design stage is not equivalent to executable PASS. Implementation, conformance, adversarial verification, and independent review remain separate gates.
+No stage is PASS solely because a design file exists. Executable stages require implementation, test, interoperability, provenance, or independent-review evidence appropriate to the claim.
