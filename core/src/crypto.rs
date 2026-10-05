@@ -89,7 +89,6 @@ pub struct ProviderCapabilities {
     pub hardware_attestation: bool,
     pub pq_kem: bool,
     pub message_ratchet: bool,
-    pub post_quantum_ratchet: bool,
 }
 
 impl ProviderCapabilities {
@@ -99,7 +98,6 @@ impl ProviderCapabilities {
             && self.hardware_attestation
             && self.pq_kem
             && self.message_ratchet
-            && self.post_quantum_ratchet
     }
 }
 
@@ -137,7 +135,6 @@ pub enum ProtocolProfile {
     Unapproved = 0,
     SignalPqxdhDoubleRatchetV1 = 1,
     MlsRfc9420V1 = 2,
-    SignalPqxdhTripleRatchetV1 = 3,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -174,7 +171,10 @@ impl ProviderApproval {
             && self.platform_reviewed
             && self.conformance_verified
             && self.independent_reviewed
-            && self.protocol_profile == ProtocolProfile::SignalPqxdhTripleRatchetV1
+            && matches!(
+                self.protocol_profile,
+                ProtocolProfile::SignalPqxdhDoubleRatchetV1 | ProtocolProfile::MlsRfc9420V1
+            )
     }
 
     pub const fn version(&self) -> ProviderVersion {
@@ -341,7 +341,7 @@ mod tests {
 
         let approved = ProviderApproval {
             version: ProviderVersion::new(1, 2, 3),
-            protocol_profile: ProtocolProfile::SignalPqxdhTripleRatchetV1,
+            protocol_profile: ProtocolProfile::SignalPqxdhDoubleRatchetV1,
             revision: ProviderRevision::new([0xAB; 20]),
             license_reviewed: true,
             support_reviewed: true,
