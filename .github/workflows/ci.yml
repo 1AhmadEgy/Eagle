@@ -118,5 +118,5 @@ jobs:
         with:
           name: testlab-${{ github.sha }}
           path: .ci/testlab/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
