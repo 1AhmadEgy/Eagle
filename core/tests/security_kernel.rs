@@ -1,0 +1,207 @@
+use eagle_core::{
+    authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
+    FrameHeader, MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session,
+    SessionState, CURRENT_PROTOCOL_VERSION, FRAME_HEADER_BYTES, MAX_ID_BYTES,
+};
+
+fn trusted_context() -> SecurityContext {
+    let mut ctx = SecurityContext::new(1, CURRENT_PROTOCOL_VERSION).unwrap();
+    ctx.begin_authentication().unwrap();
+    ctx
+}
+
+#[test]
+fn untrusted_kernel_is_not_usable() {
+    let ctx = SecurityContext::new(1, 1).unwrap();
+    let device = Device::new(10, 20, Platform::Android);
+    assert_eq!(
+        authorize(&ctx, &device, Capability::Read),
+        Err(SecurityError::Unauthorized)
+    );
+    assert_eq!(
+        authorize(&ctx, &device, Capability::Write),
+        Err(SecurityError::Unauthorized)
+    );
+    assert_eq!(
+        authorize(&ctx, &device, Capability::Administrative),
+        Err(SecurityError::Unauthorized)
+    );
+}
+
+#[test]
+fn device_is_not_authorized_before_trust() {
+    let device = Device::new(10, 20, Platform::Android);
+    assert_eq!(device.account(), 10);
+    assert_eq!(device.device(), 20);
+    assert_eq!(device.platform(), Platform::Android);
+    assert_eq!(device.trust_state(), DeviceTrustState::Unknown);
+    assert!(device.can_authorize().is_err());
+}
+
+#[test]
+fn session_cannot_self_elevate_unverified_context() {
+    let mut ctx = SecurityContext::new(1, 1).unwrap();
+    let device = Device::new(10, 20, Platform::Android);
+    assert_eq!(
+        Session::establish(&mut ctx, &device, 1),
+        Err(SecurityError::InvalidSessionTransition)
+    );
+    assert_eq!(ctx.session_state(), SessionState::Idle);
+}
+
+#[test]
+fn pending_context_cannot_establish_or_rekey() {
+    let mut ctx = trusted_context();
+    assert_eq!(ctx.trust_state(), eagle_core::TrustState::Pending);
+
+    // The actual verifier remains an internal test seam until the approved
+    // authentication/cryptographic protocol is integrated.
+    let device = Device::new(10, 20, Platform::Android);
+    assert!(ctx.establish(&device).is_err());
+
+    assert_eq!(
+        Session::begin_rekey(&mut ctx, &device),
+        Err(SecurityError::InvalidSessionTransition)
+    );
+}
+
+#[test]
+fn authentication_cancellation_returns_to_untrusted_idle() {
+    let mut ctx = SecurityContext::new(1, 1).unwrap();
+    ctx.begin_authentication().unwrap();
+    assert_eq!(ctx.abort_authentication(), Ok(()));
+    assert_eq!(ctx.trust_state(), eagle_core::TrustState::Untrusted);
+    assert_eq!(ctx.session_state(), SessionState::Idle);
+    let device = Device::new(10, 20, Platform::Android);
+    assert_eq!(
+        authorize(&ctx, &device, Capability::Read),
+        Err(SecurityError::Unauthorized)
+    );
+}
+
+#[test]
+fn invalid_configuration_fails_closed() {
+    assert_eq!(
+        SecurityContext::new(0, 1),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+    assert_eq!(
+        SecurityContext::new(2, 1),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+    assert_eq!(
+        SecurityContext::new(1, 2),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+}
+
+#[test]
+fn version_validation_is_monotonic_and_bounded() {
+    assert_eq!(validate_version(1, 1), Ok(1));
+    assert_eq!(
+        validate_version(0, 1),
+        Err(eagle_core::ProtocolError::DowngradeRejected)
+    );
+    assert_eq!(
+        validate_version(2, 1),
+        Err(eagle_core::ProtocolError::UnsupportedVersion)
+    );
+}
+
+#[test]
+fn identifiers_are_constructor_bounded() {
+    assert_eq!(
+        OpaqueId::new(Vec::new()),
+        Err(eagle_core::ProtocolError::EmptyIdentifier)
+    );
+    assert_eq!(
+        OpaqueId::new(vec![0; MAX_ID_BYTES + 1]),
+        Err(eagle_core::ProtocolError::IdentifierTooLarge)
+    );
+    assert_eq!(OpaqueId::new(vec![7; 8]).unwrap().as_bytes(), &[7; 8]);
+    assert_eq!(MessageId::new([9; 16]).as_bytes(), &[9; 16]);
+}
+
+#[test]
+fn envelope_is_structurally_validated() {
+    let envelope = EncryptedEnvelope::new(
+        MessageId::new([1; 16]),
+        OpaqueId::new(vec![2; 8]).unwrap(),
+        OpaqueId::new(vec![3; 8]).unwrap(),
+        None,
+        vec![0xAA; 32],
+        CURRENT_PROTOCOL_VERSION,
+        42,
+    )
+    .unwrap();
+
+    let header = envelope.frame_header().unwrap();
+    assert_eq!(header.protocol_version(), CURRENT_PROTOCOL_VERSION);
+    assert_eq!(header.payload_len(), 32);
+    assert_eq!(header.validate_payload_len(32), Ok(()));
+}
+
+#[test]
+fn frame_header_rejects_length_and_version_mismatch() {
+    let header = FrameHeader::new(CURRENT_PROTOCOL_VERSION, 9, 0).unwrap();
+    assert_eq!(
+        header.validate_payload_len(8),
+        Err(eagle_core::ProtocolError::PayloadLengthMismatch)
+    );
+    assert_eq!(
+        FrameHeader::new(0, 8, 0),
+        Err(eagle_core::ProtocolError::DowngradeRejected)
+    );
+    assert_eq!(
+        FrameHeader::new(CURRENT_PROTOCOL_VERSION, 8, 1),
+        Err(eagle_core::ProtocolError::UnsupportedFlags)
+    );
+}
+
+#[test]
+fn bounded_frame_decoder_rejects_truncated_or_oversized_input() {
+    assert_eq!(
+        FrameHeader::decode(&[0; FRAME_HEADER_BYTES - 1]),
+        Err(eagle_core::ProtocolError::TruncatedFrame)
+    );
+
+    let mut frame = Vec::new();
+    frame.extend_from_slice(&CURRENT_PROTOCOL_VERSION.to_be_bytes());
+    frame.extend_from_slice(&((eagle_core::MAX_PAYLOAD_BYTES as u32) + 1).to_be_bytes());
+    frame.extend_from_slice(&0u16.to_be_bytes());
+    assert!(matches!(
+        FrameHeader::decode(&frame),
+        Err(eagle_core::ProtocolError::PayloadTooLarge)
+    ));
+}
+
+#[test]
+fn bounded_frame_decoder_returns_borrowed_payload() {
+    let payload = [0xAA, 0xBB, 0xCC];
+    let mut frame = Vec::with_capacity(FRAME_HEADER_BYTES + payload.len());
+    frame.extend_from_slice(&CURRENT_PROTOCOL_VERSION.to_be_bytes());
+    frame.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+    frame.extend_from_slice(&0u16.to_be_bytes());
+    frame.extend_from_slice(&payload);
+
+    let (header, decoded) = FrameHeader::decode(&frame).unwrap();
+    assert_eq!(header.payload_len(), payload.len() as u32);
+    assert_eq!(decoded, payload);
+}
+
+#[test]
+fn device_revocation_and_replacement_are_terminal() {
+    let mut revoked = Device::new(10, 20, Platform::Desktop);
+    let mut replaced = Device::new(10, 21, Platform::Ios);
+
+    // Pairing/approval are internal until the real authentication verifier exists.
+    // The public API exposes only terminal fail-closed transitions.
+    assert_eq!(
+        revoked.revoke(),
+        Err(eagle_core::DeviceError::InvalidTransition)
+    );
+    assert_eq!(
+        replaced.replace(),
+        Err(eagle_core::DeviceError::InvalidTransition)
+    );
+}
