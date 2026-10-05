@@ -37,12 +37,15 @@ Cryptographic verification, private-key custody, transport, persistence, UI, and
 10. Raw private key material is not represented by the public kernel API.
 11. Unsafe Rust is forbidden.
 12. Platform bindings must not expose trust elevation or policy bypass.
+13. Authority-bearing state must not implement implicit value-copy semantics that can create stale independent security authority.
 
 ## API boundary rules
 
 Public constructors must return validated domain values where construction invariants exist.
 
 Security-sensitive state is private to the crate and exposed through read-only accessors or guarded transitions.
+
+Authority-bearing values must not implement `Copy` or `Clone` unless a future design proves that duplicated values remain references to one canonical authority and cannot outlive or bypass revocation.
 
 The following are intentionally unavailable to external callers until a real verifier exists:
 
