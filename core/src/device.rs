@@ -147,10 +147,11 @@ impl Device {
         if self.account != account || self.device != device {
             return Err(DeviceError::IdentityMismatch);
         }
+        self.can_authorize()?;
         if self.authority_epoch != epoch {
             return Err(DeviceError::AuthorityMismatch);
         }
-        self.can_authorize()
+        Ok(())
     }
 }
 
