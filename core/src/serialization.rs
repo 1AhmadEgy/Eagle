@@ -147,6 +147,8 @@ pub fn deserialize_envelope(bytes: &[u8]) -> Result<EncryptedEnvelope, Serializa
 
 #[cfg(test)]
 mod tests {
+    use crate::MAX_ID_BYTES;
+
     use super::*;
 
     fn id(value: u8) -> OpaqueId {
