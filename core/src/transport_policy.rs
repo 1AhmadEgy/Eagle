@@ -76,10 +76,7 @@ mod tests {
         assert!(policy.require_peer_identity_binding());
 
         assert_eq!(
-            policy.authorize_application_data(
-                TransportPath::Direct,
-                PeerBinding::EagleDevice,
-            ),
+            policy.authorize_application_data(TransportPath::Direct, PeerBinding::EagleDevice,),
             Ok(())
         );
     }
@@ -89,17 +86,11 @@ mod tests {
         let policy = TransportPolicy::new();
 
         assert_eq!(
-            policy.authorize_application_data(
-                TransportPath::Relay,
-                PeerBinding::EagleDevice,
-            ),
+            policy.authorize_application_data(TransportPath::Relay, PeerBinding::EagleDevice,),
             Err(TransportError::ApplicationDataRequiresDirectPath)
         );
         assert_eq!(
-            policy.authorize_application_data(
-                TransportPath::ServerFallback,
-                PeerBinding::EagleDevice,
-            ),
+            policy.authorize_application_data(TransportPath::ServerFallback, PeerBinding::EagleDevice,),
             Err(TransportError::ApplicationDataRequiresDirectPath)
         );
     }
@@ -109,10 +100,7 @@ mod tests {
         let policy = TransportPolicy::new();
 
         assert_eq!(
-            policy.authorize_application_data(
-                TransportPath::Direct,
-                PeerBinding::Unauthenticated,
-            ),
+            policy.authorize_application_data(TransportPath::Direct, PeerBinding::Unauthenticated,),
             Err(TransportError::PeerIdentityRequired)
         );
     }
