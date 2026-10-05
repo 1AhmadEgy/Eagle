@@ -166,7 +166,10 @@ impl SecureStorage for InMemorySecureStorage {
             StorageState::Unavailable => return Err(StorageError::Unavailable),
         }
 
-        let record = self.records.get(record_id.as_bytes()).ok_or(StorageError::NotFound)?;
+        let record = self
+            .records
+            .get(record_id.as_bytes())
+            .ok_or(StorageError::NotFound)?;
         if record.owner_id() != owner_id {
             return Err(StorageError::NotFound);
         }
@@ -184,7 +187,10 @@ impl SecureStorage for InMemorySecureStorage {
             StorageState::Unavailable => return Err(StorageError::Unavailable),
         }
 
-        let record = self.records.get(record_id.as_bytes()).ok_or(StorageError::NotFound)?;
+        let record = self
+            .records
+            .get(record_id.as_bytes())
+            .ok_or(StorageError::NotFound)?;
         if record.owner_id() != owner_id {
             return Err(StorageError::NotFound);
         }
@@ -272,14 +278,8 @@ mod tests {
         store.set_unavailable();
 
         assert_eq!(store.put(record()), Err(StorageError::Unavailable));
-        assert_eq!(
-            store.get(&id(1), &id(2)),
-            Err(StorageError::Unavailable)
-        );
-        assert_eq!(
-            store.delete(&id(1), &id(2)),
-            Err(StorageError::Unavailable)
-        );
+        assert_eq!(store.get(&id(1), &id(2)), Err(StorageError::Unavailable));
+        assert_eq!(store.delete(&id(1), &id(2)), Err(StorageError::Unavailable));
         assert_eq!(store.recover(), Err(StorageError::Unavailable));
     }
 }
