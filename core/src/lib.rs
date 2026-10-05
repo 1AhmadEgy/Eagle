@@ -351,7 +351,7 @@ mod tests {
 
     #[test]
     fn incomplete_rekey_fails_closed() {
-        let (mut ctx, _device) = authenticated();
+        let (mut ctx, device) = authenticated();
         ctx.establish().unwrap();
         ctx.begin_rekey().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
@@ -366,7 +366,7 @@ mod tests {
 
     #[test]
     fn revocation_is_terminal_for_context() {
-        let (mut ctx, _device) = authenticated();
+        let (mut ctx, device) = authenticated();
         ctx.establish().unwrap();
         ctx.revoke_trust();
         assert_eq!(ctx.trust_state(), TrustState::Revoked);
