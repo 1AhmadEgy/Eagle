@@ -2,44 +2,51 @@
 
 ## Security rule
 
-No provider is production-approved merely because it implements a relevant protocol. Approval requires exact version and revision, provenance, license compatibility, supported target platforms, conformance/interoperability evidence, and independent security review.
+No provider is production-approved merely because it implements a relevant protocol. Approval requires exact version and revision, provenance, license compatibility, supported target platforms, conformance/interoperability evidence, supply-chain review, and independent security review.
 
 ## Candidate A — Signal libsignal
 
 Status: REFERENCE / CONFORMANCE ONLY
 
-The upstream repository contains the Signal Protocol implementation, including PQXDH and Double Ratchet. The upstream project states that use outside Signal is unsupported, and the workspace is AGPL-3.0-only. Current upstream workspace version observed during review: 0.104.0.
+Current upstream workspace version: **0.104.0**. The upstream repository implements the Signal protocol family, including PQXDH and Double Ratchet, but explicitly states that use outside Signal is unsupported. The current repository is AGPL-3.0-only. citeturn271194search0turn271194search1
 
 Decision:
-- keep as the protocol/reference corpus;
+- retain as the primary protocol/reference corpus;
 - do not vendor or copy implementation code;
-- do not mark production approval without a separate license/support/platform/provenance/security decision.
-
-Reference:
-https://github.com/signalapp/libsignal
+- do not claim production approval without a separate legal/license, support, provenance, platform, conformance, supply-chain, and security decision.
 
 ## Candidate B — Matrix vodozemac
 
 Status: RESEARCH / COMPONENT CANDIDATE ONLY
 
-vodozemac is a pure-Rust implementation of Olm and Megolm, licensed Apache-2.0. The upstream project reports one Least Authority security audit with no significant findings. It is not a drop-in PQXDH provider and must not be combined with an independently implemented handshake without a dedicated protocol security review.
+Current release: **0.10.0**. It is a pure-Rust implementation of Olm and Megolm, Apache-2.0, and reports one Least Authority security audit with no significant findings. It is not a PQXDH implementation and cannot be composed with a separately written PQXDH handshake without a dedicated protocol-security review. The current changelog also shows active security/behavior changes, reinforcing exact-version pinning. citeturn798155search4turn798155search2turn798155search1
 
 Decision:
-- may be used for research and comparative testing;
-- may not be substituted for the Eagle Signal/PQXDH profile by composition;
-- no production adoption until the complete protocol profile is approved.
+- research/comparative-test use only;
+- never substitute it for Eagle's approved 1:1 PQXDH path;
+- exact revision must be frozen before any integration experiment.
 
-Reference:
-https://github.com/matrix-org/vodozemac
+## Candidate C — OpenMLS
 
-## Candidate C — Small independent Signal implementations
+Status: GROUP-CRYPTO REFERENCE / INTEGRATION CANDIDATE ONLY
+
+Current release: **0.9.0**. OpenMLS is a Rust implementation of RFC 9420 and currently documents classical MLS ciphersuites; it does not provide Eagle's 1:1 PQXDH/Double-Ratchet stack. OpenMLS also separates protocol implementation from cryptographic providers, which is useful for provider isolation but does not remove the need for independent integration review. citeturn798155search0turn798155search5turn798155search11
+
+Decision:
+- group track only;
+- no 1:1 substitution;
+- no production adoption until group interoperability, storage, provider, and security evidence exist.
+
+## Candidate D — Small independent Signal implementations
 
 Status: REJECTED FOR PRODUCTION BY DEFAULT
 
-Small or educational implementations are not promoted to production merely because they are MIT/Apache/GPL licensed or implement X3DH/Double Ratchet. The Eagle rule is evidence-first: implementation maturity, review, conformance, interoperability, provenance and lifecycle support all have to be demonstrated.
+Small or educational implementations are not promoted to production merely because they are MIT/Apache/GPL licensed or implement X3DH/Double Ratchet. Evidence is required across implementation maturity, review, conformance, interoperability, provenance, maintenance, and lifecycle support.
 
 ## Current decision
 
 **NO PRODUCTION CRYPTO PROVIDER APPROVED YET.**
 
-This is intentional. The safest path is to keep the protocol boundary fail-closed while selecting one complete, supportable implementation path rather than constructing Signal from unrelated cryptographic components.
+The safest path remains a complete, supportable implementation path with an explicit protocol profile, rather than assembling a Signal-equivalent stack from unrelated cryptographic components.
+
+---
