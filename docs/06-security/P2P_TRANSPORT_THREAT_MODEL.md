@@ -43,3 +43,8 @@ The attacker can observe, delay, replay, inject, reorder, drop, and terminate pa
 5. Unsupported versions fail closed.
 6. Resource limits apply before expensive cryptographic work.
 7. Discovery metadata is untrusted input.
+
+
+## Executable enforcement baseline
+
+The Rust Security Core now exposes a default transport policy that permits application data only on a direct path and requires Eagle device identity binding. Relay and server-fallback paths are rejected fail-closed at the policy boundary. This does not yet prove the concrete network implementation cannot bypass that boundary; transport integration and adversarial runtime evidence remain release-gated.
