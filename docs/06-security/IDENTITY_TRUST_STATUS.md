@@ -140,7 +140,7 @@ IDENTITY_TRUST = BLOCKED
 
 ## Verification evidence update — 2026-10-05
 
-The clean branch triggered fresh repository verification.
+The clean branch triggered fresh repository verification. A source-level test review also identified and corrected a dedicated verifier mismatch in the positive reverification test before considering the branch verification-ready.
 
 Observed results:
 - Secret scan on the clean PR merge range: PASS; no leaks were detected.
