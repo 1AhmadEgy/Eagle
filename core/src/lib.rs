@@ -8,7 +8,7 @@ mod session;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use key_management::{
-    KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference,
+    KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
 };
 pub use policy::{authorize, Capability};
 pub use protocol::{
