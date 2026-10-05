@@ -23,6 +23,12 @@
 | RK-16 | invalid protocol configuration rejected | unit + integration |
 | RK-17 | unsafe Rust forbidden | crate-level `forbid(unsafe_code)` |
 | RK-18 | authority-bearing values are not Copy/Clone | compile/API boundary + source regression |
+| RK-19 | bounded frame decoder rejects truncation before slicing | unit | 
+| RK-20 | bounded frame decoder returns borrowed payload without allocation | unit | 
+| RK-21 | send sequence never wraps | test-only sequence seam | 
+| RK-22 | receive window rejects duplicates | test-only replay seam |
+| RK-23 | receive window rejects sequences outside window | test-only replay seam |
+| RK-24 | replay state is advanced only through authenticated seam | API boundary + test-only constructor |
 
 ## CI gate
 
@@ -36,6 +42,6 @@ The repository CI result is the independent execution evidence for the current b
 
 ## Deferred categories
 
-Cryptographic vectors, property/fuzz testing over cryptographic state, protocol interoperability, key-storage tests, FFI ABI/security tests, and platform-native verification remain **PENDING** until their governing technical decisions and implementations exist.
+Cryptographic vectors, property/fuzz testing over cryptographic state, protocol interoperability, key-storage tests, FFI ABI/security tests, platform-native verification, and production authenticated replay integration remain **PENDING** until their governing technical decisions and implementations exist.
 
 A missing category is never treated as PASS.
