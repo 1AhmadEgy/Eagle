@@ -13,6 +13,7 @@ pub enum ReplayError {
     SequenceCollision,
     TooOld,
     EpochChanged,
+    EpochRollback,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -157,6 +158,24 @@ impl ReplayWindow {
         }
     }
 
+    pub fn advance_epoch(&mut self, new_epoch: u64) -> Result<(), ReplayError> {
+        match self.epoch {
+            None => {
+                self.epoch = Some(new_epoch);
+                self.highest_sequence = None;
+                self.entries.clear();
+                Ok(())
+            }
+            Some(current) if new_epoch > current => {
+                self.epoch = Some(new_epoch);
+                self.highest_sequence = None;
+                self.entries.clear();
+                Ok(())
+            }
+            Some(_) => Err(ReplayError::EpochRollback),
+        }
+    }
+
     pub fn contains(&self, sequence: u64, message_id: &MessageId) -> bool {
         self.entries.get(&sequence) == Some(message_id)
     }
@@ -242,42 +261,33 @@ mod tests {
     }
 
     #[test]
-    fn freshness_rejects_future_old_and_expired_messages() {
+    fn freshness_rejects_invalid_future_old_and_expired_messages() {
         let policy = FreshnessPolicy::new(1_000, 100);
 
-        assert_eq!(policy.validate(10_000, 10_050, None), Ok(()));
+        assert_eq!(policy.validate(10_000, 10_050, Some(10_100)), Ok(()));
         assert_eq!(
-            policy.validate(10_000, 10_101, Some(10_151)),
+            policy.validate(10_000, 10_100, Some(10_200)),
             Ok(())
         );
         assert_eq!(
             policy.validate(10_000, 10_101, None),
-            Ok(())
+            Err(FreshnessError::CreatedInFuture)
         );
         assert_eq!(
-            policy.validate(10_000, 10_101, Some(10_101)),
-            Err(FreshnessError::InvalidExpiry)
+            policy.validate(10_000, 10_101, Some(10_202)),
+            Err(FreshnessError::CreatedInFuture)
         );
         assert_eq!(
             policy.validate(10_200, 10_050, Some(10_150)),
             Err(FreshnessError::Expired)
         );
         assert_eq!(
-            policy.validate(10_000, 10_101, None),
-            Ok(())
-        );
-        assert_eq!(
-            policy.validate(10_000, 10_101, None),
-            Ok(())
-        );
-        assert_eq!(
-            policy.validate(10_101, 10_202, None),
-            Err(FreshnessError::CreatedInFuture)
-        );
-        assert_eq!(
             policy.validate(10_000, 8_999, None),
             Err(FreshnessError::TooOld)
         );
+        assert_eq!(
+            policy.validate(10_000, 10_000, Some(10_000)),
+            Err(FreshnessError::InvalidExpiry)
+        );
     }
-}
 }
