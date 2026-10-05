@@ -28,6 +28,7 @@ BLOCKED = release cannot proceed until closed.
 | SEC-016 | Independent cryptographic/security review is required before release | release gate | gate document | PENDING |
 | SEC-017 | Wire serialization is schema-defined, bounded, strict, and canonical where authenticated bytes depend on representation | serialization baseline | fixed CBOR envelope codec with size/shape/trailing/non-canonical rejection tests | IMPLEMENTED |
 | SEC-018 | Duplicate inbound message identifiers are rejected within the active replay window | P2P/message threat model | bounded ReplayTracker integrated into the inbound wire boundary with negative test; final protocol replay semantics still depend on approved session/ratchet state | IMPLEMENTED |
+| SEC-019 | Peer identity authorization must require an opaque proof produced by the authenticated transport boundary; callers cannot self-assert peer identity | P2P threat model + security architecture | PeerBinding constructor is private; production message boundary accepts only an optional opaque binding; test seam is cfg(test) | IMPLEMENTED |
 
 ## Critical gate
 
