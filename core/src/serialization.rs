@@ -92,7 +92,9 @@ pub fn deserialize_envelope(bytes: &[u8]) -> Result<EncryptedEnvelope, Serializa
         .map_err(|_| SerializationError::DecodeError)?;
     let sender_device_id = OpaqueId::new(sender_bytes.to_vec())?;
 
-    let recipient_device_id = if decoder.datatype().map_err(|_| SerializationError::DecodeError)?
+    let recipient_device_id = if decoder
+        .datatype()
+        .map_err(|_| SerializationError::DecodeError)?
         == Type::Null
     {
         decoder
@@ -116,12 +118,8 @@ pub fn deserialize_envelope(bytes: &[u8]) -> Result<EncryptedEnvelope, Serializa
         return Err(SerializationError::InvalidEnvelope);
     }
 
-    let protocol_version = decoder
-        .u16()
-        .map_err(|_| SerializationError::DecodeError)?;
-    let created_at_epoch_ms = decoder
-        .u64()
-        .map_err(|_| SerializationError::DecodeError)?;
+    let protocol_version = decoder.u16().map_err(|_| SerializationError::DecodeError)?;
+    let created_at_epoch_ms = decoder.u64().map_err(|_| SerializationError::DecodeError)?;
 
     if decoder.position() != bytes.len() {
         return Err(SerializationError::TrailingData);
@@ -148,6 +146,7 @@ pub fn deserialize_envelope(bytes: &[u8]) -> Result<EncryptedEnvelope, Serializa
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::MAX_ID_BYTES;
 
     fn id(value: u8) -> OpaqueId {
         OpaqueId::new(vec![value; 8]).unwrap()
