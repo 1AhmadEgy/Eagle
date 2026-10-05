@@ -1,11 +1,13 @@
 #![forbid(unsafe_code)]
 
 mod crypto;
+mod key_lifecycle;
 mod device;
 mod policy;
 mod protocol;
 mod session;
 
+pub use key_lifecycle::{KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState};
 pub use crypto::{
     IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle,
     MessagingCrypto, OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderCapabilities,
