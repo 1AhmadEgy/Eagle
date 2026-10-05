@@ -131,6 +131,14 @@ release provenance
 
 A passing local test suite cannot override any missing security gate.
 
+## Latest hardening
+
+A source-level audit found that an unverified identity replacement must never overwrite the last verified contact identity. The Security Core now stores the replacement only as `pending_identity` during quarantine and requires the exact pending candidate plus an explicit reverification verifier before promotion. Negative tests cover verifier rejection and candidate mismatch.
+
+## Verification state
+
+The latest specialty changes require fresh repository CI evidence on the current head. No local source inspection is treated as CI proof. Existing repository-wide workflow/security-policy and Platform Test Lab failures remain external release blockers and are not bypassed.
+
 ## Terminal state
 
 ```text
