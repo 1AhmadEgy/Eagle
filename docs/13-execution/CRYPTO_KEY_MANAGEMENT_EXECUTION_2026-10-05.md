@@ -30,10 +30,10 @@ libsignal remains reference/conformance material pending license/support/provena
 
 - Current branch: `execution/crypto-key-lifecycle-canonical-2026-10-05`.
 - Pull request: #73.
-- Current PR head: `e7a4fdb1ba0c1a1039f99f24934060999cc8c020`.
+- Current PR head: `1adc8402f33404de055f0edfeaa41135edd7c584`.
 - Base: `security/reconciled-foundation-2026-10-05` at `a5ed695466d61c59a7d7f27fc6035ff94dde6cac`.
 - PR state is open and GitHub currently reports it as mergeable; human review is still required.
-- GitHub Actions now has an actual Rust Security Kernel run for this exact head (run #136), but at the latest verification it remained queued with no conclusion. The independent CI gate is therefore still **PENDING**, not PASS.
+- The latest code-bearing commit in this PR is `b6584cc3f11e2a1e3ae25e656fd8aae99c93e604`; GitHub Actions created Rust Security Kernel run #139 for that exact code revision. At the latest verification it remained queued with no conclusion. The independent CI gate is therefore still **PENDING**, not PASS.
 - A local execution attempt was blocked because the execution environment has no `cargo`, `rustc`, or `rustfmt` toolchain installed. No local test PASS is claimed.
 
 ## Release disposition
