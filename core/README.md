@@ -8,6 +8,8 @@ Implemented in this specialization:
 - capability authorization;
 - bounded protocol negotiation and downgrade rejection;
 - validated encrypted-envelope construction;
+- canonical bounded envelope serialization;
+- direct-only application-data transport policy requiring Eagle device binding;
 - immutable identifier/session representations;
 - unsafe Rust forbidden;
 - zero external runtime dependencies;
@@ -18,8 +20,8 @@ Deferred by security gate:
 - concrete Signal/PQXDH/MLS adoption;
 - concrete platform key-store implementation and secure storage;
 - cryptographic key generation, signing/agreement, and protocol integration;
-- canonical serialization/wire encoding;
-- transport;
+- concrete cross-platform canonical wire integration;
+- concrete libp2p/QUIC transport implementation and NAT traversal;
 - platform keystore integration;
 - UniFFI security ABI.
 
