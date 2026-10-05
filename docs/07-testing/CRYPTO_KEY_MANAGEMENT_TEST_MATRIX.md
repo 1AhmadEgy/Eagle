@@ -34,3 +34,5 @@
 | CKM-022 | One-Time PreKey | successful consumption is single-use and permanently non-active |
 | CKM-023 | Provider approval | unapproved provider cannot reach production crypto path |
 | CKM-024 | Capacity exhaustion | metadata exhaustion fails closed without eviction |
+
+| CKM-025 | Provider capability gate | approved provider must prove non-exportable identity keys, PQ KEM, and message-ratchet capability |
