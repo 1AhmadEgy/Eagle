@@ -12,15 +12,17 @@
 | RK-05 | unsupported version rejected without state mutation | unit + integration |
 | RK-06 | negotiated protocol cannot exceed configured maximum/current version | configuration + negotiation tests |
 | RK-07 | rekey requires established trusted session | unit |
-| RK-08 | revocation closes the context | unit |
-| RK-09 | revoked/replaced devices fail closed and cannot transition back | unit + integration |
-| RK-10 | identifier bounds enforced at construction | unit + integration |
-| RK-11 | envelope ciphertext non-empty and bounded | unit + integration |
-| RK-12 | frame payload length is exact and header version is checked | unit + integration |
-| RK-13 | administrative capability denied | integration |
-| RK-14 | invalid protocol configuration rejected | unit + integration |
-| RK-15 | unsafe Rust forbidden | crate-level `forbid(unsafe_code)` |
-| RK-16 | authority-bearing values are not Copy/Clone | compile/API boundary + source regression |
+| RK-08 | incomplete rekey closes the session | unit |
+| RK-09 | authentication cancellation returns to untrusted/idle state | unit + integration |
+| RK-10 | revocation closes the context | unit |
+| RK-11 | revoked/replaced devices fail closed and cannot transition back | unit + integration |
+| RK-12 | identifier bounds enforced at construction | unit + integration |
+| RK-13 | envelope ciphertext non-empty and bounded | unit + integration |
+| RK-14 | frame payload length is exact and header version is checked | unit + integration |
+| RK-15 | administrative capability denied | integration |
+| RK-16 | invalid protocol configuration rejected | unit + integration |
+| RK-17 | unsafe Rust forbidden | crate-level `forbid(unsafe_code)` |
+| RK-18 | authority-bearing values are not Copy/Clone | compile/API boundary + source regression |
 
 ## CI gate
 
