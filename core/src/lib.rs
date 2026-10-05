@@ -2,6 +2,7 @@
 
 mod crypto;
 mod key_lifecycle;
+mod identity;
 mod device;
 mod policy;
 mod protocol;
@@ -15,6 +16,13 @@ pub use crypto::{
     UnavailableCryptoProvider,
 };
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
+pub use identity::{
+    TrustState as IdentityTrustState,
+    AccountMembershipStatement, AuthorizationAction, ContactIdentity, ContactIdentityState,
+    IdentityReference, IdentityTrustState, MembershipProofVerifier, MembershipRegistry,
+    PairingApprovalVerifier, PairingContext, PlatformAssurance, PublicIdentityKey,
+    SecurityEvent, TrustEpochSet, TrustError, TrustRecord, ContactReverificationVerifier,
+};
 pub use policy::{authorize, Capability};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
