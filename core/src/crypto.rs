@@ -131,7 +131,7 @@ impl ProviderApproval {
         }
     }
 
-    pub const fn is_production_approved(&self) -> bool {
+    pub fn is_production_approved(&self) -> bool {
         (self.version.major != 0 || self.version.minor != 0 || self.version.patch != 0)
             && self.revision.0 != [0; 20]
             && self.license_reviewed
