@@ -50,3 +50,20 @@ Small or educational implementations are not promoted to production merely becau
 The safest path remains a complete, supportable implementation path with an explicit protocol profile, rather than assembling a Signal-equivalent stack from unrelated cryptographic components.
 
 ---
+
+
+## Provider approval hardening — 2026-10-05
+
+A provider is not production-approvable from library identity/version alone. The approval record must bind the exact implementation revision to:
+
+- non-exportable identity-key capability;
+- hardware protection;
+- verifiable hardware-backed attestation where the platform supports it;
+- required PQ KEM capability;
+- required message-ratchet capability;
+- an explicit protocol profile: Signal PQXDH + Double Ratchet v1, or MLS RFC 9420 v1;
+- license, platform, support, conformance and independent cryptographic review.
+
+Android evidence: Android Keystore keeps key material non-exportable and can bind keys to secure hardware; StrongBox provides stronger isolation and supports attestation. Hardware-backed status must be verified rather than assumed. Apple Secure Enclave similarly keeps supported private-key material inside the enclave, but is constrained to supported key types/operations. These platform constraints are implementation gates, not reasons to silently downgrade to software custody.
+
+The provider gate therefore fails closed when attestation, protocol binding, or any required capability is absent.
