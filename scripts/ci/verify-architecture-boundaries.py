@@ -13,7 +13,7 @@ if settings.exists() and 'include(":app")' not in settings.read_text(encoding="u
 
 # High-risk names in UI/application source. This is intentionally conservative.
 ui_roots = [ROOT / "app" / "src", ROOT / "androidApp", ROOT / "shared" / "src"]
-key_patterns = re.compile(r"(?i)\\b(private[_ -]?key|secret[_ -]?key|secretkey|privatekey)\\b")
+key_patterns = re.compile(r"(?i)\b(private[_ -]?key|secret[_ -]?key|secretkey|privatekey)\\b")
 for root in ui_roots:
     if not root.exists():
         continue
@@ -29,7 +29,7 @@ for root in ui_roots:
 
 # Transport/mesh must not expose obvious plaintext application APIs.
 mesh_roots = [ROOT / "mesh", ROOT / "transport", ROOT / "core" / "src" / "transport"]
-plaintext_patterns = re.compile(r"(?i)\\b(plaintext|messagebody|message_body|rawmessage|raw_message)\\b")
+plaintext_patterns = re.compile(r"(?i)\b(plaintext|messagebody|message_body|rawmessage|raw_message)\\b")
 for root in mesh_roots:
     if not root.exists():
         continue
