@@ -9,21 +9,18 @@ mod protocol;
 mod session;
 
 pub use crypto::{
-    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle,
-    MessagingCrypto, OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderApproval,
-    ProviderCapabilities, ProviderRevision, ProviderVersion, RecoveryKeyHandle, SessionKeyHandle,
-    SignedPreKeyHandle, StorageWrappingKeyHandle, UnavailableCryptoProvider,
+    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
+    OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderApproval, ProviderCapabilities,
+    ProviderRevision, ProviderVersion, RecoveryKeyHandle, SessionKeyHandle, SignedPreKeyHandle,
+    StorageWrappingKeyHandle, UnavailableCryptoProvider,
 };
 pub use key_lifecycle::{
     KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState,
 };
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use key_management::{
-    KeyCustody, KeyPolicy, KeyReference, KeyScope,
-    KeyError as PolicyKeyError,
-    KeyLifecycle as PolicyKeyLifecycle,
-    KeyPurpose as PolicyKeyPurpose,
-    KeyRecord as PolicyKeyRecord,
+    KeyCustody, KeyError as PolicyKeyError, KeyLifecycle as PolicyKeyLifecycle, KeyPolicy,
+    KeyPurpose as PolicyKeyPurpose, KeyRecord as PolicyKeyRecord, KeyReference, KeyScope,
 };
 pub use policy::{authorize, Capability};
 pub use protocol::{
