@@ -9,7 +9,7 @@ Specialty only. Evidence-first, fail-closed, no bespoke cryptography.
 - Deterministic key lifecycle state machine.
 - Purpose-separated key domains.
 - Monotonic generation and lifecycle epoch rules.
-- Atomic metadata rotation.
+- Atomic metadata rotation with pre-reserved epoch allocation.
 - Explicit revoke/destroy transitions.
 - Single-use One-Time PreKey consumption.
 - Fail-closed lifecycle error mapping.
@@ -18,6 +18,7 @@ Specialty only. Evidence-first, fail-closed, no bespoke cryptography.
 - Key lifecycle specification.
 - Extended lifecycle/provider test matrix.
 - Regression coverage for failed rotation atomicity and metadata-capacity exhaustion.
+- Canonicalized Rust exports after reconciling the pre-existing `key_management` policy API with the new cryptography/key-lifecycle API; overlapping legacy types are now exposed under `Policy*` aliases instead of colliding with canonical crypto types.
 
 ## Provider status
 
@@ -27,19 +28,21 @@ libsignal remains reference/conformance material pending license/support/provena
 
 ## Verification evidence
 
-- Changes are committed on `execution/crypto-key-lifecycle-canonical-2026-10-05`.
+- Current branch: `execution/crypto-key-lifecycle-canonical-2026-10-05`.
 - Pull request: #73.
-- Current PR head: `d6493c57fc735742e69f408c891ccf7d2f22ab63` at the time of this record update.
-- The PR is based directly on `security/reconciled-foundation-2026-10-05` and is 13 commits ahead, 0 behind at the last comparison.
-- GitHub workflow/status evidence for this head was not available through the current repository integration at the time of this record.
-- Local Rust execution was not possible in the execution environment because outbound GitHub access from the shell was unavailable.
-- Therefore no CI/test PASS is claimed for this cycle.
+- Current PR head: `e7a4fdb1ba0c1a1039f99f24934060999cc8c020`.
+- Base: `security/reconciled-foundation-2026-10-05` at `a5ed695466d61c59a7d7f27fc6035ff94dde6cac`.
+- PR state is open and GitHub currently reports it as mergeable; human review is still required.
+- GitHub Actions now has an actual Rust Security Kernel run for this exact head (run #136), but at the latest verification it remained queued with no conclusion. The independent CI gate is therefore still **PENDING**, not PASS.
+- A local execution attempt was blocked because the execution environment has no `cargo`, `rustc`, or `rustfmt` toolchain installed. No local test PASS is claimed.
 
 ## Release disposition
 
 Design and implementation boundary: COMPLETE.
 
 Executable production crypto: NOT VERIFIED.
+
+CI verification: PENDING.
 
 Independent cryptographic review: REQUIRED.
 
