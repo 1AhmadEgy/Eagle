@@ -469,7 +469,7 @@ impl PairingContext {
         if current_epoch != self.expected_epoch {
             return Err(TrustError::TrustEpochStale);
         }
-        if now_unix().map_or(true, |now| now >= self.expires_at_unix) {
+        if now_unix().is_none_or(|now| now >= self.expires_at_unix) {
             return Err(TrustError::PairingExpired);
         }
         Ok(())
