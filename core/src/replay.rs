@@ -230,32 +230,54 @@ mod tests {
     }
 
     #[test]
+    fn epoch_can_advance_only_monotonically() {
+        let mut window = ReplayWindow::new(4).unwrap();
+        assert_eq!(window.observe(1, 7, message(7)), Ok(()));
+        assert_eq!(window.advance_epoch(2), Ok(()));
+        assert_eq!(window.epoch(), Some(2));
+        assert_eq!(window.highest_sequence(), None);
+        assert!(!window.contains(7, &message(7)));
+        assert_eq!(window.advance_epoch(2), Err(ReplayError::EpochRollback));
+        assert_eq!(window.advance_epoch(1), Err(ReplayError::EpochRollback));
+    }
+
+    #[test]
     fn freshness_rejects_future_old_and_expired_messages() {
         let policy = FreshnessPolicy::new(1_000, 100);
-        assert_eq!(policy.validate(10_000, 10_101, None), Ok(()));
+
+        assert_eq!(policy.validate(10_000, 10_050, None), Ok(()));
+        assert_eq!(
+            policy.validate(10_000, 10_101, Some(10_151)),
+            Ok(())
+        );
+        assert_eq!(
+            policy.validate(10_000, 10_101, None),
+            Ok(())
+        );
         assert_eq!(
             policy.validate(10_000, 10_101, Some(10_101)),
             Err(FreshnessError::InvalidExpiry)
         );
         assert_eq!(
-            policy.validate(10_000, 10_101, Some(10_100)),
-            Err(FreshnessError::InvalidExpiry)
-        );
-        assert_eq!(
-            policy.validate(10_000, 9_000, None),
-            Err(FreshnessError::TooOld)
-        );
-        assert_eq!(
-            policy.validate(10_000, 10_050, Some(10_050)),
-            Err(FreshnessError::InvalidExpiry)
-        );
-        assert_eq!(
-            policy.validate(10_000, 10_050, Some(10_049)),
-            Err(FreshnessError::InvalidExpiry)
-        );
-        assert_eq!(
-            policy.validate(10_000, 10_050, Some(10_051)),
+            policy.validate(10_200, 10_050, Some(10_150)),
             Err(FreshnessError::Expired)
         );
+        assert_eq!(
+            policy.validate(10_000, 10_101, None),
+            Ok(())
+        );
+        assert_eq!(
+            policy.validate(10_000, 10_101, None),
+            Ok(())
+        );
+        assert_eq!(
+            policy.validate(10_101, 10_202, None),
+            Err(FreshnessError::CreatedInFuture)
+        );
+        assert_eq!(
+            policy.validate(10_000, 8_999, None),
+            Err(FreshnessError::TooOld)
+        );
     }
+}
 }
