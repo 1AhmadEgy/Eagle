@@ -29,10 +29,10 @@ def run(command: list[str]) -> tuple[int, str]:
     return proc.returncode, proc.stdout
 
 
-def record(evidence: dict[str, object], category: str, status: str, **extra: object) -> None:
+def record(ev: dict[str, object], category: str, status: str, **extra: object) -> None:
     payload = {"status": status}
     payload.update(extra)
-    evidence["categories"][category] = payload
+    ev["categories"][category] = payload
 
 
 def main() -> int:
