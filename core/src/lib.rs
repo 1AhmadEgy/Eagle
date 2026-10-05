@@ -65,7 +65,9 @@ impl fmt::Display for SecurityError {
 impl std::error::Error for SecurityError {}
 
 impl From<DeviceError> for SecurityError {
-    fn from(value: DeviceError) -> Self { Self::Device(value) }
+    fn from(value: DeviceError) -> Self {
+        Self::Device(value)
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -143,7 +145,10 @@ impl SecurityContext {
     }
 
     #[cfg(test)]
-    pub(crate) fn accept_verified_authentication(&mut self, device: &Device) -> Result<(), SecurityError> {
+    pub(crate) fn accept_verified_authentication(
+        &mut self,
+        device: &Device,
+    ) -> Result<(), SecurityError> {
         if self.trust != TrustState::Pending || self.session != SessionState::Authenticating {
             return Err(SecurityError::InvalidSessionTransition);
         }
@@ -389,7 +394,10 @@ mod tests {
         ctx.establish().unwrap();
         assert_eq!(ctx.authorize(&device), Ok(()));
         device.revoke().unwrap();
-        assert_eq!(ctx.authorize(&device), Err(SecurityError::Device(DeviceError::Revoked)));
+        assert_eq!(
+            ctx.authorize(&device),
+            Err(SecurityError::Device(DeviceError::Revoked))
+        );
     }
 
     #[test]
@@ -398,7 +406,10 @@ mod tests {
         ctx.establish().unwrap();
         assert_eq!(ctx.authorize(&device), Ok(()));
         device.replace().unwrap();
-        assert_eq!(ctx.authorize(&device), Err(SecurityError::Device(DeviceError::Replaced)));
+        assert_eq!(
+            ctx.authorize(&device),
+            Err(SecurityError::Device(DeviceError::Replaced))
+        );
     }
 
     #[test]
@@ -408,7 +419,10 @@ mod tests {
         let mut other = Device::new(1, 3, Platform::Android);
         other.begin_pairing().unwrap();
         other.approve().unwrap();
-        assert_eq!(ctx.authorize(&other), Err(SecurityError::Device(DeviceError::IdentityMismatch)));
+        assert_eq!(
+            ctx.authorize(&other),
+            Err(SecurityError::Device(DeviceError::IdentityMismatch))
+        );
     }
 
     #[test]
