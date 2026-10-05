@@ -396,7 +396,7 @@ mod tests {
     }
 
     #[test]
-    fn epochs_never_move_backwards {
+    fn epochs_never_move_backwards() {
         let mut lifecycle = KeyLifecycle::default();
         let a = lifecycle
             .register(id(1), KeyPurpose::Message, 1)
