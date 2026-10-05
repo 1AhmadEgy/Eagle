@@ -144,6 +144,17 @@ mod tests {
             ),
             Err(DeliveryGuardError::Replay(ReplayError::Duplicate))
         );
+        assert_eq!(
+            guard.accept(
+                metadata(1, 1),
+                MessageId::new([1; 16]),
+                ContentBinding::new([2; 32]),
+                10_050,
+            ),
+            Err(DeliveryGuardError::Replay(
+                ReplayError::ContentBindingMismatch
+            ))
+        );
     }
 
     #[test]
@@ -166,17 +177,22 @@ mod tests {
     fn epoch_transition_is_explicit() {
         let mut guard = guard();
         assert_eq!(
-            guard.accept(metadata(1, 1), MessageId::new([1; 16]), 10_050),
+            guard.accept(
+                metadata(1, 1),
+                MessageId::new([1; 16]),
+                ContentBinding::new([1; 32]),
+                10_050,
+            ),
             Ok(())
         );
         assert_eq!(guard.advance_epoch(2), Ok(()));
         assert_eq!(
             guard.accept(
-            metadata(2, 1),
-            MessageId::new([2; 16]),
-            ContentBinding::new([2; 32]),
-            10_050,
-        ),
+                metadata(2, 1),
+                MessageId::new([2; 16]),
+                ContentBinding::new([2; 32]),
+                10_050,
+            ),
             Ok(())
         );
         assert_eq!(
@@ -184,4 +200,5 @@ mod tests {
             Err(ReplayError::EpochRollback)
         );
     }
+
 }
