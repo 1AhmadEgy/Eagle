@@ -6,8 +6,8 @@ mod message_boundary;
 mod policy;
 mod protocol;
 mod replay;
-mod session;
 mod serialization;
+mod session;
 mod transport_policy;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
