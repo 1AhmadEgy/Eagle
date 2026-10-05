@@ -162,7 +162,7 @@ impl ProviderApproval {
         self.revision
     }
 
-    pub const fn is_production_approved_with_capabilities(
+    pub fn is_production_approved_with_capabilities(
         &self,
         capabilities: ProviderCapabilities,
     ) -> bool {
