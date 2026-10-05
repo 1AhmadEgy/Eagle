@@ -164,31 +164,48 @@ fn device_revocation_and_replacement_are_terminal() {
 #[test]
 fn key_custody_contract_is_fail_closed() {
     use eagle_core::{
-        KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
+        KeyCustody, KeyPolicy, KeyReference, KeyScope, PolicyKeyError, PolicyKeyPurpose,
+        PolicyKeyRecord,
     };
 
     let reference = KeyReference::new([8; 16]).unwrap();
     let scope = KeyScope::new(10, 20, 1).unwrap();
-    let policy = KeyPolicy::for_purpose(KeyPurpose::IdentitySigning);
-    let mut record = KeyRecord::new(reference, scope, policy);
+    let policy = KeyPolicy::for_purpose(PolicyKeyPurpose::IdentitySigning);
+    let mut record = PolicyKeyRecord::new(reference, scope, policy);
 
     assert_eq!(
-        record.authorize(
-            scope,
-            KeyPurpose::IdentitySigning,
-            KeyCustody::PlatformSecure
-        ),
+        record.authorize(scope, PolicyKeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
         Ok(())
     );
-    assert_eq!(record.export(), Err(KeyError::ExportForbidden));
+    assert_eq!(record.export(), Err(PolicyKeyError::ExportForbidden));
 
     record.revoke();
     assert_eq!(
-        record.authorize(
-            scope,
-            KeyPurpose::IdentitySigning,
-            KeyCustody::PlatformSecure
-        ),
-        Err(KeyError::Revoked)
+        record.authorize(scope, KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        Err(PolicyKeyError::Revoked)
     );
 }
+
+#[test]
+fn application_data_rejects_non_direct_transport() {
+    use eagle_core::{PeerBinding, TransportError, TransportPath, TransportPolicy};
+
+    let policy = TransportPolicy::new();
+
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::Relay, PeerBinding::EagleDevice),
+        Err(TransportError::ApplicationDataRequiresDirectPath)
+    );
+    assert_eq!(
+        policy.authorize_application_data(
+            TransportPath::ServerFallback,
+            PeerBinding::EagleDevice
+        ),
+        Err(TransportError::ApplicationDataRequiresDirectPath)
+    );
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::Direct, PeerBinding::Unauthenticated),
+        Err(TransportError::PeerIdentityRequired)
+    );
+}
+

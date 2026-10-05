@@ -28,6 +28,7 @@ CRYPTO-DEC-006: libsignal remains reference/conformance material until explicit 
 CRYPTO-DEC-007: Hardware-backed platform protection is preferred, but claims require device/API evidence.
 CRYPTO-DEC-008: Account recovery and history recovery remain separate trust domains.
 CRYPTO-DEC-009: Transport never receives plaintext or E2EE secret material.
+CRYPTO-DEC-010: Production wire serialization must use an approved standard format; the current minicbor-based fixed-array baseline is implementation evidence only until protocol review closes.
 
 ## Executable foundation
 
@@ -43,29 +44,16 @@ KEY-FOUNDATION-006: This contract does not claim secure hardware storage, key ge
 A design stage is not equivalent to executable PASS. Implementation, conformance, adversarial verification, and independent review remain separate gates.
 
 
-## 2026-10-05 lifecycle hardening
+## 2026-10-05 canonical-v4 continuation
 
-KEY-LIFECYCLE-001: Key purposes are represented by distinct typed handles; cross-purpose use is rejected by policy.
-
-KEY-LIFECYCLE-002: Key generations must be non-zero and strictly increase during rotation.
-
-KEY-LIFECYCLE-003: Lifecycle epochs are strictly monotonic and epoch exhaustion fails closed.
-
-KEY-LIFECYCLE-004: Rotation reserves all metadata transitions before mutation so a failed rotation cannot leave a new active key without revoking the predecessor.
-
-KEY-LIFECYCLE-005: One-Time PreKeys transition to CONSUMED exactly once.
-
-KEY-LIFECYCLE-006: Consumed, revoked, and destroyed key states cannot satisfy active-key requirements.
-
-PROVIDER-POLICY-001: A production provider requires exact version, exact revision, license review, support review, platform review, protocol conformance and independent review.
-
-PROVIDER-POLICY-002: The default provider is unavailable and therefore cannot silently execute plaintext fallback.
-
-PROVIDER-POLICY-003: No candidate library is treated as production-approved solely from popularity, license, or protocol name.
-
-## Current executable boundary
-
-The current executable work is a **metadata/policy boundary only**. It is deliberately not a cryptographic implementation. This distinction is maintained until a full provider is approved.
-
-
-PROVIDER-POLICY-004: Production approval additionally requires the selected provider to demonstrate the required messaging capabilities: non-exportable identity keys, PQ KEM support, and message-ratchet support. Hardware protection remains a platform-specific evidence gate rather than a universal provider capability requirement.
+KEY-LIFECYCLE-001: Typed cryptographic key domains are now distinct at the core boundary.
+KEY-LIFECYCLE-002: Key generations are non-zero and strictly monotonic during rotation.
+KEY-LIFECYCLE-003: Lifecycle epochs are strictly monotonic and exhaustion fails closed.
+KEY-LIFECYCLE-004: Rotation reserves all required epochs before mutation.
+KEY-LIFECYCLE-005: One-Time PreKeys become CONSUMED exactly once.
+KEY-LIFECYCLE-006: Consumed, revoked and destroyed records cannot satisfy active-key requirements.
+PROVIDER-POLICY-001: Provider approval requires exact version/revision, license/support/platform review, conformance and independent review.
+PROVIDER-POLICY-002: Unavailable providers fail closed; no plaintext/fake-key fallback exists.
+PROVIDER-POLICY-003: No candidate library is production-approved from popularity, license or protocol name alone.
+PROVIDER-POLICY-004: Production approval additionally requires non-exportable identity-key capability, PQ KEM and message-ratchet capability.
+SECURITY-BOUNDARY-001: Multi-epoch allocation near the u64 upper bound is rejected before mutation, preventing overflow.

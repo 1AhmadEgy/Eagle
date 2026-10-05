@@ -8,3 +8,6 @@ publish = false
 [lib]
 name = "eagle_core"
 path = "src/lib.rs"
+
+[dependencies]
+minicbor = { version = "2.3.0", default-features = false, features = ["alloc"] }

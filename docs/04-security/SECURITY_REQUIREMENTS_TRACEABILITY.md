@@ -18,7 +18,7 @@ BLOCKED = release cannot proceed until closed.
 | SEC-006 | No custom cryptographic primitives/ratchet | security architecture + crypto baseline | no crypto primitives in current core | VERIFIED |
 | SEC-007 | Production E2E uses an approved standard protocol profile | crypto baseline | Signal/PQXDH target documented | PENDING |
 | SEC-008 | Private keys remain inside approved secure-storage boundary | key-management baseline | non-exportable device-scoped key contract plus Android Keystore local-storage adapter; identity-key custody and cross-platform enforcement remain open | PARTIAL |
-| SEC-009 | Application content never uses relay fallback | P2P architecture | policy/ADR documented; runtime transport absent | PENDING |
+| SEC-009 | Application content never uses relay fallback | P2P architecture | Rust core direct-only transport policy and unified outbound gate reject relay/server fallback; concrete transport runtime still absent | PARTIAL |
 | SEC-010 | Direct P2P transport authenticates the peer and binds to Eagle identity | P2P threat model | implementation absent | PENDING |
 | SEC-011 | Recovery cannot silently restore revoked authority or decrypt history | identity/key recovery model | design baseline exists | PENDING |
 | SEC-012 | Security-critical UI/platform code cannot bypass Rust security policy | Rust kernel contract | current API boundary supports fail-closed control | IMPLEMENTED |
@@ -26,6 +26,8 @@ BLOCKED = release cannot proceed until closed.
 | SEC-014 | Repository secret scan must pass | CI/security baseline | Gitleaks pass observed | VERIFIED |
 | SEC-015 | Required test categories cannot be marked PASS when absent | AGENTS/Test Lab rules | category-aware verification infrastructure exists | VERIFIED |
 | SEC-016 | Independent cryptographic/security review is required before release | release gate | gate document | PENDING |
+| SEC-017 | Wire serialization is schema-defined, bounded, strict, and canonical where authenticated bytes depend on representation | serialization baseline | fixed CBOR envelope codec with size/shape/trailing/non-canonical rejection tests | IMPLEMENTED |
+| SEC-018 | Duplicate inbound message identifiers are rejected within the active replay window | P2P/message threat model | bounded ReplayTracker integrated into inbound message boundary with negative test | IMPLEMENTED |
 
 ## Critical gate
 

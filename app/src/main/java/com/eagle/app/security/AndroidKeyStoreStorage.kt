@@ -8,20 +8,40 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-data class EncryptedStoragePayload(
-    val iv: ByteArray,
-    val ciphertext: ByteArray,
+class EncryptedStoragePayload(
+    iv: ByteArray,
+    ciphertext: ByteArray,
 ) {
+    private val ivBytes = iv.copyOf()
+    private val ciphertextBytes = ciphertext.copyOf()
+
     init {
-        require(iv.size == AndroidKeyStoreStorage.GCM_IV_BYTES) { "invalid GCM IV length" }
-        require(ciphertext.size > AndroidKeyStoreStorage.GCM_TAG_BYTES) {
+        require(ivBytes.size == AndroidKeyStoreStorage.GCM_IV_BYTES) { "invalid GCM IV length" }
+        require(ciphertextBytes.size > AndroidKeyStoreStorage.GCM_TAG_BYTES) {
             "ciphertext must include a GCM authentication tag"
         }
     }
 
-    fun copyIv(): ByteArray = iv.copyOf()
+    fun copyIv(): ByteArray = ivBytes.copyOf()
 
-    fun copyCiphertext(): ByteArray = ciphertext.copyOf()
+    fun copyCiphertext(): ByteArray = ciphertextBytes.copyOf()
+}
+
+class StorageKeyHandle private constructor(
+    internal val alias: String,
+    val accountId: Long,
+    val deviceId: Long,
+    val trustEpoch: Long,
+) {
+    companion object {
+        internal fun create(accountId: Long, deviceId: Long, trustEpoch: Long): StorageKeyHandle =
+            StorageKeyHandle(
+                alias = AndroidKeyStoreStorage.aliasFor(accountId, deviceId, trustEpoch),
+                accountId = accountId,
+                deviceId = deviceId,
+                trustEpoch = trustEpoch,
+            )
+    }
 }
 
 class AndroidKeyStoreStorage(
@@ -32,15 +52,15 @@ class AndroidKeyStoreStorage(
         deviceId: Long,
         trustEpoch: Long,
         requireStrongBox: Boolean = false,
-    ): String {
-        val alias = aliasFor(accountId, deviceId, trustEpoch)
-        if (keyStore.containsAlias(alias)) {
-            return alias
+    ): StorageKeyHandle {
+        val handle = StorageKeyHandle.create(accountId, deviceId, trustEpoch)
+        if (keyStore.containsAlias(handle.alias)) {
+            return handle
         }
 
         val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
         val builder = KeyGenParameterSpec.Builder(
-            alias,
+            handle.alias,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
         )
             .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
@@ -53,18 +73,18 @@ class AndroidKeyStoreStorage(
 
         generator.init(builder.build())
         generator.generateKey()
-        return alias
+        return handle
     }
 
     fun encrypt(
-        alias: String,
+        key: StorageKeyHandle,
         plaintext: ByteArray,
         associatedData: ByteArray = ByteArray(0),
     ): EncryptedStoragePayload {
         require(plaintext.isNotEmpty()) { "plaintext must not be empty" }
 
         val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(Cipher.ENCRYPT_MODE, requireKey(alias))
+        cipher.init(Cipher.ENCRYPT_MODE, requireKey(key))
         if (associatedData.isNotEmpty()) {
             cipher.updateAAD(associatedData)
         }
@@ -76,29 +96,29 @@ class AndroidKeyStoreStorage(
     }
 
     fun decrypt(
-        alias: String,
+        key: StorageKeyHandle,
         payload: EncryptedStoragePayload,
         associatedData: ByteArray = ByteArray(0),
     ): ByteArray {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(
             Cipher.DECRYPT_MODE,
-            requireKey(alias),
-            GCMParameterSpec(GCM_TAG_BITS, payload.iv),
+            requireKey(key),
+            GCMParameterSpec(GCM_TAG_BITS, payload.copyIv()),
         )
         if (associatedData.isNotEmpty()) {
             cipher.updateAAD(associatedData)
         }
-        return cipher.doFinal(payload.ciphertext)
+        return cipher.doFinal(payload.copyCiphertext())
     }
 
-    fun deleteKey(alias: String) {
-        requireKey(alias)
-        keyStore.deleteEntry(alias)
+    fun deleteKey(key: StorageKeyHandle) {
+        requireKey(key)
+        keyStore.deleteEntry(key.alias)
     }
 
-    private fun requireKey(alias: String): SecretKey =
-        (keyStore.getKey(alias, null) as? SecretKey)
+    private fun requireKey(key: StorageKeyHandle): SecretKey =
+        (keyStore.getKey(key.alias, null) as? SecretKey)
             ?: throw IllegalStateException("storage key is unavailable")
 
     companion object {

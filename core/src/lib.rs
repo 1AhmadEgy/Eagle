@@ -4,9 +4,13 @@ mod crypto;
 mod device;
 mod key_lifecycle;
 mod key_management;
+mod message_boundary;
 mod policy;
 mod protocol;
+mod replay;
 mod session;
+mod serialization;
+mod transport_policy;
 
 pub use crypto::{
     IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
@@ -18,6 +22,7 @@ pub use key_lifecycle::{
     KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState,
 };
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
+pub use message_boundary::{MessageBoundary, MessageBoundaryError};
 pub use key_management::{
     KeyCustody, KeyError as PolicyKeyError, KeyLifecycle as PolicyKeyLifecycle, KeyPolicy,
     KeyPurpose as PolicyKeyPurpose, KeyRecord as PolicyKeyRecord, KeyReference, KeyScope,
@@ -28,6 +33,11 @@ pub use protocol::{
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
 pub use session::Session;
+pub use serialization::{
+    deserialize_envelope, serialize_envelope, SerializationError, MAX_SERIALIZED_ENVELOPE_BYTES,
+};
+pub use replay::{ReplayError, ReplayTracker, MAX_TRACKED_MESSAGE_IDS};
+pub use transport_policy::{PeerBinding, TransportError, TransportPath, TransportPolicy};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TrustState {

@@ -6,8 +6,8 @@ Security specialization only. Evidence-first, fail-closed, P2P-only, no producti
 ## Current verified state
 - Corrected branch: `security/reconciled-foundation-2026-10-05`
 - Latest verified head with full CI: `134e8ece297aed8146cacfe52e35657a5c396892`
-- Current work head: pending fresh CI evidence after key-custody changes
-- CI: PASS at latest verified head
+- Current work head: implementation continued through key custody, canonical serialization, direct-only transport policy and unified message boundary, and unified message boundary; pending fresh CI evidence
+- CI: PASS at latest verified head with prior corrected foundation
 - Rust Security Kernel: PASS
 - Eagle Test Lab: PASS
 - Secret scan: PASS
@@ -26,9 +26,9 @@ Security specialization only. Evidence-first, fail-closed, P2P-only, no producti
 9. Canonical Authority — `main` remains repository authority; reviewed security branch is candidate implementation evidence until human merge.
 10. Remediation Plan — established and ordered by security criticality.
 11. Correction — executed without weakening security gates.
-12. Implementation — foundation slice implemented; device-scoped key-custody contract now executable; production cryptographic/P2P/storage runtime remains gated.
+12. Implementation — foundation slice implemented; device-scoped key-custody contract, canonical bounded CBOR serialization, direct-only transport policy, and unified outbound message gate are executable; production cryptographic/P2P/storage runtime remains gated.
 13. Testing — corrected head independently verified by CI, Rust kernel, and Test Lab.
-14. Security Review — baseline controls verified; key-custody contract reviewed; product-level cryptographic, storage, transport and recovery review remains open.
+14. Security Review — baseline controls verified; key-custody, serialization, and direct-only message-boundary contracts reviewed; product-level cryptographic, concrete transport, and recovery review remains open.
 15. Verification — prior corrected foundation verified; newest key-custody changes require fresh CI before being treated as verified.
 16. Evidence — lifecycle, traceability, threat models, gates, due diligence, and test matrices recorded in-repository.
 17. Release Gate — BLOCKED.
@@ -37,7 +37,7 @@ Security specialization only. Evidence-first, fail-closed, P2P-only, no producti
 20. Recycle — next cycle begins automatically from remaining P0/P1/P2 security gaps.
 
 ## Next security execution order
-P0: protocol approval → platform key custody implementation → serialization → direct P2P identity binding → encrypted storage/recovery.
+P0: protocol approval → production key custody integration → wire interoperability proof → concrete direct P2P identity binding → encrypted storage/recovery.
 P1: adversarial interoperability → replay/downgrade/compromise/recovery tests → cross-platform parity → supply-chain provenance.
 P2: metadata minimization → resilience/traffic-analysis controls.
 
