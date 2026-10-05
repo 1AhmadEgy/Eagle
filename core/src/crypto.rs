@@ -46,8 +46,12 @@ impl std::error::Error for KeyError {}
 pub struct KeyId([u8; 16]);
 
 impl KeyId {
-    pub const fn new(bytes: [u8; 16]) -> Self { Self(bytes) }
-    pub const fn as_bytes(&self) -> &[u8; 16] { &self.0 }
+    pub const fn new(bytes: [u8; 16]) -> Self {
+        Self(bytes)
+    }
+    pub const fn as_bytes(&self) -> &[u8; 16] {
+        &self.0
+    }
 }
 
 macro_rules! typed_key_handle {
@@ -56,9 +60,15 @@ macro_rules! typed_key_handle {
         pub struct $name(KeyId);
 
         impl $name {
-            pub const fn from_id(id: KeyId) -> Self { Self(id) }
-            pub const fn id(&self) -> KeyId { self.0 }
-            pub const fn purpose(&self) -> KeyPurpose { $purpose }
+            pub const fn from_id(id: KeyId) -> Self {
+                Self(id)
+            }
+            pub const fn id(&self) -> KeyId {
+                self.0
+            }
+            pub const fn purpose(&self) -> KeyPurpose {
+                $purpose
+            }
         }
     };
 }
@@ -103,8 +113,12 @@ impl ProviderVersion {
 pub struct ProviderRevision([u8; 20]);
 
 impl ProviderRevision {
-    pub const fn new(bytes: [u8; 20]) -> Self { Self(bytes) }
-    pub const fn bytes(&self) -> &[u8; 20] { &self.0 }
+    pub const fn new(bytes: [u8; 20]) -> Self {
+        Self(bytes)
+    }
+    pub const fn bytes(&self) -> &[u8; 20] {
+        &self.0
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -141,8 +155,12 @@ impl ProviderApproval {
             && self.independent_reviewed
     }
 
-    pub const fn version(&self) -> ProviderVersion { self.version }
-    pub const fn revision(&self) -> ProviderRevision { self.revision }
+    pub const fn version(&self) -> ProviderVersion {
+        self.version
+    }
+    pub const fn revision(&self) -> ProviderRevision {
+        self.revision
+    }
 
     pub const fn is_production_approved_with_capabilities(
         &self,
@@ -162,8 +180,10 @@ pub trait KeyStore {
     fn generate_storage_wrapping_key(&mut self) -> Result<StorageWrappingKeyHandle, Self::Error>;
     fn generate_recovery_key(&mut self) -> Result<RecoveryKeyHandle, Self::Error>;
     fn revoke_identity_key(&mut self, key: IdentityKeyHandle) -> Result<(), Self::Error>;
-    fn destroy_storage_wrapping_key(&mut self, key: StorageWrappingKeyHandle)
-        -> Result<(), Self::Error>;
+    fn destroy_storage_wrapping_key(
+        &mut self,
+        key: StorageWrappingKeyHandle,
+    ) -> Result<(), Self::Error>;
 }
 
 pub trait MessagingCrypto {
@@ -307,18 +327,22 @@ mod tests {
             independent_reviewed: true,
         };
         assert!(approved.is_production_approved());
-        assert!(!approved.is_production_approved_with_capabilities(ProviderCapabilities {
-            identity_keys_non_exportable: true,
-            hardware_protection: true,
-            pq_kem: false,
-            message_ratchet: true,
-        }));
-        assert!(approved.is_production_approved_with_capabilities(ProviderCapabilities {
-            identity_keys_non_exportable: true,
-            hardware_protection: false,
-            pq_kem: true,
-            message_ratchet: true,
-        }));
+        assert!(
+            !approved.is_production_approved_with_capabilities(ProviderCapabilities {
+                identity_keys_non_exportable: true,
+                hardware_protection: true,
+                pq_kem: false,
+                message_ratchet: true,
+            })
+        );
+        assert!(
+            approved.is_production_approved_with_capabilities(ProviderCapabilities {
+                identity_keys_non_exportable: true,
+                hardware_protection: false,
+                pq_kem: true,
+                message_ratchet: true,
+            })
+        );
     }
 
     #[test]
