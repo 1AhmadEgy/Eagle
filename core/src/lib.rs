@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+mod delivery;
 mod device;
 mod key_management;
 mod policy;
@@ -7,6 +8,7 @@ mod protocol;
 mod replay;
 mod session;
 
+pub use delivery::{DeliveryGuardError, DeliveryMetadata, InboundReplayGuard};
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use key_management::{
     KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
