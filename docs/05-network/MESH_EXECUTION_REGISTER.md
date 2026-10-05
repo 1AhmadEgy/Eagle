@@ -34,6 +34,8 @@ Current repository state: the P2P planning, contract, failure, provenance, gap, 
 - Resource limits: docs/05-network/PRIVATEMESH_RESOURCE_LIMITS.md
 - Security review: docs/05-network/PRIVATEMESH_SECURITY_REVIEW_CHECKLIST.md
 - Evidence index: docs/05-network/PRIVATEMESH_EVIDENCE_INDEX.md
+- Execution audit: docs/05-network/PRIVATEMESH_EXECUTION_AUDIT.md
+- Release gate: docs/05-network/PRIVATEMESH_RELEASE_GATE.md
 - Network scenarios: tests/network/privatemesh_network_scenarios.yaml
 
 ## Dependency chain
