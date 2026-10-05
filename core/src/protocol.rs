@@ -3,6 +3,7 @@ use std::fmt;
 pub const CURRENT_PROTOCOL_VERSION: u16 = 1;
 pub const MAX_PAYLOAD_BYTES: usize = 1024 * 1024;
 pub const MAX_ID_BYTES: usize = 128;
+pub const FRAME_HEADER_BYTES: usize = 8;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageId([u8; 16]);
@@ -38,6 +39,10 @@ pub enum ProtocolError {
     PayloadTooLarge,
     PayloadLengthMismatch,
     UnsupportedFlags,
+    TruncatedFrame,
+    SequenceExhausted,
+    DuplicateSequence,
+    SequenceTooOld,
 }
 
 impl fmt::Display for ProtocolError {
@@ -51,6 +56,10 @@ impl fmt::Display for ProtocolError {
             Self::PayloadTooLarge => "payload exceeds maximum size",
             Self::PayloadLengthMismatch => "payload length mismatch",
             Self::UnsupportedFlags => "unsupported frame flags",
+            Self::TruncatedFrame => "truncated frame",
+            Self::SequenceExhausted => "sequence number exhausted",
+            Self::DuplicateSequence => "duplicate sequence number",
+            Self::SequenceTooOld => "sequence number is outside the replay window",
         })
     }
 }
@@ -122,6 +131,40 @@ impl EncryptedEnvelope {
 
     pub fn ciphertext(&self) -> &[u8] {
         &self.ciphertext
+    }
+
+    pub fn decode(input: &[u8]) -> Result<(Self, &[u8]), ProtocolError> {
+        if input.len() < FRAME_HEADER_BYTES {
+            return Err(ProtocolError::TruncatedFrame);
+        }
+
+        let version = u16::from_be_bytes(
+            input.get(0..2)
+                .ok_or(ProtocolError::TruncatedFrame)?
+                .try_into()
+                .map_err(|_| ProtocolError::TruncatedFrame)?,
+        );
+        let payload_len = u32::from_be_bytes(
+            input.get(2..6)
+                .ok_or(ProtocolError::TruncatedFrame)?
+                .try_into()
+                .map_err(|_| ProtocolError::TruncatedFrame)?,
+        );
+        let flags = u16::from_be_bytes(
+            input.get(6..8)
+                .ok_or(ProtocolError::TruncatedFrame)?
+                .try_into()
+                .map_err(|_| ProtocolError::TruncatedFrame)?,
+        );
+
+        let header = Self::new(version, payload_len, flags)?;
+        let payload_len = usize::try_from(header.payload_len)
+            .map_err(|_| ProtocolError::PayloadTooLarge)?;
+        let end = FRAME_HEADER_BYTES
+            .checked_add(payload_len)
+            .ok_or(ProtocolError::PayloadTooLarge)?;
+        let payload = input.get(FRAME_HEADER_BYTES..end).ok_or(ProtocolError::TruncatedFrame)?;
+        Ok((header, payload))
     }
 
     pub fn protocol_version(&self) -> u16 {
@@ -222,6 +265,62 @@ fn validate_id(id: &OpaqueId) -> Result<(), ProtocolError> {
     Ok(())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ReceiveSequenceWindow {
+    highest: Option<u64>,
+    bitmap: u64,
+}
+
+impl ReceiveSequenceWindow {
+    pub const WINDOW_BITS: u32 = 64;
+
+    pub const fn new() -> Self {
+        Self {
+            highest: None,
+            bitmap: 0,
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn accept_authenticated(&mut self, sequence: u64) -> Result<(), ProtocolError> {
+        match self.highest {
+            None => {
+                self.highest = Some(sequence);
+                self.bitmap = 1;
+                Ok(())
+            }
+            Some(highest) if sequence > highest => {
+                let shift = sequence - highest;
+                self.highest = Some(sequence);
+                self.bitmap = if shift >= Self::WINDOW_BITS as u64 {
+                    1
+                } else {
+                    (self.bitmap << shift) | 1
+                };
+                Ok(())
+            }
+            Some(highest) => {
+                let age = highest - sequence;
+                if age >= Self::WINDOW_BITS as u64 {
+                    return Err(ProtocolError::SequenceTooOld);
+                }
+                let bit = 1u64 << age;
+                if self.bitmap & bit != 0 {
+                    return Err(ProtocolError::DuplicateSequence);
+                }
+                self.bitmap |= bit;
+                Ok(())
+            }
+        }
+    }
+}
+
+impl Default for ReceiveSequenceWindow {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -320,6 +419,49 @@ mod tests {
     }
 
     #[test]
+    #[test]
+    fn bounded_frame_decode_never_allocates_payload() {
+        let mut frame = Vec::with_capacity(FRAME_HEADER_BYTES + 3);
+        frame.extend_from_slice(&1u16.to_be_bytes());
+        frame.extend_from_slice(&3u32.to_be_bytes());
+        frame.extend_from_slice(&0u16.to_be_bytes());
+        frame.extend_from_slice(&[0xAA, 0xBB, 0xCC]);
+
+        let (header, payload) = FrameHeader::decode(&frame).unwrap();
+        assert_eq!(header.payload_len(), 3);
+        assert_eq!(payload, &[0xAA, 0xBB, 0xCC]);
+    }
+
+    #[test]
+    fn bounded_frame_decode_rejects_truncation_before_slicing() {
+        assert_eq!(FrameHeader::decode(&[0; FRAME_HEADER_BYTES - 1]), Err(ProtocolError::TruncatedFrame));
+
+        let mut frame = Vec::new();
+        frame.extend_from_slice(&1u16.to_be_bytes());
+        frame.extend_from_slice(&4u32.to_be_bytes());
+        frame.extend_from_slice(&0u16.to_be_bytes());
+        frame.extend_from_slice(&[0xAA]);
+        assert_eq!(FrameHeader::decode(&frame), Err(ProtocolError::TruncatedFrame));
+    }
+
+    #[test]
+    fn receive_window_rejects_duplicates_and_old_sequences() {
+        let mut window = ReceiveSequenceWindow::new();
+        assert_eq!(window.accept_authenticated(10), Ok(()));
+        assert_eq!(window.accept_authenticated(10), Err(ProtocolError::DuplicateSequence));
+        assert_eq!(window.accept_authenticated(9), Ok(()));
+        assert_eq!(window.accept_authenticated(9), Err(ProtocolError::DuplicateSequence));
+        assert_eq!(window.accept_authenticated(10 - 64), Err(ProtocolError::SequenceTooOld));
+        assert_eq!(window.accept_authenticated(75), Ok(()));
+    }
+
+    #[test]
+    fn receive_window_fail_closed_on_u64_max() {
+        let mut window = ReceiveSequenceWindow::new();
+        assert_eq!(window.accept_authenticated(u64::MAX), Ok(()));
+        assert_eq!(window.accept_authenticated(u64::MAX), Err(ProtocolError::DuplicateSequence));
+    }
+
     fn envelope_frame_header_is_consistent() {
         let envelope = EncryptedEnvelope::new(
             MessageId::new([7; 16]),
