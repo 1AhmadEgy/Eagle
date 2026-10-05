@@ -76,7 +76,7 @@ Static specialization review completed. The principal newly identified design ri
 Independent human security review remains required.
 
 ## 15 Verification
-The immediately preceding Rust CI failed on the private-`FrameHeader` integration test mismatch. The fix is now on code head `c987bb283dca9ffac6cbf654c8fc0100711ab74`. Fresh checks are queued/in progress; current-head PASS is not claimed.
+The immediately preceding Rust CI failed on the private-`FrameHeader` integration test mismatch. The latest executable fixes are on code head `29d781e75cadb103e6ed764e8613559f46e22d04`. Fresh checks for that head are queued/in progress; current-head PASS is not claimed.
 
 ## 16 Evidence
 Evidence is persisted in:
