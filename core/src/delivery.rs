@@ -91,7 +91,7 @@ impl InboundReplayGuard {
         Ok(())
     }
 
-    pub fn advance_epoch(&mut self, new_epoch: u64) -> Result<(), ReplayError> {
+    pub(crate) fn advance_epoch(&mut self, new_epoch: u64) -> Result<(), ReplayError> {
         self.replay.advance_epoch(new_epoch)
     }
 
