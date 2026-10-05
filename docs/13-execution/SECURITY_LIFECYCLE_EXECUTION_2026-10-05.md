@@ -6,7 +6,7 @@ Security specialization only. Evidence-first, fail-closed, P2P-only, no producti
 ## Current verified state
 - Corrected branch: `security/reconciled-foundation-2026-10-05`
 - Latest previously verified head with full CI: `134e8ece297aed8146cacfe52e35657a5c396892`
-- Current work head: `current PR head`, with scoped Android key custody, canonical serialization, direct-only transport policy, bounded replay suppression, opaque peer binding, and a single inbound wire boundary; fresh CI evidence is required for the current head
+- Current work head: `b7b6d91408eadc30c850dac21efa5d49d50cbc4f`, with scoped Android key custody, canonical serialization, direct-only transport policy, bounded replay suppression, opaque peer binding, and a single inbound wire boundary; fresh CI evidence is required for the current head
 - CI: PASS at latest verified head with prior corrected foundation
 - Rust Security Kernel: PASS
 - Eagle Test Lab: PASS
