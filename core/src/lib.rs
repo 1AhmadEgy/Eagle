@@ -12,7 +12,7 @@ pub use policy::{authorize, Capability};
 pub use protocol::{
     validate_version, EncryptedEnvelope, FrameHeader, MessageId, OpaqueId, ProtocolError,
     CURRENT_PROTOCOL_VERSION, FRAME_HEADER_BYTES, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
-    ReceiveSequenceWindow, SendSequence,
+
 };
 pub use session::Session;
 
