@@ -174,7 +174,11 @@ fn key_custody_contract_is_fail_closed() {
     let mut record = PolicyKeyRecord::new(reference, scope, policy);
 
     assert_eq!(
-        record.authorize(scope, PolicyKeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        record.authorize(
+            scope,
+            PolicyKeyPurpose::IdentitySigning,
+            KeyCustody::PlatformSecure
+        ),
         Ok(())
     );
     assert_eq!(record.export(), Err(PolicyKeyError::ExportForbidden));
