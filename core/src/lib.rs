@@ -78,16 +78,31 @@ impl SecurityContext {
         })
     }
 
-    pub fn trust_state(&self) -> TrustState { self.trust }
-    pub fn session_state(&self) -> SessionState { self.session }
-    pub fn negotiated_protocol(&self) -> u16 { self.negotiated_protocol }
-    pub fn minimum_protocol(&self) -> u16 { self.minimum_protocol }
-    pub fn maximum_protocol(&self) -> u16 { self.maximum_protocol }
+    pub fn trust_state(&self) -> TrustState {
+        self.trust
+    }
+
+    pub fn session_state(&self) -> SessionState {
+        self.session
+    }
+
+    pub fn negotiated_protocol(&self) -> u16 {
+        self.negotiated_protocol
+    }
+
+    pub fn minimum_protocol(&self) -> u16 {
+        self.minimum_protocol
+    }
+
+    pub fn maximum_protocol(&self) -> u16 {
+        self.maximum_protocol
+    }
 
     pub fn begin_authentication(&mut self) -> Result<(), SecurityError> {
         if self.trust != TrustState::Untrusted || self.session != SessionState::Idle {
             return Err(SecurityError::InvalidTrustTransition);
         }
+
         self.trust = TrustState::Pending;
         self.session = SessionState::Authenticating;
         Ok(())
@@ -98,6 +113,7 @@ impl SecurityContext {
         if self.trust != TrustState::Pending || self.session != SessionState::Authenticating {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.trust = TrustState::Trusted;
         self.session = SessionState::Authenticated;
         Ok(())
@@ -107,6 +123,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Authenticated {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.session = SessionState::Established;
         Ok(())
     }
@@ -115,6 +132,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.session = SessionState::Rekeying;
         Ok(())
     }
@@ -123,11 +141,14 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Rekeying {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         self.session = SessionState::Established;
         Ok(())
     }
 
-    pub fn close_session(&mut self) { self.session = SessionState::Closed; }
+    pub fn close_session(&mut self) {
+        self.session = SessionState::Closed;
+    }
 
     pub fn revoke_trust(&mut self) {
         self.trust = TrustState::Revoked;
@@ -138,6 +159,7 @@ impl SecurityContext {
         if self.trust != TrustState::Trusted || self.session != SessionState::Established {
             return Err(SecurityError::Unauthorized);
         }
+
         Ok(())
     }
 
@@ -145,12 +167,15 @@ impl SecurityContext {
         if self.session != SessionState::Authenticated || self.trust != TrustState::Trusted {
             return Err(SecurityError::InvalidSessionTransition);
         }
+
         if offered < self.minimum_protocol || offered < self.negotiated_protocol {
             return Err(SecurityError::ProtocolDowngrade);
         }
+
         if offered > self.maximum_protocol {
             return Err(SecurityError::UnsupportedProtocol);
         }
+
         self.negotiated_protocol = offered;
         Ok(offered)
     }
@@ -178,19 +203,31 @@ mod tests {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
         ctx.begin_authentication().unwrap();
         assert_eq!(ctx.trust_state(), TrustState::Pending);
-        assert_eq!(ctx.begin_authentication(), Err(SecurityError::InvalidTrustTransition));
+        assert_eq!(
+            ctx.begin_authentication(),
+            Err(SecurityError::InvalidTrustTransition)
+        );
         ctx.accept_verified_authentication().unwrap();
         assert_eq!(ctx.trust_state(), TrustState::Trusted);
         assert_eq!(ctx.session_state(), SessionState::Authenticated);
-        assert_eq!(ctx.accept_verified_authentication(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.accept_verified_authentication(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
     }
 
     #[test]
     fn establishment_requires_authenticated_trusted_state() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
-        assert_eq!(ctx.establish(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.establish(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
         ctx.begin_authentication().unwrap();
-        assert_eq!(ctx.establish(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.establish(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
         ctx.accept_verified_authentication().unwrap();
         ctx.establish().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Established);
@@ -202,14 +239,23 @@ mod tests {
     #[test]
     fn rekey_requires_established_session() {
         let mut ctx = authenticated();
-        assert_eq!(ctx.begin_rekey(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.begin_rekey(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
         ctx.establish().unwrap();
         ctx.begin_rekey().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
-        assert_eq!(ctx.begin_rekey(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.begin_rekey(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
         ctx.finish_rekey().unwrap();
         assert_eq!(ctx.session_state(), SessionState::Established);
-        assert_eq!(ctx.finish_rekey(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.finish_rekey(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
     }
 
     #[test]
@@ -220,27 +266,56 @@ mod tests {
         assert_eq!(ctx.trust_state(), TrustState::Revoked);
         assert_eq!(ctx.session_state(), SessionState::Closed);
         assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
-        assert_eq!(ctx.begin_authentication(), Err(SecurityError::InvalidTrustTransition));
-        assert_eq!(ctx.establish(), Err(SecurityError::InvalidSessionTransition));
-        assert_eq!(ctx.begin_rekey(), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.begin_authentication(),
+            Err(SecurityError::InvalidTrustTransition)
+        );
+        assert_eq!(
+            ctx.establish(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
+        assert_eq!(
+            ctx.begin_rekey(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
     }
 
     #[test]
     fn invalid_protocol_configuration_is_rejected() {
-        assert_eq!(SecurityContext::new(0, 1), Err(SecurityError::UnsupportedProtocol));
-        assert_eq!(SecurityContext::new(2, 1), Err(SecurityError::UnsupportedProtocol));
-        assert_eq!(SecurityContext::new(1, 2), Err(SecurityError::UnsupportedProtocol));
+        assert_eq!(
+            SecurityContext::new(0, 1),
+            Err(SecurityError::UnsupportedProtocol)
+        );
+        assert_eq!(
+            SecurityContext::new(2, 1),
+            Err(SecurityError::UnsupportedProtocol)
+        );
+        assert_eq!(
+            SecurityContext::new(1, 2),
+            Err(SecurityError::UnsupportedProtocol)
+        );
     }
 
     #[test]
     fn rejected_protocol_does_not_mutate() {
         let mut ctx = authenticated();
-        assert_eq!(ctx.validate_and_negotiate(0), Err(SecurityError::ProtocolDowngrade));
+        assert_eq!(
+            ctx.validate_and_negotiate(0),
+            Err(SecurityError::ProtocolDowngrade)
+        );
         assert_eq!(ctx.negotiated_protocol(), 1);
-        assert_eq!(ctx.validate_and_negotiate(2), Err(SecurityError::UnsupportedProtocol));
+
+        assert_eq!(
+            ctx.validate_and_negotiate(2),
+            Err(SecurityError::UnsupportedProtocol)
+        );
         assert_eq!(ctx.negotiated_protocol(), 1);
+
         ctx.establish().unwrap();
-        assert_eq!(ctx.validate_and_negotiate(1), Err(SecurityError::InvalidSessionTransition));
+        assert_eq!(
+            ctx.validate_and_negotiate(1),
+            Err(SecurityError::InvalidSessionTransition)
+        );
         assert_eq!(ctx.negotiated_protocol(), 1);
     }
 }
