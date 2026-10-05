@@ -8,7 +8,8 @@
 ### One-to-one
 - Protocol family: Signal Protocol profile.
 - Session establishment: PQXDH.
-- Message-key evolution: Double Ratchet.
+- Ongoing message-key evolution: Signal-defined ratchet profile, currently targeting Triple Ratchet (Double Ratchet + SPQR/SCKA) for hybrid post-quantum protection.
+- Double Ratchet alone remains an interoperability fallback only when explicitly required and reviewed.
 - No bespoke cryptographic primitive or custom ratchet.
 
 ### Group
@@ -16,7 +17,7 @@
 - Production group implementation requires conformance and interoperability evidence.
 
 ### Library posture
-libsignal is reference/conformance material only until license, support, API, platform, provenance, exact-version, and security review explicitly authorize production use.
+libsignal is reference/conformance material only until license, support, API, platform, provenance, exact-version, and security review explicitly authorize production use. Current upstream research/release posture is treated as evidence for protocol capability, not as automatic authorization.
 
 vodozemac is a candidate Rust implementation for ratchet-related research, but it is not treated as a drop-in replacement for PQXDH. Eagle must not assemble a new protocol from components without a dedicated protocol review.
 
