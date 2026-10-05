@@ -320,7 +320,7 @@ mod tests {
             .unwrap();
 
         let event = lifecycle.rotate(id(1), id(2), 5).unwrap();
-        assert_eq!(event.mutation, KeyMutation::Register);
+        assert_eq!(event.mutation, KeyMutation::Rotate);
         assert_eq!(
             lifecycle.get(id(1)).unwrap().state(),
             LifecycleState::Revoked
