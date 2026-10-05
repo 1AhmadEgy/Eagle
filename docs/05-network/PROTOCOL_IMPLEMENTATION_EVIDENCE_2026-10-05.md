@@ -6,6 +6,7 @@ Draft PR: #72
 
 ## Implemented
 - bounded replay window with duplicate and sequence-collision rejection
+- sequence/message identity is additionally bound to an opaque 32-byte content-binding value
 - bounded out-of-order acceptance
 - explicit monotonic epoch transition with rollback rejection
 - freshness and expiry validation
@@ -17,6 +18,7 @@ Draft PR: #72
 - stale messages are rejected before replay-state mutation
 - duplicate delivery is deterministic
 - sequence reuse with altered message identity is rejected
+- same message identifier with altered content binding is rejected
 - replay state is isolated per explicit authenticated session epoch boundary
 - epoch rollback is rejected
 - parser/message size controls remain fail-closed in the existing envelope contract
