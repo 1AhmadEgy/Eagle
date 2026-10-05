@@ -14,10 +14,16 @@ pub use crypto::{
     ProviderCapabilities, ProviderRevision, ProviderVersion, RecoveryKeyHandle, SessionKeyHandle,
     SignedPreKeyHandle, StorageWrappingKeyHandle, UnavailableCryptoProvider,
 };
-pub use key_lifecycle::{KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState};
+pub use key_lifecycle::{
+    KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState,
+};
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use key_management::{
-    KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
+    KeyCustody, KeyPolicy, KeyReference, KeyScope,
+    KeyError as PolicyKeyError,
+    KeyLifecycle as PolicyKeyLifecycle,
+    KeyPurpose as PolicyKeyPurpose,
+    KeyRecord as PolicyKeyRecord,
 };
 pub use policy::{authorize, Capability};
 pub use protocol::{
