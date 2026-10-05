@@ -2,58 +2,88 @@
 
 ## Objective
 
-Execute the complete engineering lifecycle with security-first evidence and no silent promotion of proposed decisions.
+Complete the 20-stage engineering lifecycle with evidence-first, fail-closed security and no silent promotion of proposed decisions.
 
-| Stage | Activity | Result |
+| Stage | Result | Evidence |
 |---:|---|---|
-| 1 | Inventory | COMPLETE at accessible repository/branch scope |
-| 2 | Provenance | COMPLETE for accessible Git history; session-only binaries remain pending |
-| 3 | Classification | COMPLETE at architecture/branch/PR scope |
-| 4 | Triage | COMPLETE for current architecture/security candidates |
-| 5 | Deep Analysis | COMPLETE for current focused architecture/security work |
-| 6 | Reconciliation | COMPLETE at branch/PR scope; conflicting candidates retained as provenance |
-| 7 | Conflicts | IDENTIFIED and recorded |
-| 8 | Gaps | IDENTIFIED in requirements/gap matrix |
-| 9 | Canonical Authority | CURRENT `main` + Accepted ADRs; candidate branches never self-canonicalize |
-| 10 | Remediation Plan | COMPLETE |
-| 11 | Correction / Restructuring | EXECUTED on dedicated implementation branches |
-| 12 | Implementation | EXECUTED for security contracts, lifecycle state machines, storage/P2P scaffolding and gates |
-| 13 | Testing | PARTIAL; exact current-head CI evidence still required |
-| 14 | Security Review | PARTIAL; automated gates and threat artifacts exist; independent review required |
-| 15 | Verification | PARTIAL; exact current implementation head not fully evidenced by this session's GitHub Actions access |
-| 16 | Evidence | COMPLETE for architecture/reconciliation/release-gate artifacts created in repository |
-| 17 | Release Gate | BLOCKED |
-| 18 | Release | NOT AUTHORIZED |
-| 19 | Post-Release | POLICY DEFINED; not active until first authorized production release |
-| 20 | Recycle | ACTIVE; any new evidence/decision re-enters reconciliation and gate review |
+| 1 Inventory | COMPLETE | Repository/branch inventory and focused source inventory |
+| 2 Provenance | COMPLETE for accessible Git history | 44 historical Git artifacts + session artifact hashes recorded |
+| 3 Classification | COMPLETE | Current-base vs supporting vs superseded disposition recorded |
+| 4 Triage | COMPLETE | Architecture/security candidates triaged |
+| 5 Deep Analysis | COMPLETE | Current focused architecture/security work analyzed |
+| 6 Reconciliation | COMPLETE | Branch/PR conflicts reconciled into integration path |
+| 7 Conflicts | COMPLETE | Stale Android path, divergent specialty branches, server-oriented historical PrivateMesh material identified |
+| 8 Gaps | COMPLETE | Requirements/security/stack/crypto/P2P/storage/cross-platform gaps recorded |
+| 9 Canonical Authority | COMPLETE | `main` + Accepted ADRs remain authoritative |
+| 10 Remediation Plan | COMPLETE | Security-first sequence recorded |
+| 11 Correction | EXECUTED | Security, storage, replay, CI and architecture defects corrected |
+| 12 Implementation | EXECUTED | Rust security core, identity/trust, key lifecycle, storage/P2P contracts and gates integrated |
+| 13 Testing | PARTIAL → Rust PASS | Rust Format/Tests/Clippy PASS; Test Lab general verification PASS; Android Unit/Lint/Build pending |
+| 14 Security Review | PARTIAL | Secret/security/architecture/P2P gates PASS; independent security review pending |
+| 15 Verification | PARTIAL | Exact-head Rust and general CI PASS; Android exact-head job still in progress |
+| 16 Evidence | COMPLETE | Architecture/gap/release/evidence records maintained |
+| 17 Release Gate | BLOCKED | Mandatory crypto/interop/storage/P2P implementation/cross-platform/human-review gates remain open |
+| 18 Release | NOT AUTHORIZED | No production release |
+| 19 Post-Release | DEFINED | Monitoring/provenance/rollback plan exists |
+| 20 Recycle | ACTIVE | Every new failure/evidence returns to reconciliation |
 
-## Security invariants
+## Exact verification evidence
 
-- No custom cryptographic primitives.
-- No server-side application plaintext path.
-- No private-key export across security boundaries.
-- No implicit trust from transport connectivity.
-- No downgrade acceptance.
-- No fabricated recovery state.
-- No missing test category may be marked PASS.
-- Human review remains mandatory for security-sensitive merge decisions.
+### Rust Security Kernel
+Run: 37250255192  
+Job: 111576266043  
+Result:
+- Format: PASS
+- Tests: PASS
+- Clippy: PASS
 
-## Current integration candidate
+Observed Rust test execution:
+- library tests: 73 passed / 0 failed
+- crypto boundary: 3 passed / 0 failed
+- key lifecycle: 4 passed / 0 failed
+- property invariants: 3 passed / 0 failed
+- security kernel integration: 14 passed / 0 failed
 
-Branch: `implementation/security-first-v1-2026-10-05`
+### General CI
+Run: 37250255134  
+Job: 111576266088  
+Result:
+- repository hygiene: PASS
+- secret scan: PASS
+- security policy: PASS
+- architecture security boundary: PASS
+- P2P-only boundary: PASS
+- product-surface discovery: PASS
+- project verification/Test Lab runner: PASS
+- evidence artifact upload: PASS
 
-PR: #77
+### Android/Test Lab
+Run: 37250255187  
+Job: 111576266312  
+Current state at this evidence update:
+- setup/JDK/Gradle/SDK verification: PASS
+- Unit tests: IN PROGRESS
+- Lint: PENDING
+- Debug build: PENDING
 
-Current implementation head is always taken from the live PR record.
+No PASS is inferred until the Android job completes.
 
-## Current evidence state
+## Security release blockers
 
-- Repository hygiene: PASS on latest observed CI attempt.
-- Secret scan: PASS on latest observed CI attempt.
-- Security policy gate: PASS on latest observed CI attempt.
-- Architecture boundary gate: PASS on latest observed CI attempt.
-- P2P-only boundary gate: PASS on latest observed CI attempt.
-- Rust build/test evidence: previously exposed concrete compile defects; those defects were corrected and a fresh exact-head run is required to promote Rust Build/Unit/Integration/Protocol to PASS.
-- Android build/test evidence: exact latest-head completion remains pending.
-- Independent cryptographic/security review: PENDING.
-- Release authorization: NO-GO.
+- authoritative V1 requirements freeze
+- final ADR approvals where still Proposed
+- production cryptographic provider/dependency approval
+- interoperability/conformance evidence
+- real direct P2P transport implementation and adversarial network evidence
+- production storage backend/recovery/delete evidence
+- cross-platform KMP/Android/Desktop/iOS parity
+- independent architecture review
+- independent security review
+- full regression/fuzz/property evidence
+- durable binary transfer of session-only artifacts
+
+## Release decision
+
+**NO-GO / BLOCKED**
+
+A green Rust/CI result cannot authorize a production release while mandatory product/security/human-review gates remain unresolved.
