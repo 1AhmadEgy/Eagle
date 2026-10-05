@@ -1,7 +1,6 @@
 use crate::OpaqueId;
 use std::collections::BTreeMap;
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum StorageState {
     #[default]
