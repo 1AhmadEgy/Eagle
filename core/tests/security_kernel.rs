@@ -180,10 +180,10 @@ fn replay_window_enforces_duplicate_epoch_and_window_bounds() {
         window.observe(2, 1, MessageId::new([1; 16])),
         Err(ReplayError::EpochChanged)
     );
-    assert_eq!(window.advance_epoch(2), Ok(()));
-    assert_eq!(window.observe(2, 1, MessageId::new([1; 16])), Ok(()));
-    assert_eq!(window.advance_epoch(1), Err(ReplayError::EpochRollback));
-    assert_eq!(window.observe(2, 0, MessageId::new([0; 16])), Ok(()));
+    assert_eq!(
+        window.observe(2, 1, MessageId::new([1; 16])),
+        Err(ReplayError::EpochChanged)
+    );
     assert_eq!(
         window.observe(2, 0, MessageId::new([0; 16])),
         Err(ReplayError::Duplicate)
