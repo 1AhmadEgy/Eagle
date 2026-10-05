@@ -66,3 +66,6 @@ PROVIDER-POLICY-003: No candidate library is treated as production-approved sole
 ## Current executable boundary
 
 The current executable work is a **metadata/policy boundary only**. It is deliberately not a cryptographic implementation. This distinction is maintained until a full provider is approved.
+
+
+PROVIDER-POLICY-004: Production approval additionally requires the selected provider to demonstrate the required messaging capabilities: non-exportable identity keys, PQ KEM support, and message-ratchet support. Hardware protection remains a platform-specific evidence gate rather than a universal provider capability requirement.
