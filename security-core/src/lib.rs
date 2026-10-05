@@ -846,15 +846,38 @@ mod tests {
         let new_key = PublicIdentityKey::new(vec![2]).unwrap();
         let old_identity = IdentityReference::new("dev-old", old_key).unwrap();
         let new_identity = IdentityReference::new("dev-new", new_key).unwrap();
-        let mut contact = ContactIdentity::new(old_identity);
+        let mut contact = ContactIdentity::new(old_identity.clone());
 
         contact.observe_identity_change(new_identity.clone()).unwrap();
         assert_eq!(contact.state, ContactIdentityState::Quarantined);
+        assert_eq!(contact.identity, old_identity);
+        assert_eq!(contact.pending_identity, Some(new_identity.clone()));
 
         contact
             .reverify(new_identity, &AcceptReverificationVerifier)
             .unwrap();
         assert_eq!(contact.state, ContactIdentityState::Verified);
+    }
+
+    #[test]
+    fn mismatched_reverification_candidate_is_rejected() {
+        let old_key = PublicIdentityKey::new(vec![1]).unwrap();
+        let pending_key = PublicIdentityKey::new(vec![2]).unwrap();
+        let different_key = PublicIdentityKey::new(vec![3]).unwrap();
+        let old_identity = IdentityReference::new("dev-old", old_key).unwrap();
+        let pending_identity = IdentityReference::new("dev-new", pending_key).unwrap();
+        let different_identity = IdentityReference::new("dev-other", different_key).unwrap();
+        let mut contact = ContactIdentity::new(old_identity.clone());
+
+        contact.observe_identity_change(pending_identity.clone()).unwrap();
+
+        assert_eq!(
+            contact.reverify(different_identity, &AcceptReverificationVerifier),
+            Err(TrustError::IdentityReverificationRequired)
+        );
+        assert_eq!(contact.identity, old_identity);
+        assert_eq!(contact.pending_identity, Some(pending_identity));
+        assert_eq!(contact.state, ContactIdentityState::Quarantined);
     }
 
     #[test]
