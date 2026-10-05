@@ -10,7 +10,7 @@
 - Never claim all protocol keys are hardware-backed without device/API evidence.
 - Test invalidation, backup/restore, migration, StrongBox absence, StrongBox algorithm incompatibility, and downgrade/fallback behavior.
 
-Android documents distinct software, trusted-environment, and StrongBox security levels. StrongBox provides stronger isolation but has tighter algorithm/resource constraints. citeturn668861search0turn668861search4
+Android documents distinct software, trusted-environment, and StrongBox security levels. StrongBox provides stronger isolation but has tighter algorithm/resource constraints.
 
 ## Apple
 
@@ -20,7 +20,7 @@ Android documents distinct software, trusted-environment, and StrongBox security
 - Never claim Secure-Enclave residency without exact platform evidence.
 - Test restore, migration, invalidation, device binding, and supported-algorithm failures.
 
-Apple documents that Secure Enclave-protected private-key material is not handled in plaintext by the application and that the documented Secure Enclave key flow is restricted to supported algorithms, including P-256. citeturn668861search5
+Apple documents that Secure Enclave-protected private-key material is not handled in plaintext by the application and that the documented Secure Enclave key flow is restricted to supported algorithms, including P-256.
 
 ## Desktop
 
