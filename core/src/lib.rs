@@ -113,8 +113,22 @@ impl SecurityContext {
         Ok(())
     }
 
+    /// Returns the context's local derived trust state.
+    ///
+    /// This is not an authorization decision. Callers must use
+    /// effective_trust_state or authorize with the current device authority.
     pub fn trust_state(&self) -> TrustState {
         self.trust
+    }
+
+    pub fn effective_trust_state(&self, device: &Device) -> Result<TrustState, SecurityError> {
+        match self.trust {
+            TrustState::Trusted => {
+                device.validate_authority(self.account, self.device, self.authority_epoch)?;
+                Ok(TrustState::Trusted)
+            }
+            state => Ok(state),
+        }
     }
 
     pub fn session_state(&self) -> SessionState {
@@ -226,10 +240,15 @@ impl SecurityContext {
         Ok(())
     }
 
-    pub(crate) fn validate_and_negotiate(&mut self, offered: u16) -> Result<u16, SecurityError> {
+    pub(crate) fn validate_and_negotiate(
+        &mut self,
+        device: &Device,
+        offered: u16,
+    ) -> Result<u16, SecurityError> {
         if self.session != SessionState::Authenticated || self.trust != TrustState::Trusted {
             return Err(SecurityError::InvalidSessionTransition);
         }
+        device.validate_authority(self.account, self.device, self.authority_epoch)?;
 
         if offered < self.minimum_protocol || offered < self.negotiated_protocol {
             return Err(SecurityError::ProtocolDowngrade);
@@ -432,7 +451,7 @@ mod tests {
     #[test]
     fn replacement_invalidates_bound_context() {
         let (mut ctx, mut device) = authenticated();
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         assert_eq!(ctx.authorize(&device), Ok(()));
         device.replace().unwrap();
         assert_eq!(
@@ -474,20 +493,20 @@ mod tests {
     fn rejected_protocol_does_not_mutate() {
         let (mut ctx, device) = authenticated();
         assert_eq!(
-            ctx.validate_and_negotiate(0),
+            ctx.validate_and_negotiate(&device, 0),
             Err(SecurityError::ProtocolDowngrade)
         );
         assert_eq!(ctx.negotiated_protocol(), 1);
 
         assert_eq!(
-            ctx.validate_and_negotiate(2),
+            ctx.validate_and_negotiate(&device, 2),
             Err(SecurityError::UnsupportedProtocol)
         );
         assert_eq!(ctx.negotiated_protocol(), 1);
 
         ctx.establish().unwrap();
         assert_eq!(
-            ctx.validate_and_negotiate(1),
+            ctx.validate_and_negotiate(&device, 1),
             Err(SecurityError::InvalidSessionTransition)
         );
         assert_eq!(ctx.negotiated_protocol(), 1);
