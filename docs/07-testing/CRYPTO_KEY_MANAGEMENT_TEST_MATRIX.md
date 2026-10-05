@@ -37,3 +37,6 @@
 
 | CKM-025 | Provider capability gate | approved provider must prove non-exportable identity keys, PQ KEM, and message-ratchet capability |
 | CKM-026 | Epoch upper-bound safety | multi-epoch allocation near `u64::MAX` fails closed without overflow or state mutation |
+
+| CKM-027 | Hardware attestation gate | provider approval fails closed without verifiable hardware-backed attestation |
+| CKM-028 | Protocol profile binding | provider approval fails closed when the exact Signal/MLS protocol profile is not bound |
