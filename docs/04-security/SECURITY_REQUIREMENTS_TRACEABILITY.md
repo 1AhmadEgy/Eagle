@@ -27,6 +27,7 @@ BLOCKED = release cannot proceed until closed.
 | SEC-015 | Required test categories cannot be marked PASS when absent | AGENTS/Test Lab rules | category-aware verification infrastructure exists | VERIFIED |
 | SEC-016 | Independent cryptographic/security review is required before release | release gate | gate document | PENDING |
 | SEC-017 | Wire serialization is schema-defined, bounded, strict, and canonical where authenticated bytes depend on representation | serialization baseline | fixed CBOR envelope codec with size/shape/trailing/non-canonical rejection tests | IMPLEMENTED |
+| SEC-018 | Duplicate inbound message identifiers are rejected within the active replay window | P2P/message threat model | bounded ReplayTracker integrated into inbound message boundary with negative test | IMPLEMENTED |
 
 ## Critical gate
 
