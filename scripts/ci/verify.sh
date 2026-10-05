@@ -63,6 +63,13 @@ run_rust() {
   fi
 }
 
+run_relay_boundary() {
+  echo "== Relay / Infrastructure security boundary =="
+  python3 scripts/ci/verify-relay-boundary.py
+}
+
+run_relay_boundary
+
 detected=0
 
 if [[ -f package.json ]]; then
