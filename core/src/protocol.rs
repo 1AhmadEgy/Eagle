@@ -155,13 +155,10 @@ impl EncryptedEnvelope {
 }
 
 impl FrameHeader {
-    pub fn new(
-        protocol_version: u16,
-        payload_len: u32,
-        flags: u16,
-    ) -> Result<Self, ProtocolError> {
+    pub fn new(protocol_version: u16, payload_len: u32, flags: u16) -> Result<Self, ProtocolError> {
         validate_version(protocol_version, CURRENT_PROTOCOL_VERSION)?;
-        let payload_len = usize::try_from(payload_len).map_err(|_| ProtocolError::PayloadTooLarge)?;
+        let payload_len =
+            usize::try_from(payload_len).map_err(|_| ProtocolError::PayloadTooLarge)?;
         if payload_len > MAX_PAYLOAD_BYTES {
             return Err(ProtocolError::PayloadTooLarge);
         }
