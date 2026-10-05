@@ -116,7 +116,10 @@ impl Device {
             return Err(DeviceError::InvalidTransition);
         }
         self.trust = DeviceTrustState::Replaced;
-        self.authority_epoch = self.authority_epoch.checked_add(1).ok_or(DeviceError::InvalidTransition)?;
+        self.authority_epoch = self
+            .authority_epoch
+            .checked_add(1)
+            .ok_or(DeviceError::InvalidTransition)?;
         Ok(())
     }
 
