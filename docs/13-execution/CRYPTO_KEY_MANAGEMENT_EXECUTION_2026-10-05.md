@@ -30,10 +30,10 @@ libsignal remains reference/conformance material pending license/support/provena
 
 - Current branch: `execution/crypto-key-lifecycle-canonical-2026-10-05`.
 - Pull request: #73.
-- Current PR head: `1adc8402f33404de055f0edfeaa41135edd7c584`.
+- Current PR head: `3316233eb09b3e4d5b390dfb51e56a2fc9841292`.
 - Base: `security/reconciled-foundation-2026-10-05` at `a5ed695466d61c59a7d7f27fc6035ff94dde6cac`.
 - PR state is open and GitHub currently reports it as mergeable; human review is still required.
-- The latest code-bearing commit in this PR is `b6584cc3f11e2a1e3ae25e656fd8aae99c93e604`; GitHub Actions created Rust Security Kernel run #139 for that exact code revision. At the latest verification it remained queued with no conclusion. The independent CI gate is therefore still **PENDING**, not PASS.
+- The prior CI cycle reached execution and exposed two verified issues: Rust 1.99 rejected the array comparison inside `const fn`, and rustfmt reported workspace formatting drift. Both causes were corrected without changing cryptographic behavior. An additional security review then closed a `u64::MAX` epoch-allocation overflow edge case with a regression test. A new CI cycle has been triggered for the corrected head; no PASS is claimed until its result is observed.
 - A local execution attempt was blocked because the execution environment has no `cargo`, `rustc`, or `rustfmt` toolchain installed. No local test PASS is claimed.
 
 ## Release disposition
@@ -45,6 +45,8 @@ Executable production crypto: NOT VERIFIED.
 CI verification: PENDING.
 
 Independent cryptographic review: REQUIRED.
+
+Security review finding closed in this cycle: lifecycle epoch reservation now rejects any multi-epoch allocation that would exceed the representable range before mutating state.
 
 Production release: BLOCKED.
 
