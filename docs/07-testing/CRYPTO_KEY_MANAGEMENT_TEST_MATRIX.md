@@ -36,3 +36,4 @@
 | CKM-024 | Capacity exhaustion | metadata exhaustion fails closed without eviction |
 
 | CKM-025 | Provider capability gate | approved provider must prove non-exportable identity keys, PQ KEM, and message-ratchet capability |
+| CKM-026 | Epoch upper-bound safety | multi-epoch allocation near `u64::MAX` fails closed without overflow or state mutation |
