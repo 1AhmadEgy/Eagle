@@ -2,6 +2,7 @@ use eagle_core::{
     authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
     MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session, SessionState,
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
+    FreshnessError, FreshnessPolicy, ReplayError, ReplayWindow,
 };
 
 fn trusted_context() -> SecurityContext {
@@ -158,6 +159,60 @@ fn device_revocation_and_replacement_are_terminal() {
     assert_eq!(
         replaced.replace(),
         Err(eagle_core::DeviceError::InvalidTransition)
+    );
+}
+
+#[test]
+fn replay_window_enforces_duplicate_epoch_and_window_bounds() {
+    let mut window = ReplayWindow::new(4).unwrap();
+
+    assert_eq!(window.observe(1, 10, MessageId::new([10; 16])), Ok(()));
+    assert_eq!(
+        window.observe(1, 10, MessageId::new([10; 16])),
+        Err(ReplayError::Duplicate)
+    );
+    assert_eq!(
+        window.observe(1, 10, MessageId::new([11; 16])),
+        Err(ReplayError::SequenceCollision)
+    );
+    assert_eq!(window.observe(1, 8, MessageId::new([8; 16])), Ok(()));
+    assert_eq!(
+        window.observe(2, 1, MessageId::new([1; 16])),
+        Err(ReplayError::EpochChanged)
+    );
+    assert_eq!(window.advance_epoch(2), Ok(()));
+    assert_eq!(window.observe(2, 1, MessageId::new([1; 16])), Ok(()));
+    assert_eq!(
+        window.advance_epoch(1),
+        Err(ReplayError::EpochRollback)
+    );
+    assert_eq!(window.observe(2, 0, MessageId::new([0; 16])), Ok(()));
+    assert_eq!(
+        window.observe(2, 0, MessageId::new([0; 16])),
+        Err(ReplayError::Duplicate)
+    );
+}
+
+#[test]
+fn freshness_policy_rejects_expired_and_future_messages() {
+    let policy = FreshnessPolicy::new(1_000, 100);
+
+    assert_eq!(policy.validate(10_000, 10_050, Some(10_100)), Ok(()));
+    assert_eq!(
+        policy.validate(10_000, 10_101, None),
+        Ok(())
+    );
+    assert_eq!(
+        policy.validate(10_101, 10_202, None),
+        Err(FreshnessError::CreatedInFuture)
+    );
+    assert_eq!(
+        policy.validate(10_200, 10_050, Some(10_150)),
+        Err(FreshnessError::Expired)
+    );
+    assert_eq!(
+        policy.validate(10_000, 8_999, None),
+        Err(FreshnessError::TooOld)
     );
 }
 
