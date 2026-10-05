@@ -222,7 +222,10 @@ pub enum ContactIdentityState {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ContactIdentity {
+    /// The last identity that has actually been verified and is safe for trust decisions.
     pub identity: IdentityReference,
+    /// An untrusted replacement candidate. It must never be treated as verified identity.
+    pub pending_identity: Option<IdentityReference>,
     pub state: ContactIdentityState,
 }
 
@@ -230,6 +233,7 @@ impl ContactIdentity {
     pub fn new(identity: IdentityReference) -> Self {
         Self {
             identity,
+            pending_identity: None,
             state: ContactIdentityState::Verified,
         }
     }
@@ -243,7 +247,7 @@ impl ContactIdentity {
         {
             return Err(TrustError::UnchangedIdentity);
         }
-        self.identity = replacement;
+        self.pending_identity = Some(replacement);
         self.state = ContactIdentityState::Quarantined;
         Ok(())
     }
@@ -256,8 +260,16 @@ impl ContactIdentity {
         if self.state != ContactIdentityState::Quarantined {
             return Err(TrustError::InvalidStateTransition);
         }
+        let pending = self
+            .pending_identity
+            .as_ref()
+            .ok_or(TrustError::IdentityReverificationRequired)?;
+        if pending != &verified_identity {
+            return Err(TrustError::IdentityReverificationRequired);
+        }
         verifier.verify_reverification(self, &verified_identity)?;
         self.identity = verified_identity;
+        self.pending_identity = None;
         self.state = ContactIdentityState::Verified;
         Ok(())
     }
