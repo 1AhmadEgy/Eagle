@@ -1,6 +1,8 @@
 #![forbid(unsafe_code)]
 
+mod crypto;
 mod device;
+mod key_lifecycle;
 mod key_management;
 mod message_boundary;
 mod policy;
@@ -10,9 +12,19 @@ mod serialization;
 mod session;
 mod transport_policy;
 
+pub use crypto::{
+    IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
+    OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderApproval, ProviderCapabilities,
+    ProviderRevision, ProviderVersion, ProtocolProfile, RecoveryKeyHandle, SessionKeyHandle,
+    SignedPreKeyHandle, StorageWrappingKeyHandle, UnavailableCryptoProvider,
+};
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
+pub use key_lifecycle::{
+    KeyLifecycle, KeyMutation, KeyRecord, LifecycleError, LifecycleEvent, LifecycleState,
+};
 pub use key_management::{
-    KeyCustody, KeyError, KeyLifecycle, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
+    KeyCustody, KeyError as PolicyKeyError, KeyLifecycle as PolicyKeyLifecycle, KeyPolicy,
+    KeyPurpose as PolicyKeyPurpose, KeyRecord as PolicyKeyRecord, KeyReference, KeyScope,
 };
 pub use message_boundary::{MessageBoundary, MessageBoundaryError};
 pub use policy::{authorize, Capability};
