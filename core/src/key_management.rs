@@ -69,36 +69,24 @@ impl KeyReference {
 pub struct KeyPolicy {
     pub purpose: KeyPurpose,
     pub custody: KeyCustody,
-    pub exportable: bool,
 }
 
 impl KeyPolicy {
     pub const fn for_purpose(purpose: KeyPurpose) -> Self {
-        match purpose {
-            KeyPurpose::IdentitySigning | KeyPurpose::IdentityAgreement => Self {
-                purpose,
-                custody: KeyCustody::PlatformSecure,
-                exportable: false,
-            },
-            KeyPurpose::PreKey => Self {
-                purpose,
-                custody: KeyCustody::PlatformSecure,
-                exportable: false,
-            },
-            KeyPurpose::Session => Self {
-                purpose,
-                custody: KeyCustody::Ephemeral,
-                exportable: false,
-            },
-            KeyPurpose::Storage | KeyPurpose::RecoveryWrapping => Self {
-                purpose,
-                custody: KeyCustody::PlatformSecure,
-                exportable: false,
+        Self {
+            purpose,
+            custody: match purpose {
+                KeyPurpose::IdentitySigning
+                | KeyPurpose::IdentityAgreement
+                | KeyPurpose::PreKey
+                | KeyPurpose::Storage
+                | KeyPurpose::RecoveryWrapping => KeyCustody::PlatformSecure,
+                KeyPurpose::Session => KeyCustody::Ephemeral,
             },
         }
     }
 
-    pub fn require_hardware_backing(self) -> Self {
+    pub const fn require_hardware_backing(self) -> Self {
         Self {
             custody: KeyCustody::HardwareBackedRequired,
             ..self
@@ -172,19 +160,11 @@ impl KeyRecord {
             return Err(KeyError::CustodyMismatch);
         }
 
-        if !self.policy.exportable {
-            return Ok(());
-        }
-
         Ok(())
     }
 
     pub fn export(&self) -> Result<(), KeyError> {
-        if self.policy.exportable {
-            Ok(())
-        } else {
-            Err(KeyError::ExportForbidden)
-        }
+        Err(KeyError::ExportForbidden)
     }
 }
 
@@ -205,24 +185,24 @@ mod tests {
     }
 
     #[test]
-    fn long_lived_identity_keys_are_secure_and_non_exportable() {
-        let policy = KeyPolicy::for_purpose(KeyPurpose::IdentitySigning);
-        assert_eq!(policy.custody, KeyCustody::PlatformSecure);
-        assert!(!policy.exportable);
+    fn long_lived_keys_are_secure_and_non_exportable() {
+        for purpose in [
+            KeyPurpose::IdentitySigning,
+            KeyPurpose::IdentityAgreement,
+            KeyPurpose::PreKey,
+            KeyPurpose::Storage,
+            KeyPurpose::RecoveryWrapping,
+        ] {
+            let policy = KeyPolicy::for_purpose(purpose);
+            assert_eq!(policy.custody, KeyCustody::PlatformSecure);
 
-        let record = KeyRecord::new(reference(), policy);
-        assert_eq!(
-            record.authorize(KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
-            Ok(())
-        );
-        assert_eq!(
-            record.authorize(
-                KeyPurpose::IdentitySigning,
-                KeyCustody::Ephemeral
-            ),
-            Err(KeyError::CustodyMismatch)
-        );
-        assert_eq!(record.export(), Err(KeyError::ExportForbidden));
+            let record = KeyRecord::new(reference(), policy);
+            assert_eq!(
+                record.authorize(purpose, KeyCustody::PlatformSecure),
+                Ok(())
+            );
+            assert_eq!(record.export(), Err(KeyError::ExportForbidden));
+        }
     }
 
     #[test]
@@ -245,14 +225,13 @@ mod tests {
             ),
             Ok(())
         );
+        assert_eq!(record.export(), Err(KeyError::ExportForbidden));
     }
 
     #[test]
     fn revoked_keys_are_terminal() {
-        let mut record = KeyRecord::new(
-            reference(),
-            KeyPolicy::for_purpose(KeyPurpose::Storage),
-        );
+        let mut record =
+            KeyRecord::new(reference(), KeyPolicy::for_purpose(KeyPurpose::Storage));
 
         record.revoke();
         assert_eq!(record.lifecycle(), KeyLifecycle::Revoked);
@@ -266,10 +245,8 @@ mod tests {
 
     #[test]
     fn suspended_keys_must_resume_before_use() {
-        let mut record = KeyRecord::new(
-            reference(),
-            KeyPolicy::for_purpose(KeyPurpose::Session),
-        );
+        let mut record =
+            KeyRecord::new(reference(), KeyPolicy::for_purpose(KeyPurpose::Session));
 
         record.suspend().unwrap();
         assert_eq!(
@@ -282,5 +259,11 @@ mod tests {
             record.authorize(KeyPurpose::Session, KeyCustody::Ephemeral),
             Ok(())
         );
+    }
+
+    #[test]
+    fn session_keys_are_ephemeral_by_policy() {
+        let policy = KeyPolicy::for_purpose(KeyPurpose::Session);
+        assert_eq!(policy.custody, KeyCustody::Ephemeral);
     }
 }
