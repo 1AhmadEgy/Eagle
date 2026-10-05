@@ -38,8 +38,8 @@ class RelayInfrastructurePolicyTests(unittest.TestCase):
             (root / "app").mkdir()
             source = root / "app" / "Transport.kt"
             source.write_text(
-                'val a = "turns://example.invalid"
-val b = "wss://example.invalid"',
+                """val a = "turns://example.invalid"
+val b = "wss://example.invalid"""",
                 encoding="utf-8",
             )
             findings = MODULE.scan_repository(root)
