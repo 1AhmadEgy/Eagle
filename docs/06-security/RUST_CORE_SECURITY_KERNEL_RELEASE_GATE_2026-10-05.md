@@ -58,4 +58,4 @@ The specialization does not close:
 - fuzz/property/interop coverage;
 - independent security review.
 
-Therefore this gate **must not be interpreted as product release approval**. The current gate cannot advance to PASS until the current head completes Format, Tests, and Clippy.
+Therefore this gate **must not be interpreted as product release approval**. The current gate cannot advance to PASS until the current head completes Format, Tests, and Clippy. Latest current-head Rust Security Kernel workflow is queued.
