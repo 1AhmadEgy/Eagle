@@ -44,6 +44,7 @@ The target model is per-device cryptographic identity with explicit account memb
 Mandatory invariants:
 - usernames never authorize devices;
 - trust promotion is never public;
+- authenticated peer state is represented by an opaque verification token that cannot be self-constructed by callers;
 - pairing is authenticated, time-bounded, single-use, and endpoint-bound;
 - revocation is monotonic;
 - stale or revoked membership cannot silently regain privilege;
@@ -61,9 +62,9 @@ Transport encryption alone never authorizes a message or peer.
 
 ### 1:1 messaging
 
-Preferred research direction: a mature Rust double-ratchet implementation behind the Security Core.
+Preferred research direction: a mature Rust implementation of the approved Signal-family profile behind the Security Core, with PQXDH session establishment and the current Triple Ratchet target (Double Ratchet + SPQR/SCKA).
 
-vodozemac is a maintained Rust implementation of Olm/Megolm. Its Olm sessions are asynchronous Double Ratchet channels with forward secrecy and self-healing properties. It remains a candidate until Eagle interoperability, device lifecycle, key custody, and maintenance risks are proven.
+vodozemac is a maintained Rust implementation of Olm/Megolm and is not treated as a drop-in replacement for PQXDH or the Signal Triple Ratchet target. It remains a candidate until Eagle interoperability, device lifecycle, key custody, and maintenance risks are proven.
 
 libsignal is used by Signal's Android, iOS, and Desktop clients and its implementations are Rust-based, but its upstream documentation explicitly says use outside Signal is unsupported and APIs may change. Therefore Eagle does not adopt it automatically. A dedicated support/maintenance decision is required before production use.
 
@@ -73,7 +74,7 @@ OpenMLS is the preferred research direction for a future group phase based on ML
 
 ### Transport
 
-Preferred research direction: direct rust-libp2p QUIC v1, subject to ADR-0012 and platform build verification.
+Preferred research direction: direct rust-libp2p QUIC v1 (current upstream workspace 0.57.x), subject to ADR-0012, exact-version pinning, and platform build verification.
 
 libp2p documents QUIC as TLS 1.3 encrypted, stream-multiplexed transport with cryptographic peer-ID authentication. libp2p also supports relays and hole punching. Eagle policy disables relays for application data because the project constraint is P2P-only. Direct hole punching may be used where supported; otherwise the node stays offline.
 
