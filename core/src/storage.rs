@@ -1,17 +1,13 @@
 use crate::OpaqueId;
 use std::collections::BTreeMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum StorageState {
+    #[default]
     Healthy,
     RecoveryRequired,
     Unavailable,
-}
-
-impl Default for StorageState {
-    fn default() -> Self {
-        Self::Healthy
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
