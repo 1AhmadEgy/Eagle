@@ -181,7 +181,7 @@ fn key_custody_contract_is_fail_closed() {
 
     record.revoke();
     assert_eq!(
-        record.authorize(scope, KeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
+        record.authorize(scope, PolicyKeyPurpose::IdentitySigning, KeyCustody::PlatformSecure),
         Err(PolicyKeyError::Revoked)
     );
 }
