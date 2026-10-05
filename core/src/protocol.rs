@@ -37,6 +37,7 @@ pub enum ProtocolError {
     EmptyCiphertext,
     PayloadTooLarge,
     PayloadLengthMismatch,
+    UnsupportedFlags,
 }
 
 impl fmt::Display for ProtocolError {
@@ -49,6 +50,7 @@ impl fmt::Display for ProtocolError {
             Self::EmptyCiphertext => "empty ciphertext",
             Self::PayloadTooLarge => "payload exceeds maximum size",
             Self::PayloadLengthMismatch => "payload length mismatch",
+            Self::UnsupportedFlags => "unsupported frame flags",
         })
     }
 }
@@ -161,6 +163,9 @@ impl FrameHeader {
             usize::try_from(payload_len).map_err(|_| ProtocolError::PayloadTooLarge)?;
         if payload_len > MAX_PAYLOAD_BYTES {
             return Err(ProtocolError::PayloadTooLarge);
+        }
+        if flags != 0 {
+            return Err(ProtocolError::UnsupportedFlags);
         }
 
         Ok(Self {
