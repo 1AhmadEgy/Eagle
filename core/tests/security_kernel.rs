@@ -182,10 +182,7 @@ fn replay_window_enforces_duplicate_epoch_and_window_bounds() {
     );
     assert_eq!(window.advance_epoch(2), Ok(()));
     assert_eq!(window.observe(2, 1, MessageId::new([1; 16])), Ok(()));
-    assert_eq!(
-        window.advance_epoch(1),
-        Err(ReplayError::EpochRollback)
-    );
+    assert_eq!(window.advance_epoch(1), Err(ReplayError::EpochRollback));
     assert_eq!(window.observe(2, 0, MessageId::new([0; 16])), Ok(()));
     assert_eq!(
         window.observe(2, 0, MessageId::new([0; 16])),
@@ -200,6 +197,10 @@ fn freshness_policy_rejects_expired_and_future_messages() {
     assert_eq!(policy.validate(10_000, 10_050, Some(10_100)), Ok(()));
     assert_eq!(
         policy.validate(10_000, 10_101, None),
+        Err(FreshnessError::CreatedInFuture)
+    );
+    assert_eq!(
+        policy.validate(10_000, 10_100, None),
         Ok(())
     );
     assert_eq!(
