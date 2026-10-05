@@ -195,7 +195,7 @@ fn key_custody_contract_is_fail_closed() {
 
 #[test]
 fn application_data_rejects_non_direct_transport() {
-    use eagle_core::{PeerBinding, TransportError, TransportPath, TransportPolicy};
+    use eagle_core::{TransportError, TransportPath, TransportPolicy};
 
     let policy = TransportPolicy::new();
 
@@ -208,7 +208,7 @@ fn application_data_rejects_non_direct_transport() {
         Err(TransportError::ApplicationDataRequiresDirectPath)
     );
     assert_eq!(
-        policy.authorize_application_data(TransportPath::Direct, PeerBinding::Unauthenticated),
+        policy.authorize_application_data(TransportPath::Direct, None),
         Err(TransportError::PeerIdentityRequired)
     );
 }
