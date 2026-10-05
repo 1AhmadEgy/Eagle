@@ -32,17 +32,7 @@ class StorageKeyHandle private constructor(
     val accountId: Long,
     val deviceId: Long,
     val trustEpoch: Long,
-) {
-    companion object {
-        internal fun create(accountId: Long, deviceId: Long, trustEpoch: Long): StorageKeyHandle =
-            StorageKeyHandle(
-                alias = AndroidKeyStoreStorage.aliasFor(accountId, deviceId, trustEpoch),
-                accountId = accountId,
-                deviceId = deviceId,
-                trustEpoch = trustEpoch,
-            )
-    }
-}
+)
 
 class AndroidKeyStoreStorage(
     private val keyStore: KeyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) },
@@ -53,7 +43,12 @@ class AndroidKeyStoreStorage(
         trustEpoch: Long,
         requireStrongBox: Boolean = false,
     ): StorageKeyHandle {
-        val handle = StorageKeyHandle.create(accountId, deviceId, trustEpoch)
+        val handle = StorageKeyHandle(
+            alias = aliasFor(accountId, deviceId, trustEpoch),
+            accountId = accountId,
+            deviceId = deviceId,
+            trustEpoch = trustEpoch,
+        )
         if (keyStore.containsAlias(handle.alias)) {
             return handle
         }
