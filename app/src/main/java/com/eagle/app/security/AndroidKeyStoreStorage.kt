@@ -8,20 +8,23 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-data class EncryptedStoragePayload(
-    val iv: ByteArray,
-    val ciphertext: ByteArray,
+class EncryptedStoragePayload(
+    iv: ByteArray,
+    ciphertext: ByteArray,
 ) {
+    private val ivBytes = iv.copyOf()
+    private val ciphertextBytes = ciphertext.copyOf()
+
     init {
-        require(iv.size == AndroidKeyStoreStorage.GCM_IV_BYTES) { "invalid GCM IV length" }
-        require(ciphertext.size > AndroidKeyStoreStorage.GCM_TAG_BYTES) {
+        require(ivBytes.size == AndroidKeyStoreStorage.GCM_IV_BYTES) { "invalid GCM IV length" }
+        require(ciphertextBytes.size > AndroidKeyStoreStorage.GCM_TAG_BYTES) {
             "ciphertext must include a GCM authentication tag"
         }
     }
 
-    fun copyIv(): ByteArray = iv.copyOf()
+    fun copyIv(): ByteArray = ivBytes.copyOf()
 
-    fun copyCiphertext(): ByteArray = ciphertext.copyOf()
+    fun copyCiphertext(): ByteArray = ciphertextBytes.copyOf()
 }
 
 class AndroidKeyStoreStorage(
