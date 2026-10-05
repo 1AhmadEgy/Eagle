@@ -11,8 +11,8 @@
 | Revocation | offline convergence/stale epoch/rollback | scenario corpus | PENDING |
 | Recovery | account-vs-history separation/abuse | recovery design | PENDING |
 | P2P | direct-only, NAT, relay denial, peer binding | P2P scenario corpus | PENDING |
-| Crypto | PQXDH vectors/Double Ratchet vectors/interoperability | protocol gate | PENDING |
-| Storage | encryption/deletion/rollback/power loss | storage gate | PENDING |
+| Crypto | PQXDH vectors/Double Ratchet vectors/interoperability | protocol gate; no production crypto integrated | PENDING |
+| Storage | encryption/deletion/rollback/power loss | Android Keystore AES-GCM adapter unit contract tests; device/instrumentation and full storage lifecycle evidence absent | PARTIAL |
 | Cross-platform | Android/Desktop/iOS policy parity | platform strategy | PENDING |
 | Fuzz/property | malformed framing and state machine fuzzing | test design | PENDING |
 | Supply chain | secrets/dependency/provenance/SBOM | CI baseline | PARTIAL |
