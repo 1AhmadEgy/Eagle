@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+use std::fmt;
+
 mod device;
 mod policy;
 mod protocol;
@@ -42,6 +44,21 @@ pub enum SecurityError {
     UnsupportedProtocol,
     ClosedSession,
 }
+
+impl fmt::Display for SecurityError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Unauthorized => "unauthorized",
+            Self::InvalidTrustTransition => "invalid trust transition",
+            Self::InvalidSessionTransition => "invalid session transition",
+            Self::ProtocolDowngrade => "protocol downgrade rejected",
+            Self::UnsupportedProtocol => "unsupported protocol",
+            Self::ClosedSession => "closed session",
+        })
+    }
+}
+
+impl std::error::Error for SecurityError {}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct SecurityContext {
