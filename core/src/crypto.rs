@@ -368,6 +368,29 @@ mod tests {
     }
 
     #[test]
+    fn provider_approval_requires_attestation_and_profile() {
+        let mut approved = ProviderApproval {
+            version: ProviderVersion::new(1, 2, 3),
+            protocol_profile: ProtocolProfile::SignalPqxdhDoubleRatchetV1,
+            revision: ProviderRevision::new([0xAB; 20]),
+            license_reviewed: true,
+            support_reviewed: true,
+            platform_reviewed: true,
+            conformance_verified: true,
+            independent_reviewed: true,
+        };
+        assert!(!approved.is_production_approved_with_capabilities(ProviderCapabilities {
+            identity_keys_non_exportable: true,
+            hardware_protection: true,
+            hardware_attestation: false,
+            pq_kem: true,
+            message_ratchet: true,
+        }));
+        approved.protocol_profile = ProtocolProfile::Unapproved;
+        assert!(!approved.is_production_approved());
+    }
+
+    #[test]
     fn unavailable_provider_is_fail_closed() {
         let mut provider = UnavailableCryptoProvider;
         assert_eq!(
