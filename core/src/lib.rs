@@ -15,7 +15,7 @@ mod transport_policy;
 pub use crypto::{
     IdentityKeyHandle, KeyError, KeyId, KeyPurpose, KeyStore, MessageKeyHandle, MessagingCrypto,
     OneTimePreKeyHandle, PostQuantumPreKeyHandle, ProviderApproval, ProviderCapabilities,
-    ProviderRevision, ProviderVersion, RecoveryKeyHandle, SessionKeyHandle, SignedPreKeyHandle,
+    ProviderRevision, ProviderVersion, ProtocolProfile, RecoveryKeyHandle, SessionKeyHandle, SignedPreKeyHandle,
     StorageWrappingKeyHandle, UnavailableCryptoProvider,
 };
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
