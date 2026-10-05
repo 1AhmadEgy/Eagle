@@ -10,12 +10,14 @@ Implemented in this specialization:
 - validated encrypted-envelope construction;
 - immutable identifier/session representations;
 - unsafe Rust forbidden;
-- zero external runtime dependencies.
+- zero external runtime dependencies;
+- non-exportable key-reference/custody contract with terminal revocation.
 
 Deferred by security gate:
 - cryptographic primitives and primitive selection;
 - concrete Signal/PQXDH/MLS adoption;
-- key hierarchy and secure storage;
+- concrete platform key-store implementation and secure storage;
+- cryptographic key generation, signing/agreement, and protocol integration;
 - canonical serialization/wire encoding;
 - transport;
 - platform keystore integration;
