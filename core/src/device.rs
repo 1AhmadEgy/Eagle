@@ -23,7 +23,7 @@ pub enum DeviceError {
     Replaced,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Device {
     account: u64,
     device: u64,
