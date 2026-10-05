@@ -27,10 +27,31 @@ fn rotation_is_forward_only() {
         .unwrap();
 
     let event = lifecycle.rotate(id(1), id(2), 11).unwrap();
-    assert_eq!(event.mutation, KeyMutation::Register);
+    assert_eq!(event.mutation, KeyMutation::Rotate);
     assert_eq!(event.purpose, KeyPurpose::Session);
     assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Revoked);
     assert_eq!(lifecycle.get(id(2)).unwrap().generation(), 11);
+}
+
+#[test]
+fn failed_rotation_is_atomic() {
+    let mut lifecycle = KeyLifecycle::default();
+    lifecycle
+        .register(id(1), KeyPurpose::Session, 10)
+        .unwrap();
+
+    assert_eq!(
+        lifecycle.rotate(id(1), id(2), 10),
+        Err(LifecycleError::GenerationRollback)
+    );
+    assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Active);
+    assert!(lifecycle.get(id(2)).is_none());
+
+    assert_eq!(
+        lifecycle.rotate(id(1), id(1), 11),
+        Err(LifecycleError::InvalidTransition)
+    );
+    assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Active);
 }
 
 #[test]
@@ -67,5 +88,20 @@ fn one_time_prekey_is_consumed_once() {
     assert_eq!(
         lifecycle.consume_one_time_pre_key(id(4)),
         Err(LifecycleError::Consumed)
+    );
+}
+
+#[test]
+fn metadata_capacity_exhaustion_fails_closed() {
+    let mut lifecycle = KeyLifecycle::default();
+    for value in 1..=KeyLifecycle::MAX_KEYS as u8 {
+        lifecycle
+            .register(id(value), KeyPurpose::Message, 1)
+            .unwrap();
+    }
+
+    assert_eq!(
+        lifecycle.register(id(255), KeyPurpose::Message, 1),
+        Err(LifecycleError::InvalidTransition)
     );
 }
