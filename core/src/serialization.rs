@@ -9,7 +9,7 @@ use minicbor::{
 
 use crate::{
     EncryptedEnvelope, MessageId, OpaqueId, ProtocolError, CURRENT_PROTOCOL_VERSION,
-    MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
+    MAX_PAYLOAD_BYTES,
 };
 
 pub const SERIALIZED_ENVELOPE_FIELD_COUNT: u64 = 7;
@@ -219,8 +219,7 @@ mod tests {
 
     #[test]
     fn identifiers_and_payload_remain_bounded() {
-        let mut too_large_id = envelope();
-        too_large_id = EncryptedEnvelope::new(
+        let too_large_id = EncryptedEnvelope::new(
             MessageId::new([1; 16]),
             OpaqueId::new(vec![2; MAX_ID_BYTES]).unwrap(),
             id(3),
