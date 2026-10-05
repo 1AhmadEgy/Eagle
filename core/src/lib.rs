@@ -5,6 +5,7 @@ mod key_management;
 mod policy;
 mod protocol;
 mod session;
+mod serialization;
 
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
 pub use key_management::{
@@ -16,6 +17,9 @@ pub use protocol::{
     CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES, MAX_PAYLOAD_BYTES,
 };
 pub use session::Session;
+pub use serialization::{
+    deserialize_envelope, serialize_envelope, SerializationError, MAX_SERIALIZED_ENVELOPE_BYTES,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TrustState {
