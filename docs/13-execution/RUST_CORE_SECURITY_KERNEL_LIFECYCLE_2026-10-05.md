@@ -2,7 +2,8 @@
 
 **Date:** 2026-10-05  
 **Specialization:** Rust Core / Security Kernel  
-**Branch:** `execution/rust-core-security-kernel-complete-2026-10-05`
+**Branch:** `execution/rust-core-security-kernel-complete-2026-10-05`  
+**Current branch head:** `af28d3201fcefd9e7669155c55c9112ed37f4194`
 
 ## 01 Inventory
 Located Rust Core work across the active specialization branch and divergent historical execution branches. Current specialization source is isolated under `core/`.
@@ -69,7 +70,7 @@ Static boundary review completed for this specialization. No unsafe code, secret
 Independent human security review remains required by project policy.
 
 ## 15 Verification
-Previous dedicated Rust CI passed on the preceding revision. The current-head dedicated Rust run is queued; current-head PASS is therefore not claimed.
+Previous dedicated Rust CI passed on an earlier revision. The current code head that last changed Rust sources is `02e1a85cafdbd3c0331ca0745d43d0b07dfb93a4`; its dedicated Rust run `37246729956` remains queued in the observed GitHub state. Documentation-only commits after that code head do not alter the executable Rust sources. Current-head PASS is therefore not claimed.
 
 ## 16 Evidence
 Evidence is persisted in:
