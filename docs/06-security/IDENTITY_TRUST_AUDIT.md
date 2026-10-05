@@ -18,3 +18,11 @@ No cryptographic primitive was introduced. Cryptographic proof, key hierarchy, a
 ## Evidence discipline
 
 No release claim is made from local source inspection alone. Fresh CI, protocol adversarial tests, cross-platform evidence, and independent review remain mandatory.
+
+## Verification record — 2026-10-05
+
+- Branch head: `7f5f209095ce555bd41b14a2f5e92a96854a2522`.
+- PR #69 remains draft/open and has no submitted review approvals.
+- CI run `37247378452`: security-policy gate failed before project verification; secret scan and repository hygiene passed.
+- Test Lab run `37247378307`: Android SDK 37 setup failed before unit/lint/build stages.
+- Conclusion: local Security Core design = conditional pass; release verification = blocked.
