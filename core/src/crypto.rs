@@ -282,7 +282,6 @@ mod tests {
     }
 
     #[test]
-    #[test]
     fn provider_approval_is_fail_closed() {
         let rejected = ProviderApproval::rejected();
         assert!(!rejected.is_production_approved());
