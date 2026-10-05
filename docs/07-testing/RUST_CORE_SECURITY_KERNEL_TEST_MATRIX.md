@@ -1,0 +1,38 @@
+# Rust Core / Security Kernel Test Matrix
+
+**Date:** 2026-10-05  
+**Scope:** deterministic Rust Security Kernel only
+
+| ID | Security property | Evidence |
+|---|---|---|
+| RK-01 | unknown trust cannot authorize | unit + integration |
+| RK-02 | public callers cannot elevate trust | compile-visible API boundary + negative tests |
+| RK-03 | session establishment requires trusted authenticated state | unit + integration |
+| RK-04 | downgrade rejected without state mutation | unit + integration |
+| RK-05 | unsupported version rejected without state mutation | unit + integration |
+| RK-06 | negotiated protocol cannot exceed configured maximum/current version | configuration + negotiation tests |
+| RK-07 | rekey requires established trusted session | unit |
+| RK-08 | revocation closes the context | unit |
+| RK-09 | revoked/replaced devices fail closed and cannot transition back | unit + integration |
+| RK-10 | identifier bounds enforced at construction | unit + integration |
+| RK-11 | envelope ciphertext non-empty and bounded | unit + integration |
+| RK-12 | frame payload length is exact and header version is checked | unit + integration |
+| RK-13 | administrative capability denied | integration |
+| RK-14 | invalid protocol configuration rejected | unit + integration |
+| RK-15 | unsafe Rust forbidden | crate-level `forbid(unsafe_code)` |
+
+## CI gate
+
+```text
+cargo fmt --all -- --check
+cargo test --workspace --locked
+cargo clippy --workspace --all-targets --locked -- -D warnings
+```
+
+The repository CI result is the independent execution evidence for the current branch.
+
+## Deferred categories
+
+Cryptographic vectors, property/fuzz testing over cryptographic state, protocol interoperability, key-storage tests, FFI ABI/security tests, and platform-native verification remain **PENDING** until their governing technical decisions and implementations exist.
+
+A missing category is never treated as PASS.

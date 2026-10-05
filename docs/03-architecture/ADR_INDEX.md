@@ -9,7 +9,7 @@ ADR-0001 → ADR-0006 — existing project decisions referenced by the planning 
 - ADR-0009 — Key Management
 - ADR-0010 — Serialization
 - ADR-0011 — Local Storage
-- ADR-0012 — Transport Architecture
+- ADR-0012 — Direct P2P Transport Architecture
 - ADR-0013 — Architecture Enforcement
 - ADR-0014 — Observability
 
