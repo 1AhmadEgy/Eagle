@@ -1,4 +1,6 @@
-use eagle_core::{DeliveryMetadata, FreshnessPolicy, InboundReplayGuard, MessageId, ReplayError, ReplayWindow};
+use eagle_core::{
+    DeliveryMetadata, FreshnessPolicy, InboundReplayGuard, MessageId, ReplayError, ReplayWindow,
+};
 
 fn message_id(n: u64) -> MessageId {
     let mut bytes = [0u8; 16];
@@ -38,7 +40,10 @@ fn replay_epoch_reset_is_monotonic() {
     assert_eq!(window.highest_sequence(), None);
 
     for sequence in 0..8u64 {
-        assert_eq!(window.observe(5, sequence, message_id(100 + sequence)), Ok(()));
+        assert_eq!(
+            window.observe(5, sequence, message_id(100 + sequence)),
+            Ok(())
+        );
     }
 
     assert_eq!(window.advance_epoch(5), Err(ReplayError::EpochRollback));
