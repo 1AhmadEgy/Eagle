@@ -44,4 +44,16 @@ Branch: `implementation/security-first-v1-2026-10-05`
 
 PR: #77
 
-The branch is an integration candidate. It is not canonical until reviewed and merged into `main`.
+Current implementation head is always taken from the live PR record.
+
+## Current evidence state
+
+- Repository hygiene: PASS on latest observed CI attempt.
+- Secret scan: PASS on latest observed CI attempt.
+- Security policy gate: PASS on latest observed CI attempt.
+- Architecture boundary gate: PASS on latest observed CI attempt.
+- P2P-only boundary gate: PASS on latest observed CI attempt.
+- Rust build/test evidence: previously exposed concrete compile defects; those defects were corrected and a fresh exact-head run is required to promote Rust Build/Unit/Integration/Protocol to PASS.
+- Android build/test evidence: exact latest-head completion remains pending.
+- Independent cryptographic/security review: PENDING.
+- Release authorization: NO-GO.
