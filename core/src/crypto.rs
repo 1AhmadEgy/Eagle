@@ -86,13 +86,18 @@ typed_key_handle!(RecoveryKeyHandle, KeyPurpose::Recovery);
 pub struct ProviderCapabilities {
     pub identity_keys_non_exportable: bool,
     pub hardware_protection: bool,
+    pub hardware_attestation: bool,
     pub pq_kem: bool,
     pub message_ratchet: bool,
 }
 
 impl ProviderCapabilities {
     pub const fn satisfies_required_messaging_profile(&self) -> bool {
-        self.identity_keys_non_exportable && self.pq_kem && self.message_ratchet
+        self.identity_keys_non_exportable
+            && self.hardware_protection
+            && self.hardware_attestation
+            && self.pq_kem
+            && self.message_ratchet
     }
 }
 
@@ -126,8 +131,17 @@ impl ProviderRevision {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProtocolProfile {
+    Unapproved = 0,
+    SignalPqxdhDoubleRatchetV1 = 1,
+    MlsRfc9420V1 = 2,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ProviderApproval {
     pub version: ProviderVersion,
+    pub protocol_profile: ProtocolProfile,
     pub revision: ProviderRevision,
     pub license_reviewed: bool,
     pub support_reviewed: bool,
@@ -140,6 +154,7 @@ impl ProviderApproval {
     pub const fn rejected() -> Self {
         Self {
             version: ProviderVersion::new(0, 0, 0),
+            protocol_profile: ProtocolProfile::Unapproved,
             revision: ProviderRevision::new([0; 20]),
             license_reviewed: false,
             support_reviewed: false,
@@ -323,6 +338,7 @@ mod tests {
 
         let approved = ProviderApproval {
             version: ProviderVersion::new(1, 2, 3),
+            protocol_profile: ProtocolProfile::SignalPqxdhDoubleRatchetV1,
             revision: ProviderRevision::new([0xAB; 20]),
             license_reviewed: true,
             support_reviewed: true,
@@ -335,6 +351,7 @@ mod tests {
             !approved.is_production_approved_with_capabilities(ProviderCapabilities {
                 identity_keys_non_exportable: true,
                 hardware_protection: true,
+                hardware_attestation: true,
                 pq_kem: false,
                 message_ratchet: true,
             })
@@ -342,7 +359,8 @@ mod tests {
         assert!(
             approved.is_production_approved_with_capabilities(ProviderCapabilities {
                 identity_keys_non_exportable: true,
-                hardware_protection: false,
+                hardware_protection: true,
+                hardware_attestation: true,
                 pq_kem: true,
                 message_ratchet: true,
             })
