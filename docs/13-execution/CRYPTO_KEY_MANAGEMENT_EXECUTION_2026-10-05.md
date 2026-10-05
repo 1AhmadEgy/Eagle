@@ -17,6 +17,7 @@ Specialty only. Evidence-first, fail-closed, no bespoke cryptography.
 - Provider selection register.
 - Key lifecycle specification.
 - Extended lifecycle/provider test matrix.
+- Regression coverage for failed rotation atomicity and metadata-capacity exhaustion.
 
 ## Provider status
 
@@ -26,9 +27,11 @@ libsignal remains reference/conformance material pending license/support/provena
 
 ## Verification evidence
 
-- Repository changes are committed on `execution/crypto-key-lifecycle-v3-2026-10-05`.
-- Pull request: #71.
-- GitHub workflow/status evidence for the new head was not available through the current repository integration at the time of this record.
+- Changes are committed on `execution/crypto-key-lifecycle-canonical-2026-10-05`.
+- Pull request: #73.
+- Current PR head: `d6493c57fc735742e69f408c891ccf7d2f22ab63` at the time of this record update.
+- The PR is based directly on `security/reconciled-foundation-2026-10-05` and is 13 commits ahead, 0 behind at the last comparison.
+- GitHub workflow/status evidence for this head was not available through the current repository integration at the time of this record.
 - Local Rust execution was not possible in the execution environment because outbound GitHub access from the shell was unavailable.
 - Therefore no CI/test PASS is claimed for this cycle.
 
