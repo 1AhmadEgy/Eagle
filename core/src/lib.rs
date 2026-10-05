@@ -330,12 +330,12 @@ mod tests {
 
     #[test]
     fn rekey_requires_established_session() {
-        let (mut ctx, _device) = authenticated();
+        let (mut ctx, device) = authenticated();
         assert_eq!(
             ctx.begin_rekey(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
-        ctx.establish().unwrap();
+        ctx.establish(&device).unwrap();
         ctx.begin_rekey(&device).unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
         assert_eq!(
@@ -354,7 +354,7 @@ mod tests {
     fn incomplete_rekey_fails_closed() {
         let (mut ctx, device) = authenticated();
         ctx.establish().unwrap();
-        ctx.begin_rekey().unwrap();
+        ctx.begin_rekey(&device).unwrap();
         assert_eq!(ctx.session_state(), SessionState::Rekeying);
         assert_eq!(ctx.abort_rekey(), Ok(()));
         assert_eq!(ctx.session_state(), SessionState::Closed);
@@ -378,11 +378,11 @@ mod tests {
             Err(SecurityError::InvalidTrustTransition)
         );
         assert_eq!(
-            ctx.establish(),
+            ctx.establish(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
         assert_eq!(
-            ctx.begin_rekey(),
+            ctx.begin_rekey(&device),
             Err(SecurityError::InvalidSessionTransition)
         );
     }
@@ -413,7 +413,7 @@ mod tests {
 
     #[test]
     fn wrong_device_cannot_authorize_bound_context() {
-        let (mut ctx, _device) = authenticated();
+        let (mut ctx, device) = authenticated();
         ctx.establish().unwrap();
         let mut other = Device::new(1, 3, Platform::Android);
         other.begin_pairing().unwrap();
