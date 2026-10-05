@@ -114,11 +114,12 @@ impl KeyLifecycle {
         if self.find(id).is_some() || self.count >= Self::MAX_KEYS {
             return Err(LifecycleError::InvalidTransition);
         }
+        let epoch = self.reserve_epochs(1)?[0];
         let record = KeyRecord {
             id,
             purpose,
             generation,
-            epoch: self.next_epoch()?,
+            epoch,
             state: LifecycleState::Active,
         };
         self.insert(record)?;
@@ -147,20 +148,18 @@ impl KeyLifecycle {
             return Err(LifecycleError::InvalidTransition);
         }
 
-        // Reserve all state transitions before mutating the table so rotation is atomic.
-        let new_epoch = self.next_epoch()?;
-        let old_epoch = self.next_epoch()?;
-
+        // Reserve both epochs before mutating the table so rotation is atomic.
+        let epochs = self.reserve_epochs(2)?;
         let new_record = KeyRecord {
             id: new,
             purpose: old_record.purpose,
             generation,
-            epoch: new_epoch,
+            epoch: epochs[0],
             state: LifecycleState::Active,
         };
         let mut revoked_record = old_record;
         revoked_record.state = LifecycleState::Revoked;
-        revoked_record.epoch = old_epoch;
+        revoked_record.epoch = epochs[1];
 
         self.insert(new_record)?;
         self.replace(revoked_record)?;
@@ -181,7 +180,7 @@ impl KeyLifecycle {
             });
         }
         record.state = LifecycleState::Revoked;
-        record.epoch = self.next_epoch()?;
+        record.epoch = self.reserve_epochs(1)?[0];
         self.replace(record)?;
         Ok(self.event(KeyMutation::Revoke, record))
     }
@@ -203,7 +202,7 @@ impl KeyLifecycle {
             });
         }
         record.state = LifecycleState::Consumed;
-        record.epoch = self.next_epoch()?;
+        record.epoch = self.reserve_epochs(1)?[0];
         self.replace(record)?;
         Ok(self.event(KeyMutation::Consume, record))
     }
@@ -217,7 +216,7 @@ impl KeyLifecycle {
             return Err(LifecycleError::Destroyed);
         }
         record.state = LifecycleState::Destroyed;
-        record.epoch = self.next_epoch()?;
+        record.epoch = self.reserve_epochs(1)?[0];
         self.replace(record)?;
         Ok(self.event(KeyMutation::Destroy, record))
     }
@@ -243,13 +242,20 @@ impl KeyLifecycle {
         self.find(id).copied()
     }
 
-    fn next_epoch(&mut self) -> Result<u64, LifecycleError> {
-        let epoch = self.next_epoch;
-        if epoch == u64::MAX {
+    fn reserve_epochs(&mut self, count: u64) -> Result<[u64; 2], LifecycleError> {
+        debug_assert!((1..=2).contains(&count));
+        let max_next_epoch = u64::MAX - count + 1;
+        if self.next_epoch > max_next_epoch {
             return Err(LifecycleError::EpochExhausted);
         }
-        self.next_epoch += 1;
-        Ok(epoch)
+
+        let first = self.next_epoch;
+        self.next_epoch += count;
+        if count == 1 {
+            Ok([first, 0])
+        } else {
+            Ok([first, first + 1])
+        }
     }
 
     fn event(&self, mutation: KeyMutation, record: KeyRecord) -> LifecycleEvent {
@@ -348,6 +354,23 @@ mod tests {
     }
 
     #[test]
+    fn failed_rotation_preserves_epoch_and_records() {
+        let mut lifecycle = KeyLifecycle::default();
+        let first = lifecycle
+            .register(id(1), KeyPurpose::Session, 1)
+            .unwrap();
+        let failed = lifecycle.rotate(id(1), id(2), 1);
+        assert_eq!(failed, Err(LifecycleError::GenerationRollback));
+
+        let second = lifecycle
+            .register(id(3), KeyPurpose::Session, 1)
+            .unwrap();
+        assert_eq!(second.epoch, first.epoch + 1);
+        assert_eq!(lifecycle.get(id(1)).unwrap().state(), LifecycleState::Active);
+        assert!(lifecycle.get(id(2)).is_none());
+    }
+
+    #[test]
     fn revocation_and_destruction_are_fail_closed() {
         let mut lifecycle = KeyLifecycle::default();
         lifecycle
@@ -396,7 +419,7 @@ mod tests {
     }
 
     #[test]
-    fn epochs_never_move_backwards {
+    fn epochs_never_move_backwards() {
         let mut lifecycle = KeyLifecycle::default();
         let a = lifecycle
             .register(id(1), KeyPurpose::Message, 1)
@@ -405,5 +428,21 @@ mod tests {
         let c = lifecycle.destroy(id(1)).unwrap();
         assert!(a.epoch < b.epoch);
         assert!(b.epoch < c.epoch);
+    }
+
+    #[test]
+    fn epoch_exhaustion_fails_before_mutation() {
+        let mut lifecycle = KeyLifecycle {
+            records: [None; Self::MAX_KEYS],
+            count: 0,
+            next_epoch: u64::MAX,
+        };
+        assert_eq!(
+            lifecycle.register(id(9), KeyPurpose::Message, 1),
+            Err(LifecycleError::EpochExhausted)
+        );
+        assert_eq!(lifecycle.next_epoch, u64::MAX);
+        assert_eq!(lifecycle.count, 0);
+        assert!(lifecycle.get(id(9)).is_none());
     }
 }
