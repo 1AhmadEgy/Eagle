@@ -3,6 +3,8 @@
 mod crypto;
 mod key_lifecycle;
 mod identity;
+mod storage;
+mod mesh;
 mod device;
 mod policy;
 mod protocol;
@@ -16,6 +18,8 @@ pub use crypto::{
     UnavailableCryptoProvider,
 };
 pub use device::{Device, DeviceError, DeviceTrustState, Platform};
+pub use storage::{DeleteReceipt, EncryptedRecord, InMemorySecureStorage, SecureStorage, StorageError, StorageState};
+pub use mesh::{InMemoryOpaqueTransport, MeshTransport, OpaqueFrame, OpaquePayload, TransportError};
 pub use identity::{
     TrustState as IdentityTrustState,
     AccountMembershipStatement, AuthorizationAction, ContactIdentity, ContactIdentityState,
