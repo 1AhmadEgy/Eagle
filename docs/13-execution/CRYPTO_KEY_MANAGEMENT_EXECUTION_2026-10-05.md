@@ -36,3 +36,8 @@ Independent cryptographic review, exact provider/conformance evidence, platform 
 ## 2026 research and profile refresh
 
 The canonical 1:1 security target is now Signal PQXDH + Triple Ratchet. Provider approval requires explicit post-quantum-ratchet capability; no production crypto provider is approved. Current upstream evidence remains reference-only until conformance and independent review close.
+
+
+## Security correction — custom-ratchet rejection
+
+A concurrent change introduced a non-approved SignalPqxdhTripleRatchetV1 profile and a post_quantum_ratchet capability. This was rejected and removed from the crypto approval boundary. Production profiles remain limited to the frozen Signal PQXDH + Double Ratchet track or MLS RFC 9420; no bespoke ratchet is accepted.
