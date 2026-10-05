@@ -13,16 +13,17 @@ fn trusted_context() -> SecurityContext {
 #[test]
 fn untrusted_kernel_is_not_usable() {
     let ctx = SecurityContext::new(1, 1).unwrap();
+    let device = Device::new(10, 20, Platform::Android);
     assert_eq!(
-        authorize(&ctx, Capability::Read),
+        authorize(&ctx, &device, Capability::Read),
         Err(SecurityError::Unauthorized)
     );
     assert_eq!(
-        authorize(&ctx, Capability::Write),
+        authorize(&ctx, &device, Capability::Write),
         Err(SecurityError::Unauthorized)
     );
     assert_eq!(
-        authorize(&ctx, Capability::Administrative),
+        authorize(&ctx, &device, Capability::Administrative),
         Err(SecurityError::Unauthorized)
     );
 }
@@ -69,8 +70,9 @@ fn authentication_cancellation_returns_to_untrusted_idle() {
     assert_eq!(ctx.abort_authentication(), Ok(()));
     assert_eq!(ctx.trust_state(), eagle_core::TrustState::Untrusted);
     assert_eq!(ctx.session_state(), SessionState::Idle);
+    let device = Device::new(10, 20, Platform::Android);
     assert_eq!(
-        authorize(&ctx, Capability::Read),
+        authorize(&ctx, &device, Capability::Read),
         Err(SecurityError::Unauthorized)
     );
 }
