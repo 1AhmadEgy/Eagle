@@ -2,7 +2,9 @@ package com.eagle.app.security
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import java.nio.ByteBuffer
 import java.security.KeyStore
+import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -35,6 +37,11 @@ class AndroidKeyStoreStorage(
     ): String {
         val alias = aliasFor(accountId, deviceId, trustEpoch)
         if (keyStore.containsAlias(alias)) {
+            if (requireStrongBox) {
+                throw IllegalStateException(
+                    "existing storage key cannot prove the requested StrongBox guarantee"
+                )
+            }
             return alias
         }
 
@@ -113,7 +120,22 @@ class AndroidKeyStoreStorage(
             require(accountId > 0) { "accountId must be positive" }
             require(deviceId > 0) { "deviceId must be positive" }
             require(trustEpoch >= 0) { "trustEpoch must not be negative" }
-            return "eagle.storage.$accountId.$deviceId.$trustEpoch"
+
+            val scope = ByteBuffer.allocate(Long.SIZE_BYTES * 3)
+                .putLong(accountId)
+                .putLong(deviceId)
+                .putLong(trustEpoch)
+                .array()
+
+            val digest = MessageDigest.getInstance("SHA-256")
+                .digest("eagle-storage-v1".toByteArray(Charsets.UTF_8) + scope)
+
+            return buildString {
+                append("eagle.storage.")
+                digest.forEach { byte ->
+                    append("%02x".format(byte.toInt() and 0xFF))
+                }
+            }
         }
     }
 }
