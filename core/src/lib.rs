@@ -234,6 +234,23 @@ mod tests {
     }
 
     #[test]
+    fn authentication_can_abort_without_granting_trust() {
+        let mut ctx = SecurityContext::new(1, 1).unwrap();
+        ctx.begin_authentication().unwrap();
+        assert_eq!(
+            ctx.abort_authentication(),
+            Ok(())
+        );
+        assert_eq!(ctx.trust_state(), TrustState::Untrusted);
+        assert_eq!(ctx.session_state(), SessionState::Idle);
+        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        assert_eq!(
+            ctx.abort_authentication(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
+    }
+
+    #[test]
     fn establishment_requires_authenticated_trusted_state() {
         let mut ctx = SecurityContext::new(1, 1).unwrap();
         assert_eq!(
@@ -271,6 +288,21 @@ mod tests {
         assert_eq!(ctx.session_state(), SessionState::Established);
         assert_eq!(
             ctx.finish_rekey(),
+            Err(SecurityError::InvalidSessionTransition)
+        );
+    }
+
+    #[test]
+    fn incomplete_rekey_fails_closed() {
+        let mut ctx = authenticated();
+        ctx.establish().unwrap();
+        ctx.begin_rekey().unwrap();
+        assert_eq!(ctx.session_state(), SessionState::Rekeying);
+        assert_eq!(ctx.abort_rekey(), Ok(()));
+        assert_eq!(ctx.session_state(), SessionState::Closed);
+        assert_eq!(ctx.authorize(), Err(SecurityError::Unauthorized));
+        assert_eq!(
+            ctx.abort_rekey(),
             Err(SecurityError::InvalidSessionTransition)
         );
     }
