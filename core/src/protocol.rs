@@ -133,40 +133,6 @@ impl EncryptedEnvelope {
         &self.ciphertext
     }
 
-    pub fn decode(input: &[u8]) -> Result<(Self, &[u8]), ProtocolError> {
-        if input.len() < FRAME_HEADER_BYTES {
-            return Err(ProtocolError::TruncatedFrame);
-        }
-
-        let version = u16::from_be_bytes(
-            input.get(0..2)
-                .ok_or(ProtocolError::TruncatedFrame)?
-                .try_into()
-                .map_err(|_| ProtocolError::TruncatedFrame)?,
-        );
-        let payload_len = u32::from_be_bytes(
-            input.get(2..6)
-                .ok_or(ProtocolError::TruncatedFrame)?
-                .try_into()
-                .map_err(|_| ProtocolError::TruncatedFrame)?,
-        );
-        let flags = u16::from_be_bytes(
-            input.get(6..8)
-                .ok_or(ProtocolError::TruncatedFrame)?
-                .try_into()
-                .map_err(|_| ProtocolError::TruncatedFrame)?,
-        );
-
-        let header = Self::new(version, payload_len, flags)?;
-        let payload_len = usize::try_from(header.payload_len)
-            .map_err(|_| ProtocolError::PayloadTooLarge)?;
-        let end = FRAME_HEADER_BYTES
-            .checked_add(payload_len)
-            .ok_or(ProtocolError::PayloadTooLarge)?;
-        let payload = input.get(FRAME_HEADER_BYTES..end).ok_or(ProtocolError::TruncatedFrame)?;
-        Ok((header, payload))
-    }
-
     pub fn protocol_version(&self) -> u16 {
         self.protocol_version
     }
@@ -200,6 +166,45 @@ impl EncryptedEnvelope {
 }
 
 impl FrameHeader {
+    pub fn decode(input: &[u8]) -> Result<(Self, &[u8]), ProtocolError> {
+        if input.len() < FRAME_HEADER_BYTES {
+            return Err(ProtocolError::TruncatedFrame);
+        }
+
+        let version = u16::from_be_bytes(
+            input
+                .get(0..2)
+                .ok_or(ProtocolError::TruncatedFrame)?
+                .try_into()
+                .map_err(|_| ProtocolError::TruncatedFrame)?,
+        );
+        let payload_len = u32::from_be_bytes(
+            input
+                .get(2..6)
+                .ok_or(ProtocolError::TruncatedFrame)?
+                .try_into()
+                .map_err(|_| ProtocolError::TruncatedFrame)?,
+        );
+        let flags = u16::from_be_bytes(
+            input
+                .get(6..8)
+                .ok_or(ProtocolError::TruncatedFrame)?
+                .try_into()
+                .map_err(|_| ProtocolError::TruncatedFrame)?,
+        );
+
+        let header = Self::new(version, payload_len, flags)?;
+        let payload_len =
+            usize::try_from(header.payload_len).map_err(|_| ProtocolError::PayloadTooLarge)?;
+        let end = FRAME_HEADER_BYTES
+            .checked_add(payload_len)
+            .ok_or(ProtocolError::PayloadTooLarge)?;
+        let payload = input
+            .get(FRAME_HEADER_BYTES..end)
+            .ok_or(ProtocolError::TruncatedFrame)?;
+        Ok((header, payload))
+    }
+
     pub fn new(protocol_version: u16, payload_len: u32, flags: u16) -> Result<Self, ProtocolError> {
         validate_version(protocol_version, CURRENT_PROTOCOL_VERSION)?;
         let payload_len =
