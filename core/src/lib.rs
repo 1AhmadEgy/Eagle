@@ -5,6 +5,7 @@ mod key_management;
 mod message_boundary;
 mod policy;
 mod protocol;
+mod replay;
 mod session;
 mod serialization;
 mod transport_policy;
@@ -23,6 +24,7 @@ pub use session::Session;
 pub use serialization::{
     deserialize_envelope, serialize_envelope, SerializationError, MAX_SERIALIZED_ENVELOPE_BYTES,
 };
+pub use replay::{ReplayError, ReplayTracker, MAX_TRACKED_MESSAGE_IDS};
 pub use transport_policy::{PeerBinding, TransportError, TransportPath, TransportPolicy};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
