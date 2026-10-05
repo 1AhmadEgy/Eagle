@@ -1,0 +1,215 @@
+use eagle_core::{
+    authorize, validate_version, Capability, Device, DeviceTrustState, EncryptedEnvelope,
+    MessageId, OpaqueId, Platform, SecurityContext, SecurityError, Session, SessionState,
+    CURRENT_PROTOCOL_VERSION, MAX_ID_BYTES,
+};
+
+fn trusted_context() -> SecurityContext {
+    let mut ctx = SecurityContext::new(1, CURRENT_PROTOCOL_VERSION).unwrap();
+    ctx.begin_authentication().unwrap();
+    ctx
+}
+
+#[test]
+fn untrusted_kernel_is_not_usable() {
+    let ctx = SecurityContext::new(1, 1).unwrap();
+    assert_eq!(
+        authorize(&ctx, Capability::Read),
+        Err(SecurityError::Unauthorized)
+    );
+    assert_eq!(
+        authorize(&ctx, Capability::Write),
+        Err(SecurityError::Unauthorized)
+    );
+    assert_eq!(
+        authorize(&ctx, Capability::Administrative),
+        Err(SecurityError::Unauthorized)
+    );
+}
+
+#[test]
+fn device_is_not_authorized_before_trust() {
+    let device = Device::new(10, 20, Platform::Android);
+    assert_eq!(device.account(), 10);
+    assert_eq!(device.device(), 20);
+    assert_eq!(device.platform(), Platform::Android);
+    assert_eq!(device.trust_state(), DeviceTrustState::Unknown);
+    assert!(device.can_authorize().is_err());
+}
+
+#[test]
+fn session_cannot_self_elevate_unverified_context() {
+    let mut ctx = SecurityContext::new(1, 1).unwrap();
+    assert_eq!(
+        Session::establish(&mut ctx, 1),
+        Err(SecurityError::InvalidSessionTransition)
+    );
+    assert_eq!(ctx.session_state(), SessionState::Idle);
+}
+
+#[test]
+fn pending_context_cannot_establish_or_rekey() {
+    let mut ctx = trusted_context();
+    assert_eq!(ctx.trust_state(), eagle_core::TrustState::Pending);
+
+    // The actual verifier remains an internal test seam until the approved
+    // authentication/cryptographic protocol is integrated.
+    assert!(ctx.establish().is_err());
+
+    assert_eq!(
+        Session::begin_rekey(&mut ctx),
+        Err(SecurityError::InvalidSessionTransition)
+    );
+}
+
+#[test]
+fn invalid_configuration_fails_closed() {
+    assert_eq!(
+        SecurityContext::new(0, 1),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+    assert_eq!(
+        SecurityContext::new(2, 1),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+    assert_eq!(
+        SecurityContext::new(1, 2),
+        Err(SecurityError::UnsupportedProtocol)
+    );
+}
+
+#[test]
+fn version_validation_is_monotonic_and_bounded() {
+    assert_eq!(validate_version(1, 1), Ok(1));
+    assert_eq!(
+        validate_version(0, 1),
+        Err(eagle_core::ProtocolError::DowngradeRejected)
+    );
+    assert_eq!(
+        validate_version(2, 1),
+        Err(eagle_core::ProtocolError::UnsupportedVersion)
+    );
+}
+
+#[test]
+fn identifiers_are_constructor_bounded() {
+    assert_eq!(
+        OpaqueId::new(Vec::new()),
+        Err(eagle_core::ProtocolError::EmptyIdentifier)
+    );
+    assert_eq!(
+        OpaqueId::new(vec![0; MAX_ID_BYTES + 1]),
+        Err(eagle_core::ProtocolError::IdentifierTooLarge)
+    );
+    assert_eq!(OpaqueId::new(vec![7; 8]).unwrap().as_bytes(), &[7; 8]);
+    assert_eq!(MessageId::new([9; 16]).as_bytes(), &[9; 16]);
+}
+
+#[test]
+fn envelope_is_structurally_validated() {
+    let envelope = EncryptedEnvelope::new(
+        MessageId::new([1; 16]),
+        OpaqueId::new(vec![2; 8]).unwrap(),
+        OpaqueId::new(vec![3; 8]).unwrap(),
+        None,
+        vec![0xAA; 32],
+        CURRENT_PROTOCOL_VERSION,
+        42,
+    )
+    .unwrap();
+
+    let header = envelope.frame_header().unwrap();
+    assert_eq!(header.protocol_version(), CURRENT_PROTOCOL_VERSION);
+    assert_eq!(header.payload_len(), 32);
+    assert_eq!(header.validate_payload_len(32), Ok(()));
+}
+
+#[test]
+fn frame_header_rejects_length_and_version_mismatch() {
+    let envelope = EncryptedEnvelope::new(
+        MessageId::new([4; 16]),
+        OpaqueId::new(vec![5; 8]).unwrap(),
+        OpaqueId::new(vec![6; 8]).unwrap(),
+        None,
+        vec![0xBB; 8],
+        CURRENT_PROTOCOL_VERSION,
+        42,
+    )
+    .unwrap();
+    let header = envelope.frame_header().unwrap();
+    assert_eq!(
+        header.validate_payload_len(7),
+        Err(eagle_core::ProtocolError::PayloadLengthMismatch)
+    );
+    assert_eq!(header.validate_payload_len(8), Ok(()));
+}
+
+#[test]
+fn device_revocation_and_replacement_are_terminal() {
+    let mut revoked = Device::new(10, 20, Platform::Desktop);
+    let mut replaced = Device::new(10, 21, Platform::Ios);
+
+    // Pairing/approval are internal until the real authentication verifier exists.
+    // The public API exposes only terminal fail-closed transitions.
+    assert_eq!(
+        revoked.revoke(),
+        Err(eagle_core::DeviceError::InvalidTransition)
+    );
+    assert_eq!(
+        replaced.replace(),
+        Err(eagle_core::DeviceError::InvalidTransition)
+    );
+}
+
+#[test]
+fn key_custody_contract_is_fail_closed() {
+    use eagle_core::{
+        KeyCustody, KeyError, KeyPolicy, KeyPurpose, KeyRecord, KeyReference, KeyScope,
+    };
+
+    let reference = KeyReference::new([8; 16]).unwrap();
+    let scope = KeyScope::new(10, 20, 1).unwrap();
+    let policy = KeyPolicy::for_purpose(KeyPurpose::IdentitySigning);
+    let mut record = KeyRecord::new(reference, scope, policy);
+
+    assert_eq!(
+        record.authorize(
+            scope,
+            KeyPurpose::IdentitySigning,
+            KeyCustody::PlatformSecure
+        ),
+        Ok(())
+    );
+    assert_eq!(record.export(), Err(KeyError::ExportForbidden));
+
+    record.revoke();
+    assert_eq!(
+        record.authorize(
+            scope,
+            KeyPurpose::IdentitySigning,
+            KeyCustody::PlatformSecure
+        ),
+        Err(KeyError::Revoked)
+    );
+}
+
+#[test]
+fn application_data_rejects_non_direct_transport() {
+    use eagle_core::{TransportError, TransportPath, TransportPolicy};
+
+    let policy = TransportPolicy::new();
+
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::Relay, None),
+        Err(TransportError::ApplicationDataRequiresDirectPath)
+    );
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::ServerFallback, None),
+        Err(TransportError::ApplicationDataRequiresDirectPath)
+    );
+    assert_eq!(
+        policy.authorize_application_data(TransportPath::Direct, None),
+        Err(TransportError::PeerIdentityRequired)
+    );
+}
+

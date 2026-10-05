@@ -17,9 +17,9 @@ Define the minimum security contract for iOS/iPadOS key custody without claiming
 
 ## Secure Enclave constraint
 
-Apple documents that Secure Enclave private-key support is limited to supported P-256 operations and that pre-existing keys cannot be imported. Therefore a Signal/PQXDH implementation must not pretend that its protocol identity key is Secure-Enclave-backed unless the exact algorithm and operation have been independently verified on the target OS/device.
+Apple's current CryptoKit documentation exposes Secure Enclave operations for P-256 and also lists ML-KEM and ML-DSA capabilities. The older/general Security keychain token interface still documents important representation constraints, and pre-existing Secure Enclave keys cannot simply be imported. Therefore Eagle must verify the exact OS/device/API, algorithm, key representation, and lifecycle behavior before claiming hardware-backed custody for any Signal/PQXDH or post-quantum protocol component.
 
-A separate hardware-bound attestation/security anchor may be used to establish device security properties while the protocol provider uses an approved non-exportable Keychain representation for algorithms not supported by Secure Enclave.
+A separate hardware-bound attestation/security anchor may be used to establish device security properties while the protocol provider uses an approved non-exportable Keychain representation for algorithms or operations not supported by the selected Secure Enclave API.
 
 ## Fail-closed rules
 
