@@ -6,6 +6,7 @@
 | Session state | invalid transition denial | Rust unit/integration tests | PASS for kernel slice |
 | Versioning | downgrade/unsupported rejection and no mutation | Rust unit/integration tests | PASS for kernel slice |
 | Bounds | ID/payload/frame-length abuse | Rust unit/integration tests | PASS for kernel slice |
+| Serialization | fixed schema/definite CBOR/canonical bytes/trailing data | Rust serialization unit tests | PASS for implemented envelope codec |
 | Identity | key substitution/device mismatch | Identity threat scenarios | PENDING crypto integration |
 | Pairing | MITM/replay/phishing/expiry | scenario corpus | PENDING |
 | Revocation | offline convergence/stale epoch/rollback | scenario corpus | PENDING |
