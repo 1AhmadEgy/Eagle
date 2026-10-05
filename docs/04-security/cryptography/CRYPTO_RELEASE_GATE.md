@@ -34,3 +34,12 @@ Current:
 - G0-G5: design evidence complete.
 - G6-G8: implementation/independent evidence required.
 - G9: BLOCKED.
+
+
+## Additional hard gates — 2026-10-05
+
+- Exact provider revision and explicit protocol profile binding verified.
+- Required hardware-backed attestation/security-anchor evidence verified where claimed.
+- No unsupported Secure Enclave/StrongBox custody claims for PQXDH/MLS keys.
+- Strict-P2P profile semantics independently conformance-tested; no stock asynchronous PQXDH interoperability claim without its required rendezvous semantics.
+- PQC selection bound to finalized standards and current NIST migration baseline.
