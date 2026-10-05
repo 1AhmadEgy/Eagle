@@ -293,4 +293,5 @@ mod tests {
             policy.validate(10_101, 10_000, Some(10_100)),
             Err(FreshnessError::Expired)
         );
-    }}
+    }
+}
