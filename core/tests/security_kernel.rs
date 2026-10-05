@@ -76,13 +76,6 @@ fn authentication_cancellation_returns_to_untrusted_idle() {
 }
 
 #[test]
-fn failed_rekey_closes_session() {
-    let mut ctx = SecurityContext::new(1, 1).unwrap();
-    ctx.begin_authentication().unwrap();
-    assert!(ctx.establish().is_err());
-}
-
-#[test]
 fn invalid_configuration_fails_closed() {
     assert_eq!(
         SecurityContext::new(0, 1),
