@@ -21,9 +21,10 @@
 ## Messaging / Protocol
 
 - IETF RFC 9420 — MLS: https://www.rfc-editor.org/info/rfc9420
-- IETF RFC 8446 — TLS 1.3: https://www.rfc-editor.org/info/rfc8446
+- IETF RFC 9846 — TLS 1.3: https://www.rfc-editor.org/info/rfc9846
+- RFC 8446 remains a historical TLS 1.3 reference and is superseded by RFC 9846.
 
-> استخدم RFC كمرجع، لكن لا تفترض اعتماد MLS/TLS أو أي protocol بعينه قبل ADR يثبت الملاءمة مع topology ومتطلبات Eagle.
+> لا تفترض اعتماد MLS/TLS أو أي protocol بعينه قبل ADR يثبت الملاءمة مع topology ومتطلبات Eagle.
 
 ## Platform Security
 
