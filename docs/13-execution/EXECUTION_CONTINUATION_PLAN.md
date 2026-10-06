@@ -7,13 +7,13 @@
 | المجال | الحالة | الدليل/الإجراء التالي |
 |---|---|---|
 | GitHub repository | Verified | مستودع 1AhmadEgy/Eagle والفرع الرئيسي main |
-| Reference documentation | In Progress | PR #1 يحتوي 16 ملفًا توثيقيًا |
+| Reference documentation | In Progress | مراجعة الأساس التوثيقي والـPRs |
 | Product requirements | Pending | استرجاع المواد التاريخية ومراجعة المصادر |
-| Source code / stack | Unverified | البحث الحالي لم يثبت ملفات stack قياسية |
+| Source code / stack | **Verified baseline** | `docs/05-engineering/STACK_BASELINE.md` |
 | Architecture | Foundation only | بناء المخططات بعد إثبات المتطلبات والـstack |
 | Threat model | Pending | يعتمد على مكونات وحدود ثقة فعلية |
-| CI/CD | Unverified | فحص .github/workflows بعد توفر الوصول/الملفات |
-| Dependency baseline | Pending | إنشاء lockfiles/SBOM بعد تثبيت stack |
+| CI/CD | Partial | GitHub Actions موجودة؛ reproducible Gradle build ما زال غير مثبت |
+| Dependency baseline | Pending | تثبيت Gradle dependency graph ثم lock/SBOM حسب الحاجة |
 | QA | Baseline | تحويل المتطلبات إلى acceptance tests |
 | Operations | Pending | تحديد deployment/backup/monitoring |
 
@@ -21,7 +21,7 @@
 1. جمع كل المواد التاريخية المتاحة.
 2. فحص الأرشيفات قبل أي import إلى Git.
 3. استخراج المتطلبات والقرارات والتعارضات.
-4. إثبات Stack المشروع من الملفات الفعلية.
+4. **تثبيت مسار Android build قابل لإعادة الإنتاج (Gradle Wrapper + verification).**
 5. تثبيت Architecture وTrust Boundaries.
 6. بناء Threat Model.
 7. اعتماد المكونات الخارجية واحدًا واحدًا.
@@ -110,4 +110,4 @@ Requirement → Architecture Fit → Security History → Exact Version → Lice
 لا يُسمح بتحويل الحالة إلى Production Ready قبل إغلاق البوابات أعلاه بالأدلة.
 
 ## 11. الخطوة التشغيلية التالية
-الأولوية الآن هي المواد التاريخية ومصدر الكود الفعلي. بعد توفرهما، يتم تحديث Requirements Traceability وArchitecture وThreat Model وComponent Due Diligence مباشرة، ثم إنشاء أول Execution Slice قابل للاختبار.
+الأولوية المباشرة هي تثبيت Gradle Wrapper ومسار build قابل لإعادة الإنتاج، ثم بناء أول Execution Slice للكود بعد اعتماد المتطلبات والمعمارية.
