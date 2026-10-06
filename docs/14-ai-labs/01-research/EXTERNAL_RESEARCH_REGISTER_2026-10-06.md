@@ -74,3 +74,32 @@ Impact: candidate evidence for platform analysis; it does not establish Eagle's 
 
 ## Review triggers
 Re-review when GitHub Actions security changes, a CI/security incident occurs, a crypto provider/protocol is proposed, an AI tool/model is proposed, platform architecture changes, or release provenance requirements change.
+## Additional 2026 research
+
+### EXT-017 — NIST TEVV-Athlon
+NIST's August 2026 public draft describes a structured framework for customized AI Test, Evaluation, Verification and Validation (TEVV), including agentic systems. It emphasizes producing evidence from defined events/tools and measurement blocks.
+Impact: useful research input for an Eagle AI Lab evaluation contract. The document was still a public draft on 2026-10-06; it is not an Eagle standard.
+
+### EXT-018 — GitHub Agentic Workflows
+GitHub documents agentic repository workflows as public preview and describes read-only defaults, declared safe outputs, isolated execution, threat detection, and human review in the loop.
+Impact: strong external reference for comparing Eagle's existing AI repair restrictions and the AILAB-05..07 authority model. No adoption decision.
+
+### EXT-019 — GitHub Actions execution protections
+GitHub documents repository/organization/enterprise workflow execution protections that can restrict who may trigger workflows and which events are permitted. GitHub also states that a default public-repository policy will block pull_request_target on November 2, 2026.
+Impact: relevant to AILAB-22..24 and the distinction between repository policy and GitHub configuration evidence.
+
+### EXT-020 — OWASP DonkAI
+OWASP DonkAI is a deliberately vulnerable, rule-based hands-on lab covering the OWASP 2025 GenAI Top 10. It is described as deterministic, offline-friendly, and reproducible, with explicit warnings to isolate the lab.
+Impact: useful external model for Eagle's future AI security scenario lab design, especially reproducibility and isolated attack exercises. It is not a dependency or runtime component.
+
+### EXT-F-010 — TEVV artifacts should be documented for repeatability
+NIST AIRC guidance states that test sets, metrics, tools, processes and materials used for TEVV should be documented to support repeatability and consistency.
+Impact: strengthens Eagle's existing requirement that AI findings remain evidence-backed and reproducible rather than relying on model assertions.
+
+### EXT-F-011 — Agentic workflow safety is layered
+GitHub's current agentic-workflow documentation describes multiple controls: read-only defaults, safe outputs, secret isolation, threat detection, firewalled execution and role-based access.
+Impact: candidate comparison framework for Eagle AI Labs. Eagle must preserve its own stricter authority boundary and does not inherit GitHub's model as an accepted design.
+
+### EXT-F-012 — Workflow execution policy is distinct from workflow YAML
+GitHub documents execution protections as repository/organization/enterprise policy that can restrict actors/events independently of a workflow file.
+Impact: reinforces Eagle's evidence distinction between repository policy, GitHub configuration evidence, and observed API permissions.

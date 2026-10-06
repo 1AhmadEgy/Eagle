@@ -26,3 +26,8 @@ Status: Proposed / Documentation Only
 External research must not overwrite repository evidence.
 Every claim should preserve: source → publication/current state → extracted claim → Eagle component → affected scenario/requirement → verification status.
 External research is advisory unless accepted through Eagle governance.
+| NIST TEVV-Athlon | AI Labs | structured agent evaluation evidence | Research |
+| NIST TEVV documentation guidance | AI Labs | repeatable test/evidence records | Proposed |
+| GitHub Agentic Workflows | AI Labs / CI | safe outputs, isolation, read-only defaults | Research |
+| GitHub workflow execution protections | CI / Governance | actor/event policy evidence | Proposed |
+| OWASP DonkAI | AI Labs | deterministic isolated security scenarios | Research |
