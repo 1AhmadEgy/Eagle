@@ -7,6 +7,10 @@ This index is the entry point for the current accepted security/runtime baseline
 1. [ADR-0001 — Security-First Runtime Boundary](./ADR-0001-security-first-runtime-boundary.md)
 2. [Security-First Baseline](../security/security-first-baseline.md)
 3. [Canonical Requirements & Gap Matrix](../traceability/canonical-requirements-matrix.md)
+4. [P2P Threat Model](../security/threat-model-p2p.md)
+5. [Dependency & Supply-Chain Policy](../security/dependency-policy.md)
+6. [Performance, Efficiency & Size Gates](../performance/performance-gates.md)
+7. [Security-First Release Gate](../releases/security-first-release-gate.md)
 
 ## Source and provenance
 
