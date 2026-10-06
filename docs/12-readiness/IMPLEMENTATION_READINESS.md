@@ -1,31 +1,30 @@
-# جاهزية التنفيذ البرمجي
+# Implementation Readiness
 
-## النتيجة الحالية
-**الحالة: غير مكتمل — مرحلة تأسيس المرجع والتجهيز.**
+## Status
 
-تم إنشاء أساس توثيقي وفتح PR مستقل، لكن لا توجد أدلة كافية من المصادر المتاحة حاليًا لاعتماد أن المتطلبات والمعمارية والـStack والاختبارات والأمن مكتملة.
+**Documentation-ready / Product not yet proven production-ready.**
 
-## بوابات البدء
-| البوابة | الشرط | الحالة |
-|---|---|---|
-| Requirements | متطلبات وظيفية وغير وظيفية معتمدة وقابلة للتتبع | Pending |
-| Architecture | معمارية ومخططات وحدود ثقة معتمدة | Pending |
-| Stack | تقنيات وإصدارات ومكونات أساسية مثبتة | Pending |
-| Security | Threat Model + baseline + secret policy | Partial |
-| Data | نموذج بيانات وسياسات احتفاظ/حماية | Pending |
-| QA | استراتيجية اختبار ومعايير قبول | Pending |
-| CI/CD | بناء واختبارات وفحوص أمنية قابلة للتكرار | Pending |
-| Operations | logging/monitoring/backup/recovery | Pending |
-| Documentation | مرجع موحد وسجل قرارات ومصادر | In Progress |
+تم تثبيت أساس توثيقي عام جديد، لكن لا يُسمح بتحويل ذلك إلى claim بأن المنتج النهائي مستقر في الإنتاج.
 
-## قاعدة التنفيذ
-يمكن تنفيذ أعمال الاستكشاف والتوثيق والاختبارات الأولية، لكن لا ينبغي اعتبار المنتج جاهزًا للإطلاق أو الإنتاج قبل إغلاق البوابات ذات الصلة بالأدلة.
+## Gates
 
-## معيار الإطلاق
-- لا أسرار في المستودع.
-- مراجعة تغييرات حساسة من إنسان.
-- الاختبارات المطلوبة ناجحة.
-- الاعتماديات الحرجة مفحوصة.
-- الصلاحيات موثقة وفق أقل صلاحية.
-- rollback/recovery موثق ومجرب عند الحاجة.
-- كل متطلب إنتاجي مرتبط بكود واختبار ووثيقة.
+| Gate | Status |
+|---|---|
+| Requirements baseline | Documented; implementation traceability in progress |
+| Architecture | Target baseline documented; reconciliation required |
+| Security | Baseline documented; complete verification required |
+| P2P E2E | Evidence required |
+| Android | Implementation/evidence review required |
+| iOS | Implementation/evidence review required |
+| Desktop | Implementation/evidence review required |
+| Testing | Master plan documented; full evidence required |
+| Supply chain | Policy documented; release evidence required |
+| Release | No published release in verified snapshot |
+
+## Release rule
+
+لا يتم إعلان Production Ready إلا بعد تنفيذ واختبار ومراجعة وتحقق مستقل لكل بوابة حرجة وتوثيق الأدلة في release record.
+
+## Reference
+
+المرجع التنفيذي الحالي هو main بعد الدمج؛ PRs والفروع الأخرى candidates/provenance.
