@@ -24,7 +24,7 @@ This document describes platform scope. It does **not** replace ADRs that define
 
 | Phase | Platform | Priority | Status |
 |---|---|---:|---|
-| Phase 1 | Android | 1 | In progress — `androidApp/` |
+| Phase 1 | Android | 1 | In progress — `app/` |
 | Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned — `desktopApp/` |
 | Phase 2 | iOS | 3 | Planned — `iosApp/` |
 | Deferred | Web | — | Deferred — `webApp/` later |
@@ -65,7 +65,7 @@ The intended dependency direction is:
 
 ### 3.1 Rust Security Core
 
-The Rust Security Core is the platform-independent security boundary.
+The Rust Security Core is the platform-independent security boundary. The current repository contains only a smaller, non-cryptographic Rust state-machine foundation; it must not be confused with the production Security Core described here.
 
 Its implementation is shared through cross-compilation and UniFFI bindings. Platform-specific integration must not duplicate security-critical primitives in Kotlin, Swift, or other UI/application layers unless explicitly approved by an ADR.
 

@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "document": "Eagle Repository State",
+  "last_verified_utc": "2026-10-04",
+  "verification_scope": "Current implementation baseline on main, excluding archive/chatgpt-historical/",
+  "actual_android_module": "app",
+  "planned_platform_paths": {
+    "desktop": "desktopApp",
+    "ios": "iosApp",
+    "web": "webApp"
+  },
+  "planned_platform_paths_are_not_required_to_exist": true,
+  "adr_state": {
+    "ADR-0008": {
+      "status": "proposed",
+      "representation": "docs/03-architecture/adr/ADR-0008.md"
+    },
+    "ADR-0009": {
+      "status": "proposed",
+      "representation": "docs/03-architecture/adr/ADR-0009.md"
+    },
+    "ADR-0010": {
+      "status": "proposed",
+      "representation": "docs/03-architecture/adr/ADR-0010.md"
+    },
+    "ADR-0011": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    },
+    "ADR-0012": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    },
+    "ADR-0013": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    },
+    "ADR-0014": {
+      "status": "proposed-scope",
+      "representation": "docs/03-architecture/adr/ADR-0011-0014-WORKLIST.md"
+    }
+  },
+  "implementation_baseline": {
+    "android_app": true,
+    "real_cryptography": false,
+    "device_identity": false,
+    "approved_e2e_protocol": false,
+    "rust_security_core": false,
+    "kmp_shared_layer": false,
+    "mesh_engine": false,
+    "persistent_messaging_storage": false,
+    "rust_security_state_machine_foundation": true
+  },
+  "android_build": {
+    "module": "app",
+    "agp": "9.4.0",
+    "compile_sdk": 37,
+    "target_sdk": 37,
+    "min_sdk": 29,
+    "unit_test_framework": "junit:junit:4.13.2"
+  },
+  "workflow_pins": {
+    "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+    "actions/setup-java": "de7274f081f381c8f8158605e0321c36c376e2e6",
+    "gradle/actions/setup-gradle": "f29f5a9d7b09a7c6b29859002d29d24e1674c884",
+    "actions/upload-artifact": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+    "gitleaks/gitleaks-action": "e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e",
+    "dtolnay/rust-toolchain": "7e38f4b43b4db5c8dd498af069a4f6196df1d067",
+    "Swatinem/rust-cache": "66b1e9526150e74ddd7e4190356facd783fb3b44"
+  },
+  "repository_metadata": {
+    "visibility_observed": "public",
+    "ownership_intent": "PRIVATE / ALL RIGHTS RESERVED",
+    "legal_holder": "UNCONFIRMED",
+    "visibility_change_requires_owner_action": true
+  },
+  "rust_foundation": {
+    "status": "implemented-foundation-only",
+    "crate": "core",
+    "package": "eagle-core",
+    "toolchain": "1.99.0",
+    "cryptography_implemented": false,
+    "identity_verification_implemented": false,
+    "production_security_core": false
+  },
+  "verification_evidence": {
+    "commit": "561a005afe106ec3c8f73bca767a26383b73acc1",
+    "verified_at": "2026-10-04",
+    "runs": {
+      "CI": {
+        "run_id": 37211005813,
+        "conclusion": "success"
+      },
+      "Eagle Test Lab": {
+        "run_id": 37211005822,
+        "conclusion": "success"
+      },
+      "Rust Core": {
+        "run_id": 37211005776,
+        "conclusion": "success"
+      }
+    },
+    "note": "These runs verify the current foundation and CI controls; they do not constitute cryptographic protocol or production-security approval."
+  }
+}
