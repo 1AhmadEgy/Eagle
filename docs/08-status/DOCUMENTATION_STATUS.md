@@ -1,20 +1,45 @@
-# حالة التوثيق
+# Documentation Status — 2026-10-06
 
-## الحالة الحالية
-**Foundation / تأسيس المرجع**
+## Current state
 
-تم إنشاء هيكل مرجعي أولي. لم يتم الادعاء باكتمال التوثيق التاريخي أو اكتمال متطلبات المنتج.
+**Documentation Foundation: Expanded / Review Required**
 
-## الأعمال التالية
-- استرجاع وفحص جميع الأرشيفات والملفات المشار إليها.
-- تجميع مخرجات المحادثات المتاحة لكل مسار.
-- إزالة التكرار والتعارضات مع حفظ سجل التغييرات.
-- استخراج المتطلبات وربطها بمصادرها.
-- تثبيت المعمارية بعد مراجعة الأدلة.
-- إضافة المخططات الفعلية.
-- بناء Threat Model تفصيلي.
-- إضافة CI/security checks بعد معرفة stack الحقيقي.
-- فتح PR لهذا الأساس ومراجعته قبل الدمج.
+تم توسيع طبقة التوثيق العامة لتغطي دورة المشروع من Inventory إلى Post-Release/Re-cycle، مع فصل واضح بين المرجع التاريخي والمرجع التنفيذي.
 
-## قاعدة الجودة
-كل معلومة يجب أن تحمل حالة واحدة على الأقل: Verified / Derived / Proposed / Pending / Rejected، مع مصدر أو سبب واضح.
+## Added in PR #89
+
+- Public docs entrypoint.
+- Project Charter.
+- Master 20-stage lifecycle.
+- Document control.
+- Canonical status dashboard.
+- Corpus/Git reconciliation.
+- Team full-corpus reference access policy.
+- Master requirements baseline.
+- Target canonical architecture.
+- Architecture diagrams.
+- Security engineering plan.
+- Branch/PR/CI standard.
+- Master testing and verification plan.
+- Master gap matrix.
+- Release Gate and production runbook.
+- Post-release operations.
+- Public reader guide.
+- External reference baseline.
+- Implementation matrix.
+- Branch/PR canonicalization policy.
+- Canonicalization execution plan.
+- Public root README.
+
+## Important status rule
+
+هذا التغيير لا يعلن اكتمال التنفيذ أو production readiness. الكود المدمج والأدلة والاختبارات وRelease Gate هي التي تثبت الحالة التنفيذية.
+
+## Next evidence cycle
+
+1. Reconcile active branches and PRs.
+2. Close/merge/supersede conflicting implementation lines.
+3. Complete cross-platform implementation evidence.
+4. Prove P2P end-to-end behavior.
+5. Complete security verification.
+6. Build and verify a release candidate.
