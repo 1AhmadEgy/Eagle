@@ -11,6 +11,7 @@ This index is the entry point for the current accepted security/runtime baseline
 5. [Dependency & Supply-Chain Policy](../security/dependency-policy.md)
 6. [Performance, Efficiency & Size Gates](../performance/performance-gates.md)
 7. [Security-First Release Gate](../releases/security-first-release-gate.md)
+8. [Android Source Provenance & Canonicalization](../traceability/source-provenance-android.md)
 
 ## Source and provenance
 
