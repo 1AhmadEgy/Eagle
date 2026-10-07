@@ -1,6 +1,6 @@
 # Eagle Platform Strategy
 
-> **Status:** Accepted reference baseline  
+> **Status:** Accepted scope reference; current implementation remains Android-only on canonical main  
 > **Scope:** Platform targets, delivery order, and cross-platform architecture boundaries  
 > **Related architecture:** ADR-0015 + A→E architecture split (working baseline)  
 > **Last updated:** 2026-10-04
@@ -24,10 +24,10 @@ This document describes platform scope. It does **not** replace ADRs that define
 
 | Phase | Platform | Priority | Status |
 |---|---|---:|---|
-| Phase 1 | Android | 1 | In progress — `androidApp/` |
-| Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned — `desktopApp/` |
-| Phase 2 | iOS | 3 | Planned — `iosApp/` |
-| Deferred | Web | — | Deferred — `webApp/` later |
+| Phase 1 | Android | 1 | **Current implementation — `app/`** |
+| Phase 1 | Desktop (Windows / macOS / Linux) | 2 | Planned target |
+| Phase 2 | iOS | 3 | Planned target |
+| Out of scope | Web / WebAssembly | — | **Explicitly excluded** |
 
 ### 2.1 Delivery intent
 
@@ -37,7 +37,7 @@ This document describes platform scope. It does **not** replace ADRs that define
 
 **iOS follows the stabilization of the shared layer and Layer C security boundary.** It reuses KMP and the Rust/UniFFI boundary while retaining platform-specific Swift/Xcode integration where required.
 
-**Web is explicitly deferred.** Web support must not force premature changes to the security boundary or constrain ADR-0008/0009/0010.
+**Web is out of scope.** Browser application delivery, Web/Wasm runtime support, browser storage, browser cryptography, and web-specific release tracks are not part of Eagle's current architecture.
 
 ## 3. Cross-platform architecture
 
@@ -105,7 +105,7 @@ Platform adapters isolate platform-specific concerns.
 | Android | Kotlin + Compose | Android lifecycle, permissions, services, notifications, platform storage/integration |
 | Desktop | JVM + Compose Multiplatform | Windowing, desktop lifecycle, OS integration, packaging |
 | iOS | Kotlin/Native + Swift + Compose Multiplatform | Apple lifecycle, signing, native integration, platform services |
-| Web | Wasm + Compose Multiplatform | Browser APIs and web-specific runtime integration; deferred |
+
 
 ## 4. Why this order
 
@@ -125,11 +125,9 @@ iOS is intentionally scheduled after the shared layer and Layer C security bound
 
 The iOS application should consume the same security core and shared contracts rather than becoming a second source of security-critical logic.
 
-### Web deferred
+### Web excluded
 
-Web is a separate expansion decision.
-
-The current architecture must **not** be redesigned around Web/Wasm requirements before Web is an approved target. In particular, Web must not weaken, bypass, or redefine the Rust Security Core boundary or the cryptographic decisions in ADR-0008, ADR-0009, and ADR-0010.
+Web/Wasm is not a supported or planned application target for Eagle. Any future proposal to add Web requires an explicit scope decision and architecture review before implementation.
 
 ## 5. Layer A→E implications
 
@@ -138,7 +136,7 @@ The platform strategy maps to the existing A→E planning model as follows:
 - **Layer A — Architecture / governance:** platform target policy and dependency direction.
 - **Layer B — Shared application architecture:** KMP shared contracts and reusable application behavior.
 - **Layer C — Security boundary:** Rust Security Core, cross-compilation, UniFFI, and platform bindings.
-- **Layer D — Platform implementation:** Android, Desktop, and later iOS/Web adapters.
+- **Layer D — Platform implementation:** Android, Desktop, and iOS adapters only. Web is outside scope.
 - **Layer E — Delivery / verification:** CI matrices, packaging, platform-specific tests, signing, release verification, and operational readiness.
 
 The exact responsibilities of each layer remain governed by the corresponding architecture/ADR records.
@@ -152,7 +150,7 @@ The following are mandatory constraints:
 3. Rust Security Core remains the security authority across supported platforms.
 4. UniFFI is an integration boundary, not a license to duplicate Rust security logic in platform code.
 5. Desktop and iOS must reuse the KMP Shared Layer.
-6. Web must remain isolated from current security-boundary decisions until explicitly approved.
+6. Web/Wasm is out of scope and must not be introduced without an explicit scope decision that updates this canonical platform reference.
 7. Adding a platform must not silently change the cryptographic protocol or key-management model.
 8. Platform-specific dependencies must remain behind explicit adapter boundaries.
 9. CI must validate every supported native target before that target is considered release-ready.
@@ -177,8 +175,8 @@ iOS
  ├─ device
  └─ simulator
 
-Web
- └─ deferred
+Web/Wasm
+ └─ out of scope
 ```
 
 The CI system should keep platform-independent tests in the shared layer and add platform-specific verification only where the runtime requires it.
@@ -219,10 +217,10 @@ No platform should be added merely by creating a new application directory.
 
 **Current implementation focus:** Android.
 
-**Parallel architectural focus:** KMP Shared Layer + Desktop readiness.
+**Architectural target:** Rust Security Core + KMP Shared Layer + Android/Desktop/iOS.
 
 **Next platform expansion:** iOS after Layer C and shared contracts stabilize.
 
-**Deferred expansion:** Web/Wasm.
+**Out of scope:** Web/Wasm applications.
 
 This baseline is the reference point for planning, implementation issues, CI matrices, and future platform ADRs.
