@@ -48,3 +48,12 @@ The connected repository can prove files committed to GitHub. It does not provid
 
 ## Owner / team use
 Ahmad Ragab (1AhmadEgy) is the coordination authority for the master source. All members should use this index, the architecture/reference documents, provenance register, and verification registers as the shared coordination baseline.
+
+## Canonical execution snapshot — G0-A
+
+- Canonical branch: `main`
+- Canonical commit: `46aa86b6d71d34396b86b35124392cb3ba49c2e9`
+- Canonical tree: `a7718840805359b042ec20a1781daaa5531ee47f`
+- Canonical reconciliation: `docs/13-execution/CANONICAL_RECONCILIATION_STATUS.md`
+- No separate `REPOSITORY-INVENTORY.md` exists on this snapshot. G0-A therefore does not introduce a parallel inventory taxonomy; the exact Git tree/commit plus this master source index are the canonical inventory coordination mechanism.
+- Pull requests, branches, archives, and conversations remain candidate/historical provenance until promoted through the verification gates.

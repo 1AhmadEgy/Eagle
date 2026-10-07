@@ -1,5 +1,41 @@
 # Eagle — Project File Provenance Register
 
+> **Canonical reconciliation:** `main@46aa86b6d71d34396b86b35124392cb3ba49c2e9` (2026-10-07)
+> The historical inventory below is preserved verbatim in substance. This reconciliation adds authority/scope rules without deleting historical provenance.
+
+## Current authority model
+
+| Source type | Authority | Meaning |
+|---|---|---|
+| MAIN | CANONICAL_IMPLEMENTATION | Exact file/tree state on canonical main |
+| PULL_REQUEST | VERIFIED_CANDIDATE | Candidate evidence; not main evidence until merged and re-verified |
+| BRANCH | VERIFIED_CANDIDATE / UNVERIFIED | Non-main candidate |
+| ARCHIVE | HISTORICAL_PROVENANCE | Historical reference only |
+| CONVERSATION | HISTORICAL_PROVENANCE / UNVERIFIED | Context only unless independently committed and verified |
+| EXTERNAL_REFERENCE | ACCEPTED_REFERENCE | Explicitly accepted external reference |
+
+## Invariants
+
+- `PR PASS != main PASS`.
+- `PROPOSED != ACCEPTED != IMPLEMENTED != VERIFIED != RELEASED`.
+- Git blob SHA is provenance evidence, not a SHA-256 checksum.
+- Claims require an exact source/commit/snapshot.
+- Historical material is not promoted automatically.
+- Independent SHA-256 is required where artifact integrity must be established.
+
+## Canonical implementation snapshot
+
+- Repository: `1AhmadEgy/Eagle`
+- Branch: `main`
+- Commit: `46aa86b6d71d34396b86b35124392cb3ba49c2e9`
+- Tree: `a7718840805359b042ec20a1781daaa5531ee47f`
+
+## Register scope
+
+This register preserves the historical file inventory below. Current implementation inventory is derived from the exact canonical main tree and coordinated through `docs/MASTER_PROJECT_SOURCE_INDEX.md`; no parallel repository-inventory taxonomy is introduced by G0-A.
+
+---
+
 > Registry generated from the historical Git tree at commit `812389dc9a19c52ca8089397c96a09d46957336b` (2026-10-01).
 > It records files that existed in the repository history and were subsequently removed from the current `main` tree. It does not claim that this list exhausts files uploaded only inside ChatGPT conversations.
 

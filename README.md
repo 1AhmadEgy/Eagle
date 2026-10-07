@@ -1,11 +1,53 @@
-<div align="center">
+# Eagle
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Eagle is a security-first, applications-only, multi-platform project targeting Android, Desktop (Windows/macOS/Linux), and iOS.
 
-  <h1>Built with AI Studio</h2>
+## Current canonical status
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+The canonical implementation is the exact `main` commit:
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+```text
+46aa86b6d71d34396b86b35124392cb3ba49c2e9
+```
 
-</div>
+That snapshot currently represents an Android implementation skeleton plus project documentation, CI/scripts, and security/test scaffolding.
+
+The following are **not established as production implementation on this exact main commit**:
+
+- Rust Security Core production workspace;
+- KMP shared production layer;
+- iOS application implementation;
+- Desktop application implementation;
+- production E2EE provider/runtime;
+- production P2P runtime;
+- production release verification.
+
+## Evidence authority
+
+- `main` exact commit = canonical implementation evidence.
+- Pull requests = candidate evidence only.
+- Non-main branches = candidate/non-canonical evidence.
+- Archives and conversation material = provenance/reference unless independently promoted.
+- `PR PASS != main PASS`.
+
+## Platform scope
+
+Supported application targets:
+
+- Android
+- Desktop: Windows, macOS, Linux
+- iOS
+
+**Web/Wasm is out of scope.**
+
+## Release status
+
+```text
+Sprint 0 = OPEN
+Sprint 1 = BLOCKED
+Release   = NO-GO
+```
+
+## Verification rule
+
+A component is not considered implemented, verified, or released merely because a proposal, branch, PR, document, or archive describes it. Each transition requires explicit evidence in the repository verification register.
