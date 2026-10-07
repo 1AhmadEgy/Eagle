@@ -8,6 +8,20 @@
 | ADR-0004 | إعطاء الأولوية للأمن وحماية الأسرار | معتمد | مبدأ المشروع |
 | ADR-0005 | توثيق كل قرار ومصدر وملف قابل للتتبع | معتمد | طلب توثيق المشروع |
 | ADR-0006 | عدم اعتبار المواد التاريخية غير المسترجعة متحققة | معتمد | قاعدة سلامة التوثيق |
+| G0-A-001 | اعتماد `main@46aa86b6d71d34396b86b35124392cb3ba49c2e9` كمرجع التنفيذ الحالي | معتمد للتسوية | GitHub exact-head evidence |
+| G0-A-002 | PR PASS لا يساوي main PASS | invariant | Verification governance |
+| G0-A-003 | فصل Proposed / Accepted / Implemented / Verified / Released | invariant | ADR governance |
+| G0-A-004 | PR #77 مصدر مرشح للتنفيذ وليس كتلة دمج جاهزة | معتمد للتعامل | Reconciliation baseline |
+| G0-A-005 | PR #89/#91 أدلة snapshot-dependent حتى تُحدّث بعد تغير main | معتمد للتعامل | Verification governance |
+| DOC-DRIFT-001 | توثيق مسار التنفيذ الحالي `app/` مقابل المسارات المعمارية المستهدفة | مفتوح | Repository reconciliation |
 
 ## قاعدة كتابة القرار
+
 كل قرار جديد يجب أن يوضح: السياق، المشكلة، الخيارات، القرار، الآثار، المخاطر، وطريقة التراجع/التغيير.
+
+## قواعد الحوكمة
+
+- لا يرقى PR إلى سلطة التنفيذ قبل دمجه.
+- لا يرقى implementation إلى VERIFIED قبل دليل exact-head.
+- لا يرقى VERIFIED إلى RELEASED قبل بوابة الإصدار.
+- أي تغيير في `main` يبطل أدلة الاختبارات التي لا تشمل exact head الجديد.
